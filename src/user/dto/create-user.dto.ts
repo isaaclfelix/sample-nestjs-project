@@ -17,9 +17,9 @@ const usernameSchema = z
 
 export const createUserSchema = z.object({
   email: z.email(),
-  password: z.string().min(8),
   username: usernameSchema,
   displayName: z.string().trim().min(1).max(50),
+  password: z.string().min(8),
 });
 
 export type CreateUserDto = z.infer<typeof createUserSchema>;
