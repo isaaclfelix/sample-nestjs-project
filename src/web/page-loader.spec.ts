@@ -62,13 +62,13 @@ describe('page loader', () => {
     const html = await entry.render(
       'home',
       { renderedAt: '2026-10-22T12:00:00.000Z' },
-      emptyAssetTags,
+      () => emptyAssetTags,
     );
 
     expect(html.startsWith('<!DOCTYPE html>')).toBe(true);
     expect(html).toContain(
       'Rendered on the server at 2026-10-22T12:00:00.000Z.',
     );
-    expect(html).not.toContain('data-island');
+    expect(html).toContain('data-island="counter"');
   });
 });

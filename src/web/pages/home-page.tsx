@@ -1,4 +1,6 @@
 import type { ReactElement } from 'react';
+import Counter from '../islands/counter.js';
+import { Island } from '../islands/island.js';
 import type { HomePageProps } from './home-page.props.js';
 
 /**
@@ -17,6 +19,7 @@ export function HomePage({ renderedAt }: HomePageProps): ReactElement {
   return (
     <main>
       <p>{renderedLine}</p>
+      <Island name="counter" component={Counter} props={{ start: 0 }} />
     </main>
   );
 }

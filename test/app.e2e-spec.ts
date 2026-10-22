@@ -22,7 +22,8 @@ describe('AppController (e2e)', () => {
     expect(response.status).toBe(200);
     expect(response.headers['content-type']).toMatch(/text\/html/);
     expect(response.text).toContain('Rendered on the server at ');
-    expect(response.text).not.toContain('data-island');
+    expect(response.text).toContain('data-island="counter"');
+    expect(response.text).toContain('/src/web/client/hydrate.tsx');
   });
 
   it('GET /api returns the greeting', () => {

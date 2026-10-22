@@ -10,7 +10,7 @@ export interface ServerEntry {
   render(
     page: WebPageName,
     props: HomePageProps,
-    assets: AssetTags,
+    createAssets: (islandNames: string[]) => AssetTags,
   ): Promise<string>;
 }
 
