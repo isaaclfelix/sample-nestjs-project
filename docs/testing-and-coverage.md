@@ -24,6 +24,8 @@ HTML report after `pnpm test:cov`: open `coverage/index.html` (directory is giti
 
 ## CI workflow
 
+CI installs with `pnpm install --frozen-lockfile`. Dependency build scripts are gated by [`pnpm-workspace.yaml`](../pnpm-workspace.yaml) `allowBuilds` (pnpm 12 `strictDepBuilds`). `@scarf/scarf` is denied (telemetry from OpenAPI tooling). If CI fails with `ERR_PNPM_IGNORED_BUILDS` for a new package, run `pnpm approve-builds <pkg>` or `pnpm approve-builds !<pkg>` locally and commit the YAML update.
+
 [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on every pull request and on pushes to `main`. Parallel jobs:
 
 | Job        | Command                               |
