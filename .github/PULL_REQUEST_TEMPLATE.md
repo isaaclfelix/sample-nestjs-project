@@ -37,7 +37,10 @@
 - [ ] Branch name matches CONTRIBUTING (`type/kebab-case`)
 - [ ] Commits follow Conventional Commits / Commitlint
 - [ ] `pnpm lint` passes (no warnings)
-- [ ] Relevant tests pass (`pnpm test` / `pnpm test:e2e` as applicable)
+- [ ] `pnpm build` passes (Nest/`tsc` compile)
+- [ ] Unit tests pass (`pnpm test`)
+- [ ] E2E tests pass or updated (`pnpm test:e2e`) when HTTP/controllers change
+- [ ] Coverage thresholds pass (`pnpm test:cov`)
 - [ ] Manual / API spotchecks for behavior changed in this PR (list below or N/A)
-- [ ] Docs updated if needed (`CONTRIBUTING.md`, README, `docs/known-tech-debt.md`)
+- [ ] Docs updated if needed (`CONTRIBUTING.md`, README, `docs/known-tech-debt.md`, `docs/testing-and-coverage.md`)
 - [ ] Ready for review
