@@ -59,15 +59,13 @@ describe('UserController (e2e)', () => {
       expect(body.username).toBe('Ada_Lovelace');
     });
 
-    it('does not honor client-supplied id or verified', async () => {
-      const { body, status } = await createUser({
+    it('rejects client-supplied id or verified', async () => {
+      const { status } = await createUser({
         id: '00000000-0000-4000-8000-000000000000',
         verified: true,
       });
 
-      expect(status).toBe(201);
-      expect(body.id).not.toBe('00000000-0000-4000-8000-000000000000');
-      expect(body.verified).toBe(false);
+      expect(status).toBe(400);
     });
 
     it.each([
@@ -81,12 +79,27 @@ describe('UserController (e2e)', () => {
       expect(status).toBe(400);
     });
 
-    it('currently allows a second user with the same email and username', async () => {
+    it('returns 409 when email or username is already taken', async () => {
       expect((await createUser()).status).toBe(201);
-      expect((await createUser()).status).toBe(201);
+      expect((await createUser()).status).toBe(409);
+      expect(
+        (await createUser({ email: 'other@example.com' })).status,
+      ).toBe(409);
+      expect(
+        (await createUser({ username: 'OtherUser' })).status,
+      ).toBe(409);
+    });
 
-      const { body } = await request(app.getHttpServer()).get('/user');
-      expect(body).toHaveLength(2);
+    it('returns 409 for a case-only duplicate username', async () => {
+      expect((await createUser()).status).toBe(201);
+      expect(
+        (
+          await createUser({
+            email: 'other@example.com',
+            username: 'ada_lovelace',
+          })
+        ).status,
+      ).toBe(409);
     });
   });
 
@@ -133,10 +146,10 @@ describe('UserController (e2e)', () => {
       expect(status).toBe(404);
     });
 
-    it('returns 404 for a non-uuid path (no UUID pipe on the param)', async () => {
+    it('returns 400 for a non-uuid path', async () => {
       const { status } = await request(app.getHttpServer()).get('/user/not-a-uuid');
 
-      expect(status).toBe(404);
+      expect(status).toBe(400);
     });
   });
 
@@ -154,21 +167,32 @@ describe('UserController (e2e)', () => {
       expect(body.username).toBe(created.username);
     });
 
-    it('accepts an empty body and leaves the user unchanged', async () => {
+    it('updates password only', async () => {
       const created = (await createUser()).body;
 
       const { status, body } = await request(app.getHttpServer())
         .patch(`/user/${created.id}`)
-        .send({});
+        .send({ password: 'new-password' });
 
       expect(status).toBe(200);
       expect(body).toEqual(created);
+      expect(body).not.toHaveProperty('password');
     });
 
-    it('silently ignores email and username on PATCH', async () => {
+    it('rejects an empty body', async () => {
       const created = (await createUser()).body;
 
-      const { status, body } = await request(app.getHttpServer())
+      const { status } = await request(app.getHttpServer())
+        .patch(`/user/${created.id}`)
+        .send({});
+
+      expect(status).toBe(400);
+    });
+
+    it('rejects email and username on PATCH', async () => {
+      const created = (await createUser()).body;
+
+      const { status } = await request(app.getHttpServer())
         .patch(`/user/${created.id}`)
         .send({
           email: 'new@example.com',
@@ -176,10 +200,7 @@ describe('UserController (e2e)', () => {
           displayName: 'Ada',
         });
 
-      expect(status).toBe(200);
-      expect(body.email).toBe(created.email);
-      expect(body.username).toBe(created.username);
-      expect(body.displayName).toBe('Ada');
+      expect(status).toBe(400);
     });
 
     it('returns 400 when a provided field is invalid', async () => {
@@ -198,6 +219,14 @@ describe('UserController (e2e)', () => {
         .send({ displayName: 'Ada' });
 
       expect(status).toBe(404);
+    });
+
+    it('returns 400 for a non-uuid path', async () => {
+      const { status } = await request(app.getHttpServer())
+        .patch('/user/not-a-uuid')
+        .send({ displayName: 'Ada' });
+
+      expect(status).toBe(400);
     });
   });
 
@@ -219,6 +248,10 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .delete('/user/11111111-1111-4111-8111-111111111111')
         .expect(204);
+    });
+
+    it('returns 400 for a non-uuid path', async () => {
+      await request(app.getHttpServer()).delete('/user/not-a-uuid').expect(400);
     });
   });
 });

@@ -12,10 +12,10 @@ const usernameSchema = z
       .regex(
         /^[a-zA-Z][a-zA-Z0-9_]*$/,
         'Must start with a letter and contain only letters, numbers, and underscores',
-    ),
+      ),
   );
 
-export const createUserSchema = z.object({
+export const createUserSchema = z.strictObject({
   email: z.email(),
   username: usernameSchema,
   displayName: z.string().trim().min(1).max(50),

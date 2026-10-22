@@ -1,0 +1,23 @@
+# Known tech debt
+
+This file records work we are **not** doing in the same change that found it. It keeps debt visible without encoding the bug as a passing test.
+
+## Policy
+
+- The **main** suite (`*.spec.ts`, `*.e2e-spec.ts` except the debt file) asserts behavior we support **now**, including edge cases of that contract.
+- Do **not** add green tests whose job is to show the product is wrong (for example `currently allows duplicate emails`).
+- If the desired behavior is testable and **not** fixed in the same PR: add a row here **and** an `it.fails(...)` spec that asserts the **desired** contract.
+- If Vitest reports an **unexpected pass** on an `it.fails` example, the product caught up. Move that spec into the main suite (drop `.fails`) and remove or strike the row here.
+- If the debt cannot be asserted cheaply (needs Mongo, ops config, etc.), document it here only.
+
+DELETE `/user/:id` returning **204** whether or not the user existed is an intentional contract, not debt.
+
+## Open items
+
+| ID | Area | Desired | Current | Why deferred | Spec |
+|---|---|---|---|---|---|
+| TD-001 | Auth | Unauthenticated writes to `/user` return **401** | Anyone can `POST`/`PATCH`/`DELETE` (201/200/204) | Auth is a later feature | [test/known-tech-debt.e2e-spec.ts](../test/known-tech-debt.e2e-spec.ts) |
+| TD-002 | Persistence | Unique `email` / `username` enforced by Mongo indexes | Uniqueness is an in-memory scan of `UserService` | Document store not wired yet | Doc only |
+| TD-003 | Users | Changing email or username via a dedicated flow (with uniqueness) | PATCH rejects those keys; fields are immutable for now | Deferred until verification and uniqueness on update | Doc only |
+| TD-004 | Passwords | Stronger policy than `min(8)` (e.g. mixed case / digit) | `password` only requires length ≥ 8 | Keep signup simple until auth exists | [test/known-tech-debt.spec.ts](../test/known-tech-debt.spec.ts) |
+| TD-005 | Passwords | Argon2 cost parameters from config | Hardcoded in `src/common/password.ts` | Fine until we tune for production hardware | Doc only |

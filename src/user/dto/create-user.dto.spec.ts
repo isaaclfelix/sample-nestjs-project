@@ -34,18 +34,15 @@ describe('createUserSchema', () => {
     expect(parsed.displayName).toBe('Ada Lovelace');
   });
 
-  it('strips unknown fields such as id, verified, and extra keys', () => {
-    const parsed = createUserSchema.parse({
+  it('rejects unknown fields such as id, verified, and extra keys', () => {
+    const result = createUserSchema.safeParse({
       ...validInput,
       id: '00000000-0000-4000-8000-000000000000',
       verified: true,
       role: 'admin',
     });
 
-    expect(parsed).toEqual(validInput);
-    expect(parsed).not.toHaveProperty('id');
-    expect(parsed).not.toHaveProperty('verified');
-    expect(parsed).not.toHaveProperty('role');
+    expect(result.success).toBe(false);
   });
 
   it.each([

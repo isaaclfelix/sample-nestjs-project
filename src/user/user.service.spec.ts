@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { UserService } from './user.service.js';
 import { hashPassword } from '../common/password.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
@@ -55,23 +55,50 @@ describe('UserService', () => {
       expect(first.id).not.toBe(second.id);
     });
 
-    it('currently allows duplicate emails and usernames', async () => {
-      const first = await service.create(createUserDto);
-      const second = await service.create(createUserDto);
+    it('rejects a duplicate email', async () => {
+      await service.create(createUserDto);
 
-      expect(first.id).not.toBe(second.id);
-      expect(second.email).toBe(first.email);
-      expect(second.username).toBe(first.username);
+      await expect(
+        service.create({
+          ...createUserDto,
+          username: 'OtherUser',
+        }),
+      ).rejects.toBeInstanceOf(ConflictException);
     });
 
-    it('currently lets extra DTO properties overwrite the generated id (Zod is the only strip)', async () => {
+    it('rejects a duplicate username regardless of casing', async () => {
+      await service.create(createUserDto);
+
+      await expect(
+        service.create({
+          ...createUserDto,
+          email: 'other@example.com',
+          username: 'ada_lovelace',
+        }),
+      ).rejects.toBeInstanceOf(ConflictException);
+    });
+
+    it('rejects a duplicate email regardless of casing', async () => {
+      await service.create(createUserDto);
+
+      await expect(
+        service.create({
+          ...createUserDto,
+          email: 'ADA@EXAMPLE.COM',
+          username: 'OtherUser',
+        }),
+      ).rejects.toBeInstanceOf(ConflictException);
+    });
+
+    it('ignores extra DTO properties and always generates id and verified', async () => {
       const created = await service.create({
         ...createUserDto,
         id: '00000000-0000-4000-8000-000000000000',
         verified: true,
       } as CreateUserDto);
 
-      expect(created.id).toBe('00000000-0000-4000-8000-000000000000');
+      expect(created.id).not.toBe('00000000-0000-4000-8000-000000000000');
+      expect(created.id).toEqual(expect.any(String));
       expect(created.verified).toBe(false);
     });
   });
@@ -136,7 +163,7 @@ describe('UserService', () => {
       expect(hashPassword).toHaveBeenCalledWith('new-password');
     });
 
-    it('does not apply email or username even if present on the DTO type at runtime', async () => {
+    it('does not apply email or username even if present at runtime', async () => {
       const created = await service.create(createUserDto);
 
       const updated = await service.update(created.id, {

@@ -1,8 +1,8 @@
 import { updateUserSchema } from './update-user.dto.js';
 
 describe('updateUserSchema', () => {
-  it('accepts an empty object (all fields optional)', () => {
-    expect(updateUserSchema.parse({})).toEqual({});
+  it('rejects an empty object', () => {
+    expect(updateUserSchema.safeParse({}).success).toBe(false);
   });
 
   it('accepts displayName and/or password independently', () => {
@@ -14,16 +14,14 @@ describe('updateUserSchema', () => {
     });
   });
 
-  it('strips email and username instead of applying them (current PATCH contract)', () => {
-    const parsed = updateUserSchema.parse({
+  it('rejects email and username instead of applying them', () => {
+    const result = updateUserSchema.safeParse({
       email: 'new@example.com',
       username: 'new_handle',
       displayName: 'Ada',
     });
 
-    expect(parsed).toEqual({ displayName: 'Ada' });
-    expect(parsed).not.toHaveProperty('email');
-    expect(parsed).not.toHaveProperty('username');
+    expect(result.success).toBe(false);
   });
 
   it('still enforces create rules on fields that are present', () => {
@@ -33,13 +31,13 @@ describe('updateUserSchema', () => {
     expect(updateUserSchema.safeParse({ displayName: '' }).success).toBe(false);
   });
 
-  it('strips unknown keys rather than rejecting them', () => {
-    const parsed = updateUserSchema.parse({
+  it('rejects unknown keys', () => {
+    const result = updateUserSchema.safeParse({
       displayName: 'Ada',
       verified: true,
       role: 'admin',
     });
 
-    expect(parsed).toEqual({ displayName: 'Ada' });
+    expect(result.success).toBe(false);
   });
 });

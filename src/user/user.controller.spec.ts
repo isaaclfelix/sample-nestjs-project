@@ -74,10 +74,11 @@ describe('UserController', () => {
   });
 
   it('declares 204 for the delete handler', () => {
-    const httpCode = Reflect.getMetadata(
-      '__httpCode__',
-      UserController.prototype.remove,
-    );
+    const handler = Object.getOwnPropertyDescriptor(
+      UserController.prototype,
+      'remove',
+    )?.value as ((id: string) => void) | undefined;
+    const httpCode = Reflect.getMetadata('__httpCode__', handler as object);
     expect(httpCode).toBe(HttpStatus.NO_CONTENT);
   });
 });

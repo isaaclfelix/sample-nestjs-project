@@ -2,7 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule, ObserveInstrument } from './app.module.js';
 import { StandardSchemaValidationPipe } from '@nestjs/common';
 
-async function bootstrap() {
+/**
+ * Starts the Nest HTTP application.
+ *
+ * Registers the global Standard Schema validation pipe and listens on PORT or 3000.
+ *
+ * @returns {Promise<void>} Resolves when the server is listening.
+ */
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
     instrument: ObserveInstrument,
   });
