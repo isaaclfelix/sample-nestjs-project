@@ -23,9 +23,9 @@ describe('OpenAPI (e2e)', () => {
     await app.close();
   });
 
-  it('GET /api-json exposes OpenAPI paths for /user', async () => {
+  it('GET /docs-json exposes OpenAPI paths for /user', async () => {
     const { status, body } = await request(app.getHttpServer()).get(
-      '/api-json',
+      '/docs-json',
     );
 
     expect(status).toBe(200);

@@ -7,7 +7,7 @@ import { setupOpenApi } from './openapi.setup.js';
  * Starts the Nest HTTP application.
  *
  * Registers the global Standard Schema validation pipe, mounts Swagger UI at
- * `/api`, and listens on PORT or 3000.
+ * `/docs`, and listens on PORT or 3000.
  *
  * @returns {Promise<void>} Resolves when the server is listening.
  */
