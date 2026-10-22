@@ -34,3 +34,36 @@ Required shape:
 - Add `@throws` when the function throws a Nest HTTP exception (`NotFoundException`, `ConflictException`).
 - Private methods get JSDoc too.
 - Keep JSDoc in sync with TypeScript; do not omit types because the signature already has them.
+
+## 3. Explicit parameter and return types
+
+Every function and method in application source must declare **TypeScript types on the signature**, not only in JSDoc.
+
+```ts
+create(@Body({ schema: createUserSchema }) createUserDto: CreateUserDto): Promise<UserResponseDto> {
+  return this.userService.create(createUserDto);
+}
+```
+
+- Annotate every parameter (`id: string`, `createUserDto: CreateUserDto`). Nest parameter decorators do not replace the type.
+- Annotate the return type (`: Promise<UserResponseDto>`, `: UserResponseDto[]`, `: void`). Do not rely on inference for exported/public methods.
+- Async functions return `Promise<...>`. Methods that return nothing use `: void`.
+- Constructors only need parameter types (no return type).
+- When creating or updating code, add any missing signature types. JSDoc types and declaration types must match.
+
+## 4. Lint and TypeScript after changes
+
+After adding or updating code, **run the project checks and fix failures** before considering the work done. Treat **warnings the same as errors**: do not leave oxlint or TypeScript warnings or errors for the user.
+
+Commands (from the repo root, via `pnpm`):
+
+| Check | Script | What it does |
+|---|---|---|
+| Lint + types | `pnpm lint` | `oxlint --type-aware --deny-warnings src/ test/` |
+| Compile | `pnpm build` | Nest/`tsc` emit; catches type errors oxlint might miss |
+| Format | `pnpm format` | Prettier write on `src/**/*.ts` and `test/**/*.ts` |
+
+- Always run **`pnpm lint`** after substantive edits. It must exit 0 with **no warnings**.
+- Run **`pnpm build`** when signatures, modules, or `tsconfig` are involved.
+- Run **`pnpm format`** if lint/format would otherwise churn, or after large edits.
+- If checks fail (including warnings), fix the code (or format) and re-run until they pass. Do not suppress rules to hide warnings unless the user asks.
