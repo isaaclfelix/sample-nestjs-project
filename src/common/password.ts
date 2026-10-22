@@ -15,12 +15,13 @@ const ARGON2_PARAMS = {
 } as const;
 
 /**
- * Hashes a password using Argon2id for safe peristent storage.
+ * Hashes a password using Argon2id for safe persistent storage.
+ *
+ * Generates a random salt and encodes algorithm, cost parameters, salt, and
+ * hash into a single string so verifyPassword can rebuild the same derivation.
  *
  * @param {string} plaintextPassword - The password to hash in plain text.
- *
- * @returns {Promise<string>} The hashed password as a string of the format:
- * "argon2id$memory$passes$parallelism$tagLength$saltB64$hashB64"
+ * @returns {Promise<string>} Encoded record: argon2id$memory$passes$parallelism$tagLength$saltB64$hashB64.
  */
 export async function hashPassword(plaintextPassword: string): Promise<string> {
   // Generate a random salt.
@@ -46,12 +47,14 @@ export async function hashPassword(plaintextPassword: string): Promise<string> {
 }
 
 /**
- * Verifies a password against an encoded password.
+ * Checks a plaintext password against a stored Argon2id encoding.
  *
- * @param {string} encodedPassword - The encoded password to verify.
- * @param {string} plaintextPassword - The password to verify in plain text.
+ * Parses salt and cost from the encoded string, derives a new hash, and
+ * compares with timingSafeEqual. Malformed encodings return false.
  *
- * @returns {boolean} True if the password is verified, false otherwise.
+ * @param {string} encodedPassword - Stored hashPassword output.
+ * @param {string} plaintextPassword - Candidate password in plain text.
+ * @returns {Promise<boolean>} True when the password matches; false otherwise.
  */
 export async function verifyPassword(
   encodedPassword: string,
