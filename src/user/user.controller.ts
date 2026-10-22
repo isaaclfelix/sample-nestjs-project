@@ -9,14 +9,34 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { z } from 'zod';
 import { UserService } from './user.service.js';
 import { createUserSchema, type CreateUserDto } from './dto/create-user.dto.js';
 import { updateUserSchema, type UpdateUserDto } from './dto/update-user.dto.js';
-import type { UserResponseDto } from './dto/user-response.dto.js';
+import {
+  userResponseSchema,
+  type UserResponseDto,
+} from './dto/user-response.dto.js';
+import { toOpenApiSchema } from '../common/openapi-schema.js';
 
 const userIdSchema = z.uuid();
+const userResponseOpenApi = toOpenApiSchema(userResponseSchema);
+const userResponseListOpenApi = {
+  type: 'array' as const,
+  items: userResponseOpenApi,
+};
 
+@ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -30,6 +50,15 @@ export class UserController {
    * @returns {Promise<UserResponseDto>} The created public user (HTTP 201).
    */
   @Post()
+  @ApiOperation({ summary: 'Create a user' })
+  @ApiCreatedResponse({
+    description: 'User created.',
+    schema: userResponseOpenApi,
+  })
+  @ApiBadRequestResponse({ description: 'Request body failed validation.' })
+  @ApiConflictResponse({
+    description: 'Email or username already in use.',
+  })
   create(
     @Body({ schema: createUserSchema }) createUserDto: CreateUserDto,
   ): Promise<UserResponseDto> {
@@ -42,6 +71,11 @@ export class UserController {
    * @returns {UserResponseDto[]} Public user records (HTTP 200).
    */
   @Get()
+  @ApiOperation({ summary: 'List users' })
+  @ApiOkResponse({
+    description: 'All public users.',
+    schema: userResponseListOpenApi,
+  })
   findAll(): UserResponseDto[] {
     return this.userService.findAll();
   }
@@ -53,6 +87,13 @@ export class UserController {
    * @returns {UserResponseDto} The public user (HTTP 200).
    */
   @Get(':id')
+  @ApiOperation({ summary: 'Get a user by id' })
+  @ApiOkResponse({
+    description: 'Public user profile.',
+    schema: userResponseOpenApi,
+  })
+  @ApiBadRequestResponse({ description: 'Path id is not a valid UUID.' })
+  @ApiNotFoundResponse({ description: 'No user exists for the given id.' })
   findOne(@Param('id', { schema: userIdSchema }) id: string): UserResponseDto {
     return this.userService.findOne(id);
   }
@@ -67,6 +108,15 @@ export class UserController {
    * @returns {Promise<UserResponseDto>} The updated public user (HTTP 200).
    */
   @Patch(':id')
+  @ApiOperation({ summary: 'Update a user' })
+  @ApiOkResponse({
+    description: 'Updated public user profile.',
+    schema: userResponseOpenApi,
+  })
+  @ApiBadRequestResponse({
+    description: 'Path id or body failed validation.',
+  })
+  @ApiNotFoundResponse({ description: 'No user exists for the given id.' })
   update(
     @Param('id', { schema: userIdSchema }) id: string,
     @Body({ schema: updateUserSchema }) updateUserDto: UpdateUserDto,
@@ -84,6 +134,11 @@ export class UserController {
    */
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a user' })
+  @ApiNoContentResponse({
+    description: 'User deleted, or id was already absent.',
+  })
+  @ApiBadRequestResponse({ description: 'Path id is not a valid UUID.' })
   remove(@Param('id', { schema: userIdSchema }) id: string): void {
     return this.userService.remove(id);
   }

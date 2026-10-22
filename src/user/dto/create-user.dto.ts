@@ -19,7 +19,7 @@ export const createUserSchema = z.strictObject({
   email: z.email(),
   username: usernameSchema,
   displayName: z.string().trim().min(1).max(50),
-  password: z.string().min(8),
+  password: z.string().min(8).meta({ example: 'password1' }),
 });
 
 export type CreateUserDto = z.infer<typeof createUserSchema>;

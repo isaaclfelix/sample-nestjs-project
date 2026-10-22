@@ -46,6 +46,10 @@ $ pnpm run start:dev
 $ pnpm run start:prod
 ```
 
+## API documentation
+
+With the app running, open [http://localhost:3000/api](http://localhost:3000/api) for Swagger UI, or [http://localhost:3000/api-json](http://localhost:3000/api-json) for the raw OpenAPI document.
+
 ## Run tests
 
 ```bash
