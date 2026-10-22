@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule, ObserveInstrument } from './app.module.js';
 import { StandardSchemaValidationPipe } from '@nestjs/common';
 import { setupOpenApi } from './api/openapi.setup.js';
+import { setViteDevServer } from './web/page-loader.js';
 
 /**
  * Starts the Nest HTTP application.
@@ -18,6 +19,17 @@ async function bootstrap(): Promise<void> {
 
   app.useGlobalPipes(new StandardSchemaValidationPipe());
   setupOpenApi(app);
+
+  // Dev SSR loads TSX through Vite. Production uses the built server bundle.
+  if (process.env.NODE_ENV !== 'production') {
+    const { createServer } = await import('vite');
+    const vite = await createServer({
+      server: { middlewareMode: true },
+      appType: 'custom',
+    });
+    setViteDevServer(vite);
+    app.use(vite.middlewares);
+  }
 
   await app.listen(process.env.PORT ?? 3000);
 }

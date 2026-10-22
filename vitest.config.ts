@@ -20,6 +20,7 @@ export default defineConfig({
         'src/main.ts',
         'src/**/*.module.ts',
         'src/**/*.spec.ts',
+        'src/**/*.tsx',
         '**/node_modules/**',
         '**/dist/**',
       ],

@@ -16,9 +16,18 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  it('GET / renders the home page', async () => {
+    const response = await request(app.getHttpServer()).get('/');
+
+    expect(response.status).toBe(200);
+    expect(response.headers['content-type']).toMatch(/text\/html/);
+    expect(response.text).toContain('Rendered on the server at ');
+    expect(response.text).not.toContain('data-island');
+  });
+
+  it('GET /api returns the greeting', () => {
     return request(app.getHttpServer())
-      .get('/')
+      .get('/api')
       .expect(200)
       .expect('Hello World!');
   });
