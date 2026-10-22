@@ -62,6 +62,14 @@ A **Husky** `commit-msg` hook runs Commitlint on every commit message.
 
 After cloning, run **`pnpm install`** so the `prepare` script installs Husky hooks. On Windows, use **Git for Windows** or **WSL** so hooks run with `sh`.
 
+### Pull requests
+
+- **Base branch** defaults to **`main`** unless you specify another base.
+- PR body sections are defined in [`.github/PULL_REQUEST_TEMPLATE.md`](./.github/PULL_REQUEST_TEMPLATE.md) (Summary, Motivation, Changes, Risks / notes, Tech debt, Spotcheck).
+- Agents (and anyone using Cursor skills) should follow [`.agents/skills/create-pr/SKILL.md`](./.agents/skills/create-pr/SKILL.md): push the branch with `gh`, create a new PR, or **update** an existing open PR’s title/body when the description needs to reflect the latest commits. Ask explicitly (e.g. `/create-pr`).
+
+**Requires:** `origin` remote, [GitHub CLI](https://cli.github.com/) (`gh`) authenticated (`gh auth login`).
+
 ## Formatting and lint
 
 Code style is **[Prettier](https://prettier.io/)** (see [`.prettierrc`](./.prettierrc)). Indent, charset, and line endings are also declared in [`.editorconfig`](./.editorconfig) for editors that do not run Prettier. Lint is **[oxlint](https://oxc.rs/docs/guide/usage/linter)** with the **correctness** category as errors and `--type-aware --deny-warnings` (warnings fail the check). See [AGENTS.md](./AGENTS.md) for agent rules.
