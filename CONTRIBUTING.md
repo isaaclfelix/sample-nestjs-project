@@ -67,6 +67,7 @@ After cloning, run **`pnpm install`** so the `prepare` script installs Husky hoo
 - **Base branch** defaults to **`main`** unless you specify another base.
 - PR body sections are defined in [`.github/PULL_REQUEST_TEMPLATE.md`](./.github/PULL_REQUEST_TEMPLATE.md) (Summary, Motivation, Changes, Risks / notes, Tech debt, Spotcheck).
 - Agents (and anyone using Cursor skills) should follow [`.agents/skills/create-pr/SKILL.md`](./.agents/skills/create-pr/SKILL.md): push the branch with `gh`, create a new PR, or **update** an existing open PR’s title/body when the description needs to reflect the latest commits. Ask explicitly (e.g. `/create-pr`).
+- CI runs on every PR (see [Testing, coverage, and CI](#testing-coverage-and-ci) below).
 
 **Requires:** `origin` remote, [GitHub CLI](https://cli.github.com/) (`gh`) authenticated (`gh auth login`).
 
@@ -90,10 +91,25 @@ Workspace settings enable format-on-save with Prettier and oxlint in the editor 
 
 - `pnpm format` — format TypeScript under `src/` and `test/`, plus root/docs `*.json` / `*.md`.
 - `pnpm format:check` — verify formatting without writing.
-- `pnpm lint` — run oxlint (must pass with no warnings).
+- `pnpm lint` — run oxlint (must pass with no warnings). Type-aware, but **not** a full TypeScript emit — also run `pnpm build`.
+- `pnpm build` — Nest/`tsc` compile (authoritative typecheck).
 
 ### Pre-commit hook (lint-staged)
 
 A **Husky** `pre-commit` hook runs **[lint-staged](https://github.com/lint-staged/lint-staged)** on staged files: oxlint + Prettier for `*.ts`, Prettier for `*.{json,md}`.
 
 **Bypass when you must** (emergency only): same `HUSKY=0` pattern as above.
+
+## Testing, coverage, and CI
+
+Full policy: [docs/testing-and-coverage.md](./docs/testing-and-coverage.md).
+
+| Command         | Role                                            |
+| --------------- | ----------------------------------------------- |
+| `pnpm test`     | Unit suite (`*.spec.ts`)                        |
+| `pnpm test:e2e` | E2E suite (`*.e2e-spec.ts`)                     |
+| `pnpm test:cov` | Units + coverage; fails below Vitest thresholds |
+
+- Coverage is **unit-only** (see Vitest config). E2E is a separate behavioral gate.
+- When you change **controllers or HTTP contracts**, update or add e2e specs in the same PR.
+- GitHub Actions workflow **CI** (`.github/workflows/ci.yml`) runs parallel jobs: `lint`, `build`, `unit`, `e2e`, `coverage`. All must be green; an admin should require those checks on `main` (steps in the docs above).

@@ -59,9 +59,11 @@ $ pnpm run test
 # e2e tests
 $ pnpm run test:e2e
 
-# test coverage
+# test coverage (enforces Vitest thresholds; see docs/testing-and-coverage.md)
 $ pnpm run test:cov
 ```
+
+CI (GitHub Actions) runs `lint`, `build`, `unit`, `e2e`, and `coverage` on every PR. Policy and branch-protection steps: [docs/testing-and-coverage.md](./docs/testing-and-coverage.md).
 
 ## Deployment
 

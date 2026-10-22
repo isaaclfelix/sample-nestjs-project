@@ -60,9 +60,12 @@ Section order is fixed. Omit **Changes** only when **Summary** already covers th
 - [ ] Branch name matches CONTRIBUTING (`type/kebab-case`)
 - [ ] Commits follow Conventional Commits / Commitlint
 - [ ] `pnpm lint` passes (no warnings)
-- [ ] Relevant tests pass (`pnpm test` / `pnpm test:e2e` as applicable)
+- [ ] `pnpm build` passes (Nest/`tsc` compile)
+- [ ] Unit tests pass (`pnpm test`)
+- [ ] E2E tests pass or updated (`pnpm test:e2e`) when HTTP/controllers change
+- [ ] Coverage thresholds pass (`pnpm test:cov`)
 - [ ] Manual / API spotchecks for behavior changed in this PR (list below or N/A)
-- [ ] Docs updated if needed (`CONTRIBUTING.md`, README, `docs/known-tech-debt.md`)
+- [ ] Docs updated if needed (`CONTRIBUTING.md`, README, `docs/known-tech-debt.md`, `docs/testing-and-coverage.md`)
 - [ ] Ready for review
 ```
 
@@ -76,7 +79,7 @@ Section order is fixed. Omit **Changes** only when **Summary** already covers th
   - If nothing applies: one bullet `- **None**`
   - Else list each item with ID when known, e.g. `- **TD-001** ([docs/known-tech-debt.md](../docs/known-tech-debt.md)): …`
   - Call out **new** debt this PR introduces (and that docs/`it.fails` were updated) or **resolved** debt (ID + cleanup).
-- **Spotcheck:** Single bottom sign-off (no separate Checklist). Check boxes only for steps actually verified in this session. Nest defaults: `pnpm lint`, `pnpm test`, `pnpm test:e2e`, plus HTTP/API checks when endpoints change. Do **not** check **Ready for review** unless the user asked to assert that. Add PR-specific bullets under the manual/API line when useful.
+- **Spotcheck:** Single bottom sign-off (no separate Checklist). Check boxes only for steps actually verified in this session. Nest defaults: `pnpm lint`, `pnpm build`, `pnpm test`, `pnpm test:e2e`, `pnpm test:cov`, plus HTTP/API checks when endpoints change. Do **not** check **Ready for review** unless the user asked to assert that. Add PR-specific bullets under the manual/API line when useful. See [docs/testing-and-coverage.md](../../../docs/testing-and-coverage.md).
 
 ## Workflow
 

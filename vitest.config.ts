@@ -8,5 +8,27 @@ export default defineConfig({
     globals: true,
     root: './',
     include: ['**/*.spec.ts'],
+    coverage: {
+      provider: 'v8',
+      reportsDirectory: './coverage',
+      reporter: ['text', 'html', 'lcov', 'json-summary', 'json'],
+      // App source only; Nest wiring and bootstrap are excluded as low-value noise.
+      include: ['src/**/*.ts'],
+      exclude: [
+        'src/main.ts',
+        'src/**/*.module.ts',
+        'src/**/*.spec.ts',
+        '**/node_modules/**',
+        '**/dist/**',
+      ],
+      // Floors locked ~2pts under measured baseline after include/exclude
+      // (logger.middleware + openapi.setup uncovered; see docs/testing-and-coverage.md).
+      thresholds: {
+        statements: 86,
+        branches: 100,
+        functions: 86,
+        lines: 87,
+      },
+    },
   },
 });
