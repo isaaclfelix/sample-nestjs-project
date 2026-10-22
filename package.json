@@ -10,6 +10,8 @@
     "build": "nest build",
     "deploy": "nest deploy",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
+    "prepare": "husky",
     "start": "nest start --env-file .env",
     "start:dev": "nest start --watch --env-file .env",
     "start:debug": "nest start --debug --watch --env-file .env",
@@ -32,6 +34,8 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
     "@nestjs/cli": "^12.0.0",
     "@nestjs/mau": "^0.2.6",
     "@nestjs/schematics": "^12.0.0",
@@ -40,6 +44,8 @@
     "@types/node": "^24.0.0",
     "@types/supertest": "^7.0.0",
     "@vitest/coverage-v8": "^4.1.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
     "oxlint": "^1.58.0",
     "oxlint-tsgolint": "^7.0.2001",
     "prettier": "^3.4.2",
@@ -52,5 +58,14 @@
   "engines": {
     "node": ">=24.7.0"
   },
-  "engineStrict": true
+  "engineStrict": true,
+  "lint-staged": {
+    "*.ts": [
+      "oxlint --type-aware --deny-warnings --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  }
 }
