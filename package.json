@@ -9,8 +9,8 @@
   "scripts": {
     "build": "nest build",
     "deploy": "nest deploy",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"*.json\" \"*.md\" \"docs/**/*.md\"",
-    "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\" \"*.json\" \"*.md\" \"docs/**/*.md\"",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.tsx\" \"test/**/*.ts\" \"test/**/*.tsx\" \"*.json\" \"*.md\" \"docs/**/*.md\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"src/**/*.tsx\" \"test/**/*.ts\" \"test/**/*.tsx\" \"*.json\" \"*.md\" \"docs/**/*.md\"",
     "prepare": "husky",
     "start": "nest start --env-file .env",
     "start:dev": "nest start --watch --env-file .env",
@@ -30,6 +30,8 @@
     "@nestjs/observe": "^0.3.0",
     "@nestjs/platform-express": "^12.0.1",
     "@nestjs/swagger": "^12.0.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "zod": "^4.6.7"
@@ -44,7 +46,9 @@
     "@types/express": "^5.0.0",
     "@types/node": "^24.0.0",
     "@types/supertest": "^7.0.0",
+    "@vitejs/plugin-react": "^6.1.2",
     "@vitest/coverage-v8": "^4.1.2",
+    "happy-dom": "^21.0.4",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
     "oxlint": "^1.58.0",
@@ -61,7 +65,7 @@
   },
   "engineStrict": true,
   "lint-staged": {
-    "*.ts": [
+    "*.{ts,tsx}": [
       "oxlint --type-aware --deny-warnings --fix",
       "prettier --write"
     ],
