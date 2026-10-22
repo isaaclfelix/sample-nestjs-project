@@ -10,6 +10,8 @@ description: >-
 
 Create commits **only when the user explicitly asks** (e.g. "commit this", "make a commit"). If unclear, ask first.
 
+The incremental-commits section in [AGENTS.md](../../../AGENTS.md) is an explicit ask. When that rule applies, commit each finished slice without waiting for another message. Do not push unless the user asks.
+
 This NestJS project enforces [Conventional Commits](https://www.conventionalcommits.org/) with **Commitlint** (`@commitlint/config-conventional`) via a Husky `commit-msg` hook. See [CONTRIBUTING.md](../../../CONTRIBUTING.md).
 
 ## Message format
@@ -67,7 +69,7 @@ git diff --staged
 git log -10 --format="%s%n%n%b---"
 ```
 
-Read staged and unstaged diffs. If nothing is staged, stage only files that belong to this commit (never secrets: `.env`, credentials, keys).
+Read staged and unstaged diffs. If files that belong to this commit are unstaged, stage those paths before drafting the message. Do this whether the index is empty or already has other files. Stage only the paths for this commit, and leave files that belong to a later slice unstaged. Never stage secrets: `.env`, credentials, or keys. An unstaged tree is not a reason to skip the commit.
 
 ### 2. Draft the message
 
@@ -179,8 +181,9 @@ Emergency bypass (only if user explicitly requests): `HUSKY=0 git commit` (Bash/
 
 ## Checklist before committing
 
-- [ ] User explicitly requested a commit
-- [ ] No secrets or local-only env files staged
+- [ ] User explicitly requested a commit, or AGENTS.md incremental commits applies
+- [ ] Paths for this commit are staged, including ones that were unstaged
+- [ ] Later slices and secrets (`.env`, credentials, keys) are not staged
 - [ ] Subject passes Conventional Commits (`pnpm exec commitlint`)
 - [ ] Body included when the change is not very small; otherwise subject-only is enough
 - [ ] Type and scope match the diff
