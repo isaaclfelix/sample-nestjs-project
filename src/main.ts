@@ -1,13 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule, ObserveInstrument } from './app.module.js';
 import { StandardSchemaValidationPipe } from '@nestjs/common';
-import { setupOpenApi } from './openapi.setup.js';
+import { setupOpenApi } from './api/openapi.setup.js';
 
 /**
  * Starts the Nest HTTP application.
  *
  * Registers the global Standard Schema validation pipe, mounts Swagger UI at
- * `/docs`, and listens on PORT or 3000.
+ * `/api/docs`, and listens on PORT or 3000.
  *
  * @returns {Promise<void>} Resolves when the server is listening.
  */

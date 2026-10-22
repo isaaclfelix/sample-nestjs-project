@@ -4,7 +4,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 /**
  * Registers OpenAPI document generation and Swagger UI on the app.
  *
- * Mounts the interactive UI at `/docs` and the raw JSON spec at `/docs-json`
+ * Mounts the interactive UI at `/api/docs` and the raw JSON spec at
+ * `/api/docs-json`
  * (Nest's default `{path}-json` URL). Call after global pipes so documented
  * routes match runtime validation.
  *
@@ -21,5 +22,5 @@ export function setupOpenApi(app: INestApplication): void {
 
   // Defer document generation until first request so init stays cheap.
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, documentFactory);
+  SwaggerModule.setup('api/docs', app, documentFactory);
 }

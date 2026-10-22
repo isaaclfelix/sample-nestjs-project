@@ -59,4 +59,4 @@ Documented for later; do not treat these as current requirements:
 - **Mutation testing (StrykerJS)** — measures whether tests would fail if code were wrong; stronger than line coverage, slower to run.
 - **Merged unit + e2e coverage** — costly and noisy for Nest bootstrap; usually not worth it early.
 - **SonarQube / SonarCloud** — broader quality gates.
-- **Path-specific thresholds** — e.g. a higher floor for `src/user/**`.
+- **Path-specific thresholds** — e.g. a higher floor for `src/api/user/**`.
