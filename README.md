@@ -50,6 +50,8 @@ $ pnpm run start:prod
 
 With the app running, open [http://localhost:3000/api/docs](http://localhost:3000/api/docs) for Swagger UI, or [http://localhost:3000/api/docs-json](http://localhost:3000/api/docs-json) for the raw OpenAPI document.
 
+How the JSON API and the React page layer share this process: [docs/architecture.md](./docs/architecture.md).
+
 ## Run tests
 
 ```bash
