@@ -64,11 +64,23 @@ After cloning, run **`pnpm install`** so the `prepare` script installs Husky hoo
 
 ## Formatting and lint
 
-Code style is **[Prettier](https://prettier.io/)**. Lint is **[oxlint](https://oxc.rs/docs/guide/usage/linter)** with `--type-aware --deny-warnings` (warnings fail the check). See [AGENTS.md](./AGENTS.md) for agent rules.
+Code style is **[Prettier](https://prettier.io/)** (see [`.prettierrc`](./.prettierrc)). Indent, charset, and line endings are also declared in [`.editorconfig`](./.editorconfig) for editors that do not run Prettier. Lint is **[oxlint](https://oxc.rs/docs/guide/usage/linter)** with the **correctness** category as errors and `--type-aware --deny-warnings` (warnings fail the check). See [AGENTS.md](./AGENTS.md) for agent rules.
+
+### Editor setup (Cursor / VS Code)
+
+This repo commits [`.vscode/extensions.json`](./.vscode/extensions.json) and [`.vscode/settings.json`](./.vscode/settings.json). Install the recommended extensions when prompted:
+
+| Extension    | ID                          | Role                                                     |
+| ------------ | --------------------------- | -------------------------------------------------------- |
+| EditorConfig | `EditorConfig.EditorConfig` | Applies [`.editorconfig`](./.editorconfig)               |
+| Prettier     | `esbenp.prettier-vscode`    | Format on save (default formatter)                       |
+| Oxc          | `oxc.oxc-vscode`            | Inline oxlint using [`.oxlintrc.json`](./.oxlintrc.json) |
+
+Workspace settings enable format-on-save with Prettier and oxlint in the editor (`oxfmt` is off; Prettier owns formatting).
 
 ### Scripts
 
-- `pnpm format` — format TypeScript under `src/` and `test/`.
+- `pnpm format` — format TypeScript under `src/` and `test/`, plus root/docs `*.json` / `*.md`.
 - `pnpm format:check` — verify formatting without writing.
 - `pnpm lint` — run oxlint (must pass with no warnings).
 

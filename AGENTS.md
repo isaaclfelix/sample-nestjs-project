@@ -57,11 +57,11 @@ After adding or updating code, **run the project checks and fix failures** befor
 
 Commands (from the repo root, via `pnpm`):
 
-| Check | Script | What it does |
-|---|---|---|
-| Lint + types | `pnpm lint` | `oxlint --type-aware --deny-warnings src/ test/` |
-| Compile | `pnpm build` | Nest/`tsc` emit; catches type errors oxlint might miss |
-| Format | `pnpm format` | Prettier write on `src/**/*.ts` and `test/**/*.ts` |
+| Check        | Script        | What it does                                           |
+| ------------ | ------------- | ------------------------------------------------------ |
+| Lint + types | `pnpm lint`   | `oxlint --type-aware --deny-warnings src/ test/`       |
+| Compile      | `pnpm build`  | Nest/`tsc` emit; catches type errors oxlint might miss |
+| Format       | `pnpm format` | Prettier write on `src/**/*.ts` and `test/**/*.ts`     |
 
 - Always run **`pnpm lint`** after substantive edits. It must exit 0 with **no warnings**.
 - Run **`pnpm build`** when signatures, modules, or `tsconfig` are involved.
