@@ -1,7 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import { z } from 'zod';
 import { UserService } from './user.service.js';
 import { createUserSchema, type CreateUserDto } from './dto/create-user.dto.js';
 import { updateUserSchema, type UpdateUserDto } from './dto/update-user.dto.js';
+
+const userIdSchema = z.uuid();
 
 @Controller('user')
 export class UserController {
@@ -18,18 +21,21 @@ export class UserController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', { schema: userIdSchema }) id: string) {
     return this.userService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body({ schema: updateUserSchema }) updateUserDto: UpdateUserDto) {
+  update(
+    @Param('id', { schema: userIdSchema }) id: string,
+    @Body({ schema: updateUserSchema }) updateUserDto: UpdateUserDto,
+  ) {
     return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string) {
+  remove(@Param('id', { schema: userIdSchema }) id: string) {
     return this.userService.remove(id);
   }
 }
