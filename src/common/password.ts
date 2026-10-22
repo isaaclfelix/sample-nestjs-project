@@ -1,8 +1,4 @@
-import {
-  argon2,
-  randomBytes,
-  timingSafeEqual,
-} from 'node:crypto';
+import { argon2, randomBytes, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 
 const argon2Async = promisify(argon2);
@@ -58,18 +54,11 @@ export async function hashPassword(plaintextPassword: string): Promise<string> {
  */
 export async function verifyPassword(
   encodedPassword: string,
-  plaintextPassword: string
+  plaintextPassword: string,
 ): Promise<boolean> {
   // Split the encoded password into its components.
-  const [
-    algorithm,
-    memory,
-    passes,
-    parallelism,
-    tagLength,
-    saltB64,
-    hashB64,
-  ] = encodedPassword.split('$');
+  const [algorithm, memory, passes, parallelism, tagLength, saltB64, hashB64] =
+    encodedPassword.split('$');
 
   // Verify the algorithm and salt/hash are present.
   if (algorithm !== 'argon2id' || !saltB64 || !hashB64) {

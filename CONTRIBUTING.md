@@ -62,13 +62,33 @@ A **Husky** `commit-msg` hook runs Commitlint on every commit message.
 
 After cloning, run **`pnpm install`** so the `prepare` script installs Husky hooks. On Windows, use **Git for Windows** or **WSL** so hooks run with `sh`.
 
+### Pull requests
+
+- **Base branch** defaults to **`main`** unless you specify another base.
+- PR body sections are defined in [`.github/PULL_REQUEST_TEMPLATE.md`](./.github/PULL_REQUEST_TEMPLATE.md) (Summary, Motivation, Changes, Risks / notes, Tech debt, Spotcheck).
+- Agents (and anyone using Cursor skills) should follow [`.agents/skills/create-pr/SKILL.md`](./.agents/skills/create-pr/SKILL.md): push the branch with `gh`, create a new PR, or **update** an existing open PR’s title/body when the description needs to reflect the latest commits. Ask explicitly (e.g. `/create-pr`).
+
+**Requires:** `origin` remote, [GitHub CLI](https://cli.github.com/) (`gh`) authenticated (`gh auth login`).
+
 ## Formatting and lint
 
-Code style is **[Prettier](https://prettier.io/)**. Lint is **[oxlint](https://oxc.rs/docs/guide/usage/linter)** with `--type-aware --deny-warnings` (warnings fail the check). See [AGENTS.md](./AGENTS.md) for agent rules.
+Code style is **[Prettier](https://prettier.io/)** (see [`.prettierrc`](./.prettierrc)). Indent, charset, and line endings are also declared in [`.editorconfig`](./.editorconfig) for editors that do not run Prettier. Lint is **[oxlint](https://oxc.rs/docs/guide/usage/linter)** with the **correctness** category as errors and `--type-aware --deny-warnings` (warnings fail the check). See [AGENTS.md](./AGENTS.md) for agent rules.
+
+### Editor setup (Cursor / VS Code)
+
+This repo commits [`.vscode/extensions.json`](./.vscode/extensions.json) and [`.vscode/settings.json`](./.vscode/settings.json). Install the recommended extensions when prompted:
+
+| Extension    | ID                          | Role                                                     |
+| ------------ | --------------------------- | -------------------------------------------------------- |
+| EditorConfig | `EditorConfig.EditorConfig` | Applies [`.editorconfig`](./.editorconfig)               |
+| Prettier     | `esbenp.prettier-vscode`    | Format on save (default formatter)                       |
+| Oxc          | `oxc.oxc-vscode`            | Inline oxlint using [`.oxlintrc.json`](./.oxlintrc.json) |
+
+Workspace settings enable format-on-save with Prettier and oxlint in the editor (`oxfmt` is off; Prettier owns formatting).
 
 ### Scripts
 
-- `pnpm format` — format TypeScript under `src/` and `test/`.
+- `pnpm format` — format TypeScript under `src/` and `test/`, plus root/docs `*.json` / `*.md`.
 - `pnpm format:check` — verify formatting without writing.
 - `pnpm lint` — run oxlint (must pass with no warnings).
 

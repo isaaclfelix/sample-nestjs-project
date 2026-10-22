@@ -1,8 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  INestApplication,
-  StandardSchemaValidationPipe,
-} from '@nestjs/common';
+import { INestApplication, StandardSchemaValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types.js';
 import { UserModule } from '../src/user/user.module.js';
@@ -82,12 +79,10 @@ describe('UserController (e2e)', () => {
     it('returns 409 when email or username is already taken', async () => {
       expect((await createUser()).status).toBe(201);
       expect((await createUser()).status).toBe(409);
-      expect(
-        (await createUser({ email: 'other@example.com' })).status,
-      ).toBe(409);
-      expect(
-        (await createUser({ username: 'OtherUser' })).status,
-      ).toBe(409);
+      expect((await createUser({ email: 'other@example.com' })).status).toBe(
+        409,
+      );
+      expect((await createUser({ username: 'OtherUser' })).status).toBe(409);
     });
 
     it('returns 409 for a case-only duplicate username', async () => {
@@ -147,7 +142,9 @@ describe('UserController (e2e)', () => {
     });
 
     it('returns 400 for a non-uuid path', async () => {
-      const { status } = await request(app.getHttpServer()).get('/user/not-a-uuid');
+      const { status } = await request(app.getHttpServer()).get(
+        '/user/not-a-uuid',
+      );
 
       expect(status).toBe(400);
     });
@@ -239,9 +236,7 @@ describe('UserController (e2e)', () => {
         .expect(204)
         .expect('');
 
-      await request(app.getHttpServer())
-        .get(`/user/${created.id}`)
-        .expect(404);
+      await request(app.getHttpServer()).get(`/user/${created.id}`).expect(404);
     });
 
     it('returns 204 even when the user does not exist', async () => {

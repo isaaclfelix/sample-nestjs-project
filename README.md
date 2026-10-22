@@ -31,6 +31,8 @@
 $ pnpm install
 ```
 
+Code style and lint conventions (Prettier, EditorConfig, oxlint) are documented in [CONTRIBUTING.md](./CONTRIBUTING.md).
+
 ## Compile and run the project
 
 ```bash

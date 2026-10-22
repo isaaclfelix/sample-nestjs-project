@@ -7,14 +7,17 @@ import { createUserSchema } from '../src/user/dto/create-user.dto.js';
  * and remove TD-004 from docs/known-tech-debt.md.
  */
 describe('known tech debt', () => {
-  it.fails('TD-004: rejects a password that is only lowercase letters and digits', () => {
-    const result = createUserSchema.safeParse({
-      email: 'ada@example.com',
-      username: 'Ada_Lovelace',
-      displayName: 'Ada Lovelace',
-      password: 'password1',
-    });
+  it.fails(
+    'TD-004: rejects a password that is only lowercase letters and digits',
+    () => {
+      const result = createUserSchema.safeParse({
+        email: 'ada@example.com',
+        username: 'Ada_Lovelace',
+        displayName: 'Ada Lovelace',
+        password: 'password1',
+      });
 
-    expect(result.success).toBe(false);
-  });
+      expect(result.success).toBe(false);
+    },
+  );
 });
