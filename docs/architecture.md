@@ -4,6 +4,23 @@ One Nest process serves two surfaces. The JSON API lives under `/api`. HTML page
 
 This is not React Server Components, not a client-side router, and not a string template. A controller picks a page name and a plain props object. It does not import `.tsx`.
 
+## Why this shape
+
+The product goal for the UI is **solid performance**, not “use React everywhere.” The pages that matter next (a CRUD-heavy dashboard) should stay mostly server HTML, with interactivity only where a control needs it. Nest already routes HTTP. Putting a second router in the browser would duplicate that job and push more work onto the client for little gain.
+
+This layout deliberately avoids these common alternatives:
+
+| Alternative                         | Why not here                                                                                                |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Full client SPA (e.g. React Router) | Nest already owns URLs. A client router would re-implement routing and ship a large JS graph by default.    |
+| Separate Next.js (or similar) app   | A second deploy, CI pipeline, and host. Extra cost and ops load while the team and traffic are small.       |
+| String templates only               | Server pages and interactive widgets would use different syntaxes. React trees stay one language for both.  |
+| One React root for the whole page   | Non-interactive markup would still be reconciled on the client. Islands hydrate only the interactive parts. |
+
+**Islands** are the middle path: the same component syntax on the server and in the browser, Nest keeps routing, and Vite ships **only the JS/CSS a page actually used**. Unused island chunks are never downloaded. That download-and-use-only-what-you-need rule is intentional insurance against the usual Core Web Vitals drift from unused JS and CSS—problems that are easy to overlook day to day and expensive to claw back later.
+
+**One Nest process** (API + SSR + static assets) is a hard choice for now: one deploy pipeline, one host, one language, and the same lint/test tools—without a monorepo or parallel CI. That keeps ops and cost down while the team is small. The app can split into separate frontends later if success and headcount justify it; that should be a long way off.
+
 ## Request split
 
 ```mermaid
@@ -60,6 +77,8 @@ src/
 ```
 
 `tsconfig.build.json` excludes `src/web/**/*.tsx`, so `nest build` never compiles React. The views use `src/web/tsconfig.json` (extends root `tsconfig.web.json`) so the editor’s nearest-config walk finds Vite/`vite/client` types for `*.css` and DOM; TypeScript 6 does not load a root `tsconfig.web.json` by name alone. The repo-root `tsconfig.json` stays on Nest/API `.ts` sources and excludes `src/web/client/**`. `pnpm build` still runs `tsc -p tsconfig.web.json --noEmit`. Vite emits the bundles that actually run.
+
+Prefer `.tsx` where the file is mostly a React tree (pages, islands, document, hydrate entry)—the same places you would reach for HTML. Prefer plain `.ts` for Nest controllers, services, props types, registries, and tests. Specs stay `.ts` and use `createElement` when they need elements; JSX is not required to exercise an island. Because `createElement` does not infer a generic `Island<P>` as well as JSX does, a test may pass an explicit type argument (for example `Island<{ start: number }>`) so `component` and `props` still typecheck.
 
 ## JSON API
 
@@ -204,7 +223,9 @@ The home page keeps its sentence in one template string. Adjacent text expressio
 
 ### Islands
 
-An island is a client component with its own React root. The server marker is:
+An island is a client component with its own React root. The server page places it with the `Island` helper. That helper is generic over props (`Island<P>`): `component` is a `ComponentType<P>` and `props` is `P`, so any island (counter today, others later) keeps those two in sync. There is no single React “Props” type beyond that—`PropsWithChildren` and friends are helpers around a per-component shape, not a substitute for `P`.
+
+The server marker is:
 
 ```html
 <div data-island="counter" data-props="...">
@@ -212,11 +233,11 @@ An island is a client component with its own React root. The server marker is:
 </div>
 ```
 
-`data-props` is `encodeURIComponent(JSON.stringify(props))`, so quotes and `<` cannot break the attribute. The decoder rejects arrays, null, and non-objects.
+`data-props` is `encodeURIComponent(JSON.stringify(props))`, so quotes and `<` cannot break the attribute. The decoder rejects arrays, null, and non-objects. Props must be JSON-serializable plain objects. Richer prop graphs (functions, class instances, non-JSON values) are out of scope until the dashboard needs them; CRUD pages do not.
 
 `hydrateRoot` is called on the marker element. React hydrates the component as that element's children. The marker div is the container, not part of the component tree.
 
-Islands do not share React context or state after hydration. Each marker is its own root (see TD-008).
+Islands do not share React context or state after hydration. Each marker is its own root (see TD-008). A shared client context layer would take real design work; the expected dashboard is CRUD-oriented and is not planning websockets or other real-time client graphs soon, so that stays deferred debt rather than part of the current contract.
 
 ### Lazy chunks
 
@@ -287,4 +308,4 @@ If the page renders no islands, do not add a script tag by hand. The empty asset
 ## Related docs
 
 - [Testing and coverage](./testing-and-coverage.md) — `.tsx` is outside unit coverage; HTTP behavior is covered by e2e.
-- [Known tech debt](./known-tech-debt.md) — TD-001 and TD-005 through TD-009 are the open limits of this design.
+- [Known tech debt](./known-tech-debt.md) — TD-001 and TD-005 through TD-009 are the open limits of this design. Shared island client state is TD-008; the demo counter is TD-009. JSON-only island props and no shared client context are current limits of the same web layer, deferred until the dashboard needs more than CRUD.
