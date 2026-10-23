@@ -59,7 +59,7 @@ src/
     client/hydrate.tsx    browser entry
 ```
 
-`tsconfig.build.json` excludes `src/web/**/*.tsx`, so `nest build` never compiles React. `tsconfig.web.json` is the sole TypeScript project for the views (including the Vite client entry and `*.css` imports via `vite/client`); the root `tsconfig.json` stays on Nest/API `.ts` sources and excludes `src/web/client/**` so the language service does not typecheck hydrate under Node-only ambient types. Vite emits the bundles that actually run.
+`tsconfig.build.json` excludes `src/web/**/*.tsx`, so `nest build` never compiles React. The views use `src/web/tsconfig.json` (extends root `tsconfig.web.json`) so the editor’s nearest-config walk finds Vite/`vite/client` types for `*.css` and DOM; TypeScript 6 does not load a root `tsconfig.web.json` by name alone. The repo-root `tsconfig.json` stays on Nest/API `.ts` sources and excludes `src/web/client/**`. `pnpm build` still runs `tsc -p tsconfig.web.json --noEmit`. Vite emits the bundles that actually run.
 
 ## JSON API
 
