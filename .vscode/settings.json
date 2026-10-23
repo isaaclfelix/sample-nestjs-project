@@ -25,7 +25,5 @@
   "oxc.enable.oxlint": true,
   "oxc.enable.oxfmt": false,
   "oxc.configPath": ".oxlintrc.json",
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true,
-  "typescript.tsserver.experimental.enableProjectDiagnostics": true
+  "js/ts.tsdk.path": "node_modules/typescript/lib"
 }
