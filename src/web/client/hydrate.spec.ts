@@ -8,7 +8,7 @@ import { Island } from '../islands/island.js';
 describe('hydrate islands', () => {
   it('updates the counter when the button is clicked', async () => {
     document.body.innerHTML = renderToString(
-      createElement(Island, {
+      createElement(Island<{ start: number }>, {
         name: 'counter',
         component: Counter,
         props: { start: 1 },

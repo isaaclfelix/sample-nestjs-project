@@ -21,5 +21,13 @@
     "strictPropertyInitialization": false,
     "types": ["vitest/globals", "node"],
     "strictNullChecks": true
-  }
+  },
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "vitest.config.ts",
+    "vitest.config.e2e.ts",
+    "vite.config.ts"
+  ],
+  "exclude": ["node_modules", "dist", "src/web/client/**", "src/web/**/*.d.ts"]
 }

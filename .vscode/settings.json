@@ -24,5 +24,7 @@
   "files.trimTrailingWhitespace": true,
   "oxc.enable.oxlint": true,
   "oxc.enable.oxfmt": false,
-  "oxc.configPath": ".oxlintrc.json"
+  "oxc.configPath": ".oxlintrc.json",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }
