@@ -29,6 +29,15 @@ export const emptyAssetTags: AssetTags = {
   scripts: [],
 };
 
+/** Dev URL for the shared sheet. Vite serves it as CSS for a stylesheet link. */
+export const shellStylesheetDev = '/src/web/styles.css';
+
+/** Manifest key for the shared sheet, which is its own client build input. */
+const shellStylesheetSource = 'src/web/styles.css';
+
+/** Manifest key for the browser hydrate entry. */
+const hydrateEntrySource = 'src/web/client/hydrate.tsx';
+
 /**
  * Returns the production path of the Vite client manifest.
  *
@@ -92,11 +101,14 @@ export function loadClientManifest(): ClientManifest {
  * injects the preamble the way it would into `index.html`. Without it,
  * island modules throw before hydration.
  *
+ * The shared sheet is a head link so the first paint is styled. Island CSS
+ * stays on each island chunk and is not listed here.
+ *
  * @returns {AssetTags} Dev client URLs.
  */
 export function developmentAssetTags(): AssetTags {
   return {
-    stylesheets: [],
+    stylesheets: [shellStylesheetDev],
     scripts: [
       // Sets window.$RefreshReg$ before any island module evaluates.
       '/@id/@vitejs/plugin-react/preamble',
@@ -117,7 +129,7 @@ export function developmentAssetTags(): AssetTags {
  * @throws {Error} When the manifest has no entry chunk.
  */
 export function assetTagsFromManifest(manifest: ClientManifest): AssetTags {
-  const entry = Object.values(manifest).find((chunk) => chunk.isEntry);
+  const entry = hydrateEntryChunk(manifest);
 
   if (!entry) {
     throw new Error('Client manifest is missing the hydrate entry.');
@@ -148,34 +160,92 @@ export function assetTagsFromManifest(manifest: ClientManifest): AssetTags {
 }
 
 /**
+ * Returns the shared stylesheet URL from a production manifest.
+ *
+ * The shell is its own build input, so its CSS is not on the hydrate chunk.
+ * A CSS-only entry stores the path on `file`. An entry that also emits a
+ * script stores it on `css`. The script is not linked.
+ *
+ * @param {ClientManifest} manifest - Vite client manifest.
+ * @returns {string} Root-relative stylesheet URL.
+ * @throws {Error} When the shell chunk is missing.
+ */
+export function shellStylesheetFromManifest(manifest: ClientManifest): string {
+  const chunk = manifest[shellStylesheetSource];
+  const file =
+    chunk?.css?.[0] ?? (chunk?.file.endsWith('.css') ? chunk.file : undefined);
+
+  if (!file) {
+    throw new Error('Client manifest is missing the shell stylesheet.');
+  }
+
+  return `/${file}`;
+}
+
+/**
  * Chooses the asset tags for one rendered page.
  *
- * A page with no islands gets no client JavaScript. Development points at
- * the Vite source entry. Production uses the manifest and still omits
- * island chunks.
+ * Every page links the shared sheet. A page with no islands gets no client
+ * JavaScript. Development points at the Vite source entry. Production uses
+ * the manifest and still omits island chunks and their CSS.
  *
  * @param {readonly string[]} islandNames - Island names rendered on the page.
  * @param {{ development: boolean; manifest?: ClientManifest }} source - Where client URLs come from.
  * @returns {AssetTags} Tags for the document shell.
- * @throws {Error} When a production page has islands but no manifest.
+ * @throws {Error} When a production page has no manifest, or the manifest has no shell.
  */
 export function assetTagsForIslands(
   islandNames: readonly string[],
   source: { development: boolean; manifest?: ClientManifest },
 ): AssetTags {
-  if (islandNames.length === 0) {
-    return emptyAssetTags;
-  }
-
   if (source.development) {
+    if (islandNames.length === 0) {
+      return { stylesheets: [shellStylesheetDev], scripts: [] };
+    }
+
     return developmentAssetTags();
   }
 
   if (!source.manifest) {
-    throw new Error(
-      'Production pages that render islands need the client manifest.',
-    );
+    throw new Error('Production pages need the client manifest.');
   }
 
-  return assetTagsFromManifest(source.manifest);
+  const shell = shellStylesheetFromManifest(source.manifest);
+
+  if (islandNames.length === 0) {
+    return { stylesheets: [shell], scripts: [] };
+  }
+
+  const runtime = assetTagsFromManifest(source.manifest);
+
+  return {
+    stylesheets: [
+      shell,
+      ...runtime.stylesheets.filter((href) => href !== shell),
+    ],
+    scripts: runtime.scripts,
+  };
+}
+
+/**
+ * Returns the hydrate entry chunk.
+ *
+ * Prefers the source path so the shell input, which is also an entry, is
+ * not used as the script list. Tests may use another `isEntry` JavaScript file.
+ *
+ * @param {ClientManifest} manifest - Vite client manifest.
+ * @returns {ManifestChunk | undefined} The hydrate chunk, when present.
+ */
+function hydrateEntryChunk(
+  manifest: ClientManifest,
+): ManifestChunk | undefined {
+  const named = manifest[hydrateEntrySource];
+
+  if (named) {
+    return named;
+  }
+
+  return Object.values(manifest).find(
+    (chunk) => chunk.isEntry === true && chunk.file.endsWith('.js'),
+  );
 }

@@ -34,6 +34,7 @@ const manifest: ClientManifest = {
   'plain.js': { file: 'assets/plain.js' },
   'src/web/islands/counter.tsx': { file: 'assets/counter.js' },
   'src/web/islands/chart.tsx': { file: 'assets/chart.js' },
+  'src/web/styles.css': { file: 'assets/shell.css', isEntry: true },
 };
 
 describe('asset tags', () => {
@@ -41,17 +42,32 @@ describe('asset tags', () => {
     setClientManifestReader(undefined);
   });
 
-  it('omits the client runtime when the page has no islands', () => {
-    expect(assetTagsForIslands([], { development: true }).scripts).toEqual([]);
-    expect(
-      assetTagsForIslands([], { development: false, manifest }).scripts,
-    ).toEqual([]);
+  it('links only the shell when the page has no islands', () => {
+    expect(assetTagsForIslands([], { development: true })).toEqual({
+      stylesheets: ['/src/web/styles.css'],
+      scripts: [],
+    });
+    expect(assetTagsForIslands([], { development: false, manifest })).toEqual({
+      stylesheets: ['/assets/shell.css'],
+      scripts: [],
+    });
   });
 
   it('points development pages at the vite source entry', () => {
     expect(assetTagsForIslands(['counter'], { development: true })).toEqual(
       developmentAssetTags(),
     );
+  });
+
+  it('links the shell and the runtime, not island chunks', () => {
+    const tags = assetTagsForIslands(['counter'], {
+      development: false,
+      manifest,
+    });
+
+    expect(tags.stylesheets[0]).toBe('/assets/shell.css');
+    expect(tags.stylesheets).toContain('/assets/app.css');
+    expect(tags.scripts.join(' ')).not.toContain('counter');
   });
 
   it('emits the entry and static imports, not island chunks', () => {
@@ -63,6 +79,7 @@ describe('asset tags', () => {
       '/assets/plain.js',
     ]);
     expect(tags.stylesheets).toEqual(['/assets/app.css', '/assets/react.css']);
+    expect(tags.scripts.join(' ')).not.toContain('shell');
     expect(tags.scripts.join(' ')).not.toContain('counter');
     expect(tags.scripts.join(' ')).not.toContain('chart');
   });
@@ -84,10 +101,24 @@ describe('asset tags', () => {
     );
   });
 
-  it('throws in production when islands are rendered without a manifest', () => {
+  it('throws in production when the manifest is missing', () => {
+    expect(() => assetTagsForIslands([], { development: false })).toThrow(
+      'Production pages need the client manifest.',
+    );
+  });
+
+  it('throws when the manifest has no shell stylesheet', () => {
     expect(() =>
-      assetTagsForIslands(['counter'], { development: false }),
-    ).toThrow('Production pages that render islands need the client manifest.');
+      assetTagsForIslands([], {
+        development: false,
+        manifest: {
+          'src/web/client/hydrate.tsx': {
+            file: 'assets/hydrate.js',
+            isEntry: true,
+          },
+        },
+      }),
+    ).toThrow('Client manifest is missing the shell stylesheet.');
   });
 
   it('reads a manifest file from disk', () => {

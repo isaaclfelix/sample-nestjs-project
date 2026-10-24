@@ -25,7 +25,10 @@ export default defineConfig(({ isSsrBuild }) => ({
         emptyOutDir: false,
         manifest: true,
         rollupOptions: {
-          input: 'src/web/client/hydrate.tsx',
+          input: {
+            hydrate: 'src/web/client/hydrate.tsx',
+            shell: 'src/web/styles.css',
+          },
         },
       },
 }));

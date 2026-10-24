@@ -9,8 +9,9 @@ export class WebViewService {
    * Renders one server page to a full HTML document.
    *
    * The controller chooses the page name and props. This method loads the
-   * React entry and returns the document string. Client scripts are included
-   * only when the page rendered at least one island.
+   * React entry and returns the document string. The shared stylesheet is
+   * always included. Client scripts are included only when the page rendered
+   * at least one island.
    *
    * @param {WebPageName} page - Registered page name, not a component.
    * @param {HomePageProps} props - JSON-serializable props for that page.
@@ -28,11 +29,8 @@ export class WebViewService {
     return entry.render(page, props, (islandNames) =>
       assetTagsForIslands(islandNames, {
         development,
-        // Static production pages never read the client manifest.
-        manifest:
-          development || islandNames.length === 0
-            ? undefined
-            : loadClientManifest(),
+        // Production always reads the manifest so the shell stylesheet can be linked.
+        manifest: development ? undefined : loadClientManifest(),
       }),
     );
   }
