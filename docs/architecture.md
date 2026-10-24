@@ -257,6 +257,10 @@ Vite emits a separate chunk per dynamic `import()`. The browser does not downloa
 
 `assetTagsFromManifest` emits the hydrate entry and its static `imports` (React, for example). It does not walk `dynamicImports`, and it does not emit modulepreload links for them. Preloading those keys would fetch every island. Island CSS imported by a chunk is left on that chunk.
 
+Vite still injects `<link rel="modulepreload">` at runtime when a dynamic `import()` runs. That helper lives in the hydrate bundle (`__vitePreload`); Nest's document shell never writes those tags. For islands already on the page that is usually a win: the chunk and its CSS start fetching just before the import resolves. It does not preload islands the page never imports.
+
+That default should be revisited if we ship TD-010 (viewport or streaming hydration). Eager `modulepreload` for every island the entry is about to hydrate would fight delaying those downloads until near the viewport. The same applies if Core Web Vitals (or similar) start flagging excess preload. The switch is Vite's `build.modulePreload: false` on the client build in `vite.config.ts`. Leave the default on until one of those triggers.
+
 The registry's `isIslandName` check uses `hasOwnProperty`, so a marker named `toString` is unknown. An unknown name throws before hydration.
 
 The home page includes a counter island so hydration can be clicked. It is a demo. Remove the component, its CSS module, the registry entry, and the `<Island name="counter">` together (see TD-009). Nothing else should depend on it.
@@ -273,7 +277,7 @@ A late island rule can still move a box that is already on screen. That matters 
 
 A server-only page component does not publish CSS by being rendered. Styles the browser must see are in the shared sheet or imported by a client module.
 
-Hydrating every island as soon as the entry loads, including ones below the fold, downloads their JS and CSS before the user scrolls. Delaying that until the marker is near the viewport, or streaming those islands, is TD-010. It is more optimization than this app needs while the only client component is the demo counter. It does not replace the shell link or the rule about which styles belong there.
+Hydrating every island as soon as the entry loads, including ones below the fold, downloads their JS and CSS before the user scrolls (and Vite's runtime `modulepreload` for those dynamic imports runs at the same time). Delaying that until the marker is near the viewport, or streaming those islands, is TD-010. When that work lands, turn off `build.modulePreload` so the preload helper does not undo the delay. It is more optimization than this app needs while the only client component is the demo counter. It does not replace the shell link or the rule about which styles belong there.
 
 ### Development and production
 
