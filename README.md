@@ -1,132 +1,123 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# sample-nestjs-project
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A Nest application with two surfaces in one process. The JSON API lives under `/api` (Zod validation, Swagger). React server-renders HTML at the root and hydrates islands from lazy chunks.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+How the two sides fit together: [docs/architecture.md](./docs/architecture.md).
 
-## Description
+## Prerequisites
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- [pnpm](https://pnpm.io/installation) 12. This repo uses pnpm, not npm or Yarn.
+- Node.js 24.22.0. That version is pinned in [`.node-version`](./.node-version). `package.json` requires Node `>=24.7.0`.
 
-## Project setup
+Install pnpm first, then install Node with pnpm's runtime manager and put `node` on your PATH:
 
 ```bash
-$ pnpm install
+pnpm runtime set node 24.22.0 -g
 ```
 
-Code style and lint conventions (Prettier, EditorConfig, oxlint) are documented in [CONTRIBUTING.md](./CONTRIBUTING.md).
+`-g` installs Node 24.22.0 globally. Without it, the same command also writes a `devEngines` entry into this project.
 
-## Compile and run the project
+Confirm both tools before installing dependencies:
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+pnpm --version
+node --version
 ```
 
-## API documentation
+`node --version` should print `v24.22.0`.
 
-With the app running, open [http://localhost:3000/docs](http://localhost:3000/docs) for Swagger UI, or [http://localhost:3000/docs-json](http://localhost:3000/docs-json) for the raw OpenAPI document.
-
-## Run tests
+## Setup
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage (enforces Vitest thresholds; see docs/testing-and-coverage.md)
-$ pnpm run test:cov
+pnpm install
 ```
 
-CI (GitHub Actions) runs `lint`, `build`, `unit`, `e2e`, and `coverage` on every PR. Policy and branch-protection steps: [docs/testing-and-coverage.md](./docs/testing-and-coverage.md).
+`pnpm install` also installs the Git hooks. Commit, branch, and lint rules are in [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Run
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+# development, with reload
+pnpm start:dev
+
+# development, one shot
+pnpm start
+
+# production (build first)
+pnpm build
+pnpm start:prod
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+The app listens on port 3000 unless `PORT` is set.
+
+- Home page: [http://localhost:3000/](http://localhost:3000/)
+- Greeting: [http://localhost:3000/api](http://localhost:3000/api)
+- Swagger UI: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
+- OpenAPI document: [http://localhost:3000/api/docs-json](http://localhost:3000/api/docs-json)
+
+## Checks
+
+Run these locally before opening a pull request. [CI](./.github/workflows/ci.yml) runs the same five commands, each in its own job, after `pnpm install --frozen-lockfile`. Warnings fail lint. Coverage fails under the thresholds in [docs/testing-and-coverage.md](./docs/testing-and-coverage.md).
+
+| CI job     | Local command   | What it does                                                        |
+| ---------- | --------------- | ------------------------------------------------------------------- |
+| `lint`     | `pnpm lint`     | Oxlint, type-aware, on `src/` and `test/`. Warnings fail.           |
+| `build`    | `pnpm build`    | Nest compile, web typecheck, Vite client build, and the SSR bundle. |
+| `unit`     | `pnpm test`     | Unit tests (`*.spec.ts`).                                           |
+| `e2e`      | `pnpm test:e2e` | HTTP tests (`*.e2e-spec.ts`) against a Nest app.                    |
+| `coverage` | `pnpm test:cov` | The unit suite again, with coverage thresholds.                     |
+
+```bash
+pnpm lint
+pnpm build
+pnpm test
+pnpm test:e2e
+pnpm test:cov
+```
+
+Local-only helpers, not separate CI jobs:
+
+| Command             | What it does                          |
+| ------------------- | ------------------------------------- |
+| `pnpm format`       | Write Prettier formatting.            |
+| `pnpm format:check` | Fail if Prettier would change a file. |
+| `pnpm test:watch`   | Re-run unit tests on change.          |
+| `pnpm test:debug`   | Unit tests with the Node inspector.   |
 
 ## Observability
 
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
+The app is instrumented with [NestJS Observe](https://observe.nestjs.com). To exercise that integration on your machine, request keys and put them in `.env`. Skip this section otherwise.
 
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
-
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
-
-This project is already instrumented. To connect it, run this and approve the code it prints at [observe.nestjs.com/link](https://observe.nestjs.com/link) - signing up for free if you have no account:
+Request keys with:
 
 ```bash
-$ npx @nestjs/observe link
+npx @nestjs/observe link
 ```
 
-It writes the app key and secret into `.env` and makes every `nest start` script (`start`, `start:dev`, `start:debug`) load it. In production, set `OBSERVE_APP_KEY` and `OBSERVE_APP_SECRET` in the environment instead.
+Approve the printed code at [observe.nestjs.com/link](https://observe.nestjs.com/link). Then copy the example env file and fill in the two values:
 
-The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
+```bash
+cp .env.example .env
+```
 
-## Resources
+`.env` is gitignored. `start`, `start:dev`, and `start:debug` load it. In production, set `OBSERVE_APP_KEY` and `OBSERVE_APP_SECRET` in the environment instead of using that file.
 
-Check out a few resources that may come in handy when working with NestJS:
+## Documentation
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- [CONTRIBUTING.md](./CONTRIBUTING.md) — branch names, commit messages, hooks, formatting, and lint.
+- [docs/architecture.md](./docs/architecture.md) — how the JSON API and the React page layer share this process.
+- [docs/testing-and-coverage.md](./docs/testing-and-coverage.md) — unit tests, e2e, coverage thresholds, and CI.
+- [docs/known-tech-debt.md](./docs/known-tech-debt.md) — behavior we have not built yet, and how that debt is tracked.
 
-## Support
+## Agents
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+[AGENTS.md](./AGENTS.md) is the standing instruction file for coding agents in this repo. It requires line comments on non-obvious steps, JSDoc and explicit TypeScript types on every application function, green lint and typecheck after edits, and one commit per logical slice on a multi-step task.
 
-## Stay in touch
+Project skills live in [`.agents/skills`](./.agents/skills):
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- [create-commit](./.agents/skills/create-commit/SKILL.md) — stage the current slice and write a Conventional Commit. [AGENTS.md](./AGENTS.md) is the ask for those incremental commits. Do not push unless asked.
+- [create-pr](./.agents/skills/create-pr/SKILL.md) — push the branch with `gh` and create or update the pull request from [`.github/PULL_REQUEST_TEMPLATE.md`](./.github/PULL_REQUEST_TEMPLATE.md). Use it when asked to open a PR or refresh the description (`/create-pr`).
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+UNLICENSED. This is a private project.

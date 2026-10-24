@@ -1,0 +1,5 @@
+/* Sample island sheet. It ships with the counter chunk, not in the document head. Remove it with TD-009. */
+
+.count {
+  font-weight: 700;
+}

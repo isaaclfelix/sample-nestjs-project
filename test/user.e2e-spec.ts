@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, StandardSchemaValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types.js';
-import { UserModule } from '../src/user/user.module.js';
+import { AppModule } from '../src/app.module.js';
 
 const validBody = {
   email: 'ada@example.com',
@@ -16,7 +16,7 @@ describe('UserController (e2e)', () => {
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [UserModule],
+      imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -30,11 +30,11 @@ describe('UserController (e2e)', () => {
 
   async function createUser(overrides: Record<string, unknown> = {}) {
     return request(app.getHttpServer())
-      .post('/user')
+      .post('/api/user')
       .send({ ...validBody, ...overrides });
   }
 
-  describe('POST /user', () => {
+  describe('POST /api/user', () => {
     it('creates a user and does not return the password', async () => {
       const { body, status } = await createUser();
 
@@ -98,9 +98,11 @@ describe('UserController (e2e)', () => {
     });
   });
 
-  describe('GET /user', () => {
+  describe('GET /api/user', () => {
     it('returns an empty array when no users exist', async () => {
-      const { status, body } = await request(app.getHttpServer()).get('/user');
+      const { status, body } = await request(app.getHttpServer()).get(
+        '/api/user',
+      );
 
       expect(status).toBe(200);
       expect(body).toEqual([]);
@@ -113,7 +115,7 @@ describe('UserController (e2e)', () => {
         username: 'SecondUser',
       });
 
-      const { body } = await request(app.getHttpServer()).get('/user');
+      const { body } = await request(app.getHttpServer()).get('/api/user');
       expect(body).toHaveLength(2);
       for (const user of body) {
         expect(user).not.toHaveProperty('password');
@@ -121,12 +123,12 @@ describe('UserController (e2e)', () => {
     });
   });
 
-  describe('GET /user/:id', () => {
+  describe('GET /api/user/:id', () => {
     it('returns the created user', async () => {
       const created = (await createUser()).body;
 
       const { status, body } = await request(app.getHttpServer()).get(
-        `/user/${created.id}`,
+        `/api/user/${created.id}`,
       );
 
       expect(status).toBe(200);
@@ -135,7 +137,7 @@ describe('UserController (e2e)', () => {
 
     it('returns 404 for an unknown id', async () => {
       const { status } = await request(app.getHttpServer()).get(
-        '/user/11111111-1111-4111-8111-111111111111',
+        '/api/user/11111111-1111-4111-8111-111111111111',
       );
 
       expect(status).toBe(404);
@@ -143,19 +145,19 @@ describe('UserController (e2e)', () => {
 
     it('returns 400 for a non-uuid path', async () => {
       const { status } = await request(app.getHttpServer()).get(
-        '/user/not-a-uuid',
+        '/api/user/not-a-uuid',
       );
 
       expect(status).toBe(400);
     });
   });
 
-  describe('PATCH /user/:id', () => {
+  describe('PATCH /api/user/:id', () => {
     it('updates displayName', async () => {
       const created = (await createUser()).body;
 
       const { status, body } = await request(app.getHttpServer())
-        .patch(`/user/${created.id}`)
+        .patch(`/api/user/${created.id}`)
         .send({ displayName: 'Augusta Ada' });
 
       expect(status).toBe(200);
@@ -168,7 +170,7 @@ describe('UserController (e2e)', () => {
       const created = (await createUser()).body;
 
       const { status, body } = await request(app.getHttpServer())
-        .patch(`/user/${created.id}`)
+        .patch(`/api/user/${created.id}`)
         .send({ password: 'new-password' });
 
       expect(status).toBe(200);
@@ -180,7 +182,7 @@ describe('UserController (e2e)', () => {
       const created = (await createUser()).body;
 
       const { status } = await request(app.getHttpServer())
-        .patch(`/user/${created.id}`)
+        .patch(`/api/user/${created.id}`)
         .send({});
 
       expect(status).toBe(400);
@@ -190,7 +192,7 @@ describe('UserController (e2e)', () => {
       const created = (await createUser()).body;
 
       const { status } = await request(app.getHttpServer())
-        .patch(`/user/${created.id}`)
+        .patch(`/api/user/${created.id}`)
         .send({
           email: 'new@example.com',
           username: 'new_handle',
@@ -204,7 +206,7 @@ describe('UserController (e2e)', () => {
       const created = (await createUser()).body;
 
       const { status } = await request(app.getHttpServer())
-        .patch(`/user/${created.id}`)
+        .patch(`/api/user/${created.id}`)
         .send({ password: 'short' });
 
       expect(status).toBe(400);
@@ -212,7 +214,7 @@ describe('UserController (e2e)', () => {
 
     it('returns 404 for an unknown id', async () => {
       const { status } = await request(app.getHttpServer())
-        .patch('/user/11111111-1111-4111-8111-111111111111')
+        .patch('/api/user/11111111-1111-4111-8111-111111111111')
         .send({ displayName: 'Ada' });
 
       expect(status).toBe(404);
@@ -220,33 +222,37 @@ describe('UserController (e2e)', () => {
 
     it('returns 400 for a non-uuid path', async () => {
       const { status } = await request(app.getHttpServer())
-        .patch('/user/not-a-uuid')
+        .patch('/api/user/not-a-uuid')
         .send({ displayName: 'Ada' });
 
       expect(status).toBe(400);
     });
   });
 
-  describe('DELETE /user/:id', () => {
+  describe('DELETE /api/user/:id', () => {
     it('returns 204 and the user is gone', async () => {
       const created = (await createUser()).body;
 
       await request(app.getHttpServer())
-        .delete(`/user/${created.id}`)
+        .delete(`/api/user/${created.id}`)
         .expect(204)
         .expect('');
 
-      await request(app.getHttpServer()).get(`/user/${created.id}`).expect(404);
+      await request(app.getHttpServer())
+        .get(`/api/user/${created.id}`)
+        .expect(404);
     });
 
     it('returns 204 even when the user does not exist', async () => {
       await request(app.getHttpServer())
-        .delete('/user/11111111-1111-4111-8111-111111111111')
+        .delete('/api/user/11111111-1111-4111-8111-111111111111')
         .expect(204);
     });
 
     it('returns 400 for a non-uuid path', async () => {
-      await request(app.getHttpServer()).delete('/user/not-a-uuid').expect(400);
+      await request(app.getHttpServer())
+        .delete('/api/user/not-a-uuid')
+        .expect(400);
     });
   });
 });

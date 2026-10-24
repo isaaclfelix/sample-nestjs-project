@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "declaration": false,
+    "jsx": "react-jsx",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["vite/client", "vitest/globals", "node"]
+  },
+  "include": ["src/web/**/*.ts", "src/web/**/*.tsx", "src/web/**/*.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}

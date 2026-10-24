@@ -1,4 +1,4 @@
-import { createUserSchema } from '../src/user/dto/create-user.dto.js';
+import { createUserSchema } from '../src/api/user/dto/create-user.dto.js';
 
 /**
  * TD-004 — desired: passwords weaker than a mixed-case + digit rule are rejected.

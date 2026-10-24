@@ -57,13 +57,21 @@ After adding or updating code, **run the project checks and fix failures** befor
 
 Commands (from the repo root, via `pnpm`):
 
-| Check        | Script        | What it does                                           |
-| ------------ | ------------- | ------------------------------------------------------ |
-| Lint + types | `pnpm lint`   | `oxlint --type-aware --deny-warnings src/ test/`       |
-| Compile      | `pnpm build`  | Nest/`tsc` emit; catches type errors oxlint might miss |
-| Format       | `pnpm format` | Prettier write on `src/**/*.ts` and `test/**/*.ts`     |
+| Check        | Script        | What it does                                                   |
+| ------------ | ------------- | -------------------------------------------------------------- |
+| Lint + types | `pnpm lint`   | `oxlint --type-aware --deny-warnings src/ test/`               |
+| Compile      | `pnpm build`  | Nest/`tsc` emit; catches type errors oxlint might miss         |
+| Format       | `pnpm format` | Prettier write on `src/**/*.{ts,tsx}` and `test/**/*.{ts,tsx}` |
 
 - Always run **`pnpm lint`** after substantive edits. It must exit 0 with **no warnings**.
 - Run **`pnpm build`** when signatures, modules, or `tsconfig` are involved.
 - Run **`pnpm format`** if lint/format would otherwise churn, or after large edits.
 - If checks fail (including warnings), fix the code (or format) and re-run until they pass. Do not suppress rules to hide warnings unless the user asks.
+
+## 5. Incremental commits
+
+When a task has more than one logical slice, finish one slice, run the checks that cover it, and commit it with [`.agents/skills/create-commit/SKILL.md`](.agents/skills/create-commit/SKILL.md) before starting the next slice.
+
+- This section is the explicit ask for those commits. Do not wait for a separate "commit this" message. Do not push unless the user asks.
+- A slice is one Conventional Commit: one outcome, green checks, no secrets. Split unrelated work. Leave the tree usable after each commit.
+- Do not batch a multi-slice task into a single commit at the end.

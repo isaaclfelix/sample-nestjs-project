@@ -1,0 +1,6 @@
+/* Shared sheet for every HTML page: reset, type, and layout. Sample only. */
+
+body {
+  font-family: sans-serif;
+  margin: 2rem;
+}
