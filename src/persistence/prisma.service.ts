@@ -3,21 +3,23 @@ import { PrismaClient } from '../generated/prisma/client.js';
 import { createPrismaPgAdapter } from './create-prisma-pg-adapter.js';
 
 /**
- * Nest-managed Prisma client for the process lifetime.
+ * Nest-managed wrapper around a Prisma Client for the process lifetime.
  *
- * Uses the Postgres driver adapter and connects on module init so the pool
- * does not leak across hot reloads or test app teardown.
+ * Composes {@link PrismaClient} instead of extending it so the Nest service
+ * stays a DI-owned dependency that holds the vendor client, matching the
+ * project's composition style. Uses the Postgres driver adapter and connects
+ * on module init so the pool does not leak across hot reloads or test teardown.
  */
 @Injectable()
-export class PrismaService
-  extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy
-{
+export class PrismaService implements OnModuleInit, OnModuleDestroy {
+  /** Owned Prisma Client wired to `DATABASE_URL` via `@prisma/adapter-pg`. */
+  readonly client: PrismaClient;
+
   /**
    * Creates a client wired to `DATABASE_URL` via `@prisma/adapter-pg`.
    */
   constructor() {
-    super({ adapter: createPrismaPgAdapter() });
+    this.client = new PrismaClient({ adapter: createPrismaPgAdapter() });
   }
 
   /**
@@ -27,7 +29,7 @@ export class PrismaService
    */
   async onModuleInit(): Promise<void> {
     // Connect so the first request does not pay cold-start connect latency alone.
-    await this.$connect();
+    await this.client.$connect();
   }
 
   /**
@@ -37,6 +39,6 @@ export class PrismaService
    */
   async onModuleDestroy(): Promise<void> {
     // Disconnect so e2e and watch mode do not leave open pools behind.
-    await this.$disconnect();
+    await this.client.$disconnect();
   }
 }

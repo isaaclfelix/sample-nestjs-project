@@ -78,7 +78,7 @@ export class PrismaUserRepository implements UserRepository {
   async create(user: CreateUserRecord): Promise<User> {
     try {
       // Persist only the allowlisted create fields; never trust extra keys.
-      const row = await this.prisma.user.create({
+      const row = await this.prisma.client.user.create({
         data: {
           id: user.id,
           email: user.email,
@@ -106,7 +106,9 @@ export class PrismaUserRepository implements UserRepository {
    * @returns {Promise<User[]>} All users, or an empty array.
    */
   async findAll(): Promise<User[]> {
-    const rows = await this.prisma.user.findMany({ orderBy: { id: 'asc' } });
+    const rows = await this.prisma.client.user.findMany({
+      orderBy: { id: 'asc' },
+    });
     return rows.map(toDomainUser);
   }
 
@@ -117,7 +119,7 @@ export class PrismaUserRepository implements UserRepository {
    * @returns {Promise<User | null>} The user, or null when missing.
    */
   async findById(id: string): Promise<User | null> {
-    const row = await this.prisma.user.findUnique({ where: { id } });
+    const row = await this.prisma.client.user.findUnique({ where: { id } });
     return row ? toDomainUser(row) : null;
   }
 
@@ -131,7 +133,7 @@ export class PrismaUserRepository implements UserRepository {
    */
   async update(id: string, data: UpdateUserRecord): Promise<User> {
     try {
-      const row = await this.prisma.user.update({
+      const row = await this.prisma.client.user.update({
         where: { id },
         data: {
           ...(data.displayName !== undefined
@@ -160,6 +162,6 @@ export class PrismaUserRepository implements UserRepository {
    */
   async delete(id: string): Promise<void> {
     // deleteMany does not throw when zero rows match (DELETE is always 204).
-    await this.prisma.user.deleteMany({ where: { id } });
+    await this.prisma.client.user.deleteMany({ where: { id } });
   }
 }

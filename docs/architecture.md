@@ -148,18 +148,18 @@ flowchart LR
   svc[UserService]
   port[UserRepository]
   adapter[PrismaUserRepository]
-  client[PrismaClient plus PrismaPg]
+  prismaSvc[PrismaService owns PrismaClient]
   db[(PostgreSQL)]
-  http --> svc --> port --> adapter --> client --> db
+  http --> svc --> port --> adapter --> prismaSvc --> db
 ```
 
-| Concern         | How                                                                                                           |
-| --------------- | ------------------------------------------------------------------------------------------------------------- |
-| Local manual DB | Docker Compose (`docker-compose.yml`) + GNU Make (`make db-up`, `make db-migrate`, `make db-seed`)            |
-| App connection  | `DATABASE_URL` in `.env` / `prisma.config.ts` (see `.env.example`)                                            |
-| Nest wiring     | Global `PrismaModule` / `PrismaService` (PrismaPg adapter); `UserModule` factory-binds the repository adapter |
-| E2E database    | Testcontainers Postgres (not Compose); migrate deploy once per run; truncate between tests                    |
-| Client codegen  | `prisma generate` → `src/generated/prisma` on `postinstall` and at the start of `pnpm build`                  |
+| Concern         | How                                                                                                                             |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Local manual DB | Docker Compose (`docker-compose.yml`) + GNU Make (`make db-up`, `make db-migrate`, `make db-seed`)                              |
+| App connection  | `DATABASE_URL` in `.env` / `prisma.config.ts` (see `.env.example`)                                                              |
+| Nest wiring     | Global `PrismaModule` / `PrismaService` (composes `PrismaClient` + PrismaPg); `UserModule` factory-binds the repository adapter |
+| E2E database    | Testcontainers Postgres (not Compose); migrate deploy once per run; truncate between tests                                      |
+| Client codegen  | `prisma generate` → `src/generated/prisma` on `postinstall` and at the start of `pnpm build`                                    |
 
 ### OpenAPI
 
