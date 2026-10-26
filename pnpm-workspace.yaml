@@ -2,4 +2,8 @@
 # (strictDepBuilds). @scarf/scarf is transitive telemetry from OpenAPI tooling;
 # deny it so installs succeed without running its postinstall.
 allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
   '@scarf/scarf': false
+  esbuild: true
+  prisma: true
