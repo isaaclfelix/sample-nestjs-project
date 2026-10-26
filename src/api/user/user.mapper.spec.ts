@@ -1,5 +1,20 @@
-import { toUserResponseDto } from './user.mapper.js';
-import { User } from './entities/user.entity.js';
+import { toDomainUser, toUserResponseDto } from './user.mapper.js';
+import type { User } from './entities/user.entity.js';
+
+describe('toDomainUser', () => {
+  const row = {
+    id: '11111111-1111-4111-8111-111111111111',
+    email: 'ada@example.com',
+    username: 'Ada_Lovelace',
+    displayName: 'Ada Lovelace',
+    password: 'argon2id$should-stay-on-domain',
+    verified: false,
+  };
+
+  it('copies allowlisted persistence fields onto the domain user', () => {
+    expect(toDomainUser(row)).toEqual(row);
+  });
+});
 
 describe('toUserResponseDto', () => {
   const user: User = {

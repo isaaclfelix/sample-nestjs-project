@@ -1,0 +1,22 @@
+// Prisma schema — persistence contract (not the HTTP/Zod contract).
+// See docs/architecture.md for the Zod vs Prisma boundary.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String  @id @default(uuid()) @db.Uuid
+  email       String
+  username    String
+  displayName String
+  password    String
+  verified    Boolean @default(false)
+
+  @@map("users")
+}

@@ -68,7 +68,7 @@ export class UserController {
   /**
    * Lists all users.
    *
-   * @returns {UserResponseDto[]} Public user records (HTTP 200).
+   * @returns {Promise<UserResponseDto[]>} Public user records (HTTP 200).
    */
   @Get()
   @ApiOperation({ summary: 'List users' })
@@ -76,7 +76,7 @@ export class UserController {
     description: 'All public users.',
     schema: userResponseListOpenApi,
   })
-  findAll(): UserResponseDto[] {
+  findAll(): Promise<UserResponseDto[]> {
     return this.userService.findAll();
   }
 
@@ -84,7 +84,7 @@ export class UserController {
    * Fetches one user by UUID.
    *
    * @param {string} id - Path param; must be a UUID or the pipe returns 400.
-   * @returns {UserResponseDto} The public user (HTTP 200).
+   * @returns {Promise<UserResponseDto>} The public user (HTTP 200).
    */
   @Get(':id')
   @ApiOperation({ summary: 'Get a user by id' })
@@ -94,7 +94,9 @@ export class UserController {
   })
   @ApiBadRequestResponse({ description: 'Path id is not a valid UUID.' })
   @ApiNotFoundResponse({ description: 'No user exists for the given id.' })
-  findOne(@Param('id', { schema: userIdSchema }) id: string): UserResponseDto {
+  findOne(
+    @Param('id', { schema: userIdSchema }) id: string,
+  ): Promise<UserResponseDto> {
     return this.userService.findOne(id);
   }
 
@@ -130,7 +132,7 @@ export class UserController {
    * Always returns 204; missing users are a no-op in the service.
    *
    * @param {string} id - Path param; must be a UUID or the pipe returns 400.
-   * @returns {void}
+   * @returns {Promise<void>}
    */
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -139,7 +141,7 @@ export class UserController {
     description: 'User deleted, or id was already absent.',
   })
   @ApiBadRequestResponse({ description: 'Path id is not a valid UUID.' })
-  remove(@Param('id', { schema: userIdSchema }) id: string): void {
+  remove(@Param('id', { schema: userIdSchema }) id: string): Promise<void> {
     return this.userService.remove(id);
   }
 }

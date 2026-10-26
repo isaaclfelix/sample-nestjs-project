@@ -75,3 +75,14 @@ When a task has more than one logical slice, finish one slice, run the checks th
 - This section is the explicit ask for those commits. Do not wait for a separate "commit this" message. Do not push unless the user asks.
 - A slice is one Conventional Commit: one outcome, green checks, no secrets. Split unrelated work. Leave the tree usable after each commit.
 - Do not batch a multi-slice task into a single commit at the end.
+
+## 6. Module and import style
+
+Follow these conventions when adding or refactoring application code so reviews do not re-litigate structure:
+
+- Prefer **`import type`** for type-only imports (`CreateUserRecord`, DTO shapes, interfaces used only as types). Keep value imports for runtime symbols (`USER_REPOSITORY`, classes, functions).
+- Do **not** put free helper functions in the same module as a Nest/service/repository **class**. Extract helpers to sibling modules (for example `prisma-unique-conflict.ts` next to `prisma-user.repository.ts`).
+- Feature **`*.mapper.ts`** owns all mappings for that feature (persistence → domain and domain → API DTO). Do not add a parallel persistence-only mapper unless a later decision says otherwise.
+- CLI scripts and seeds that need app crypto **import** shared modules (for example `src/api/common/password.ts`); do not duplicate hashing or verification.
+- Nest wrappers around vendor clients use **composition** (own a `client` / dependency field), not `extends`, unless there is a documented exception. `PrismaService` owns `PrismaClient`.
+- **One interface/type per file is not required.** Port-related types may live next to the port that uses them (for example `CreateUserRecord` beside `UserRepository`).

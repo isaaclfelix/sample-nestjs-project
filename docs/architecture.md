@@ -64,7 +64,9 @@ src/
     app.controller.ts     GET /api
     openapi.setup.ts
     common/               password hashing, Zod to OpenAPI
-    user/                 users
+    user/                 users (controller, service, repository port/adapter)
+  persistence/            PrismaModule / PrismaService / PrismaPg helper
+  generated/prisma/       Prisma Client output (`prisma generate`; gitignored)
   web/                    HTML and React
     web.controller.ts     page routes
     web-view.service.ts
@@ -122,15 +124,42 @@ Schemas are the source of the TypeScript types (`z.infer`). Current contracts:
 
 ### Users, passwords, and responses
 
-`UserService` stores users in an in-memory `Map`. Create generates a UUID, hashes the password, and rejects a duplicate email or username (case-insensitive) with HTTP 409. The stored document is built field by field so extra DTO properties are not copied in.
+`UserService` builds domain `User` values (UUID, Argon2id hash, field-by-field from the DTO) and persists them through a **repository port** (`USER_REPOSITORY` / `UserRepository`). The Prisma adapter (`PrismaUserRepository`) is the only place that imports the generated Prisma Client. Controllers and the service never depend on Prisma types. Feature mapping lives in `user.mapper.ts`: persistence row → domain (`toDomainUser`) and domain → public DTO (`toUserResponseDto`).
 
-`hashPassword` uses Argon2id. The encoded string carries the algorithm, cost parameters, salt, and hash so verification can rebuild the same derivation. Cost parameters are constants in `src/api/common/password.ts` (see TD-005).
+Email and username uniqueness is enforced by Postgres expression unique indexes on `LOWER(email)` and `LOWER(username)` (see `prisma/migrations`). Both are case-insensitive so one mailbox maps to one account and usernames stay unique while preserving typed casing (Twitter-style). Prisma schema cannot express expression indexes, so those constraints live in SQL migrations rather than `@@unique`. Unique violations surface as Prisma `P2002` and become HTTP 409 in the adapter.
+
+`hashPassword` uses Argon2id. The encoded string carries the algorithm, cost parameters, salt, and hash so verification can rebuild the same derivation. Cost parameters are constants in `src/api/common/password.ts` (see TD-005). The Prisma seed imports the same helper so hashing does not drift.
 
 `toUserResponseDto` returns an allowlisted object. The password hash is not part of that object. There is no response interceptor that filters bodies at the edge yet (see TD-007).
 
 Delete returns 204 whether or not the id existed. That is the contract, not debt.
 
 Writes are not authenticated yet (see TD-001).
+
+### Persistence
+
+PostgreSQL is the system of record. **Prisma 7** owns the **database** schema (`prisma/schema.prisma` + migrations) and CLI config (`prisma.config.ts`). The app talks to Postgres through `@prisma/adapter-pg`. Zod owns the **HTTP** contracts. Domain `User` in `src/api/user/entities/user.entity.ts` is the port type between them. `PrismaService` **composes** `PrismaClient` (owns a `client` field) rather than extending it, so Nest DI wraps the vendor client instead of merging the two types. Formal Architecture Decision Records are deferred (TD-011); this section is the current decision record. Global Prisma module init always `$connect`s for the process lifetime even when a request never touches the DB (see TD-012).
+
+`prisma generate` writes the Prisma Client to `src/generated/prisma` (gitignored; regenerated on install/build). That folder is **not** migrations — SQL history lives in `prisma/migrations/` and is applied with `prisma migrate deploy`.
+
+```mermaid
+flowchart LR
+  http[Zod DTOs]
+  svc[UserService]
+  port[UserRepository]
+  adapter[PrismaUserRepository]
+  prismaSvc[PrismaService owns PrismaClient]
+  db[(PostgreSQL)]
+  http --> svc --> port --> adapter --> prismaSvc --> db
+```
+
+| Concern         | How                                                                                                                             |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Local manual DB | Docker Compose (`docker-compose.yml`) + GNU Make (`make db-up`, `make db-migrate`, `make db-seed`)                              |
+| App connection  | `DATABASE_URL` in `.env` / `prisma.config.ts` (see `.env.example`); required for migrate/seed/runtime, not for generate alone   |
+| Nest wiring     | Global `PrismaModule` / `PrismaService` (composes `PrismaClient` + PrismaPg); `UserModule` factory-binds the repository adapter |
+| E2E database    | Testcontainers Postgres (not Compose); migrate deploy once per run; truncate between tests                                      |
+| Client codegen  | `prisma generate` → `src/generated/prisma` on `postinstall` and at the start of `pnpm build` (works without a live DB / `.env`) |
 
 ### OpenAPI
 
@@ -152,6 +181,8 @@ sequenceDiagram
   participant P as Validation pipe
   participant U as UserController
   participant S as UserService
+  participant R as UserRepository
+  participant DB as PostgreSQL
   C->>P: POST /api/user
   P->>P: createUserSchema
   alt invalid body
@@ -159,9 +190,13 @@ sequenceDiagram
   else valid body
     P->>U: CreateUserDto
     U->>S: create
-    alt duplicate email or username
-      S-->>C: 409
+    S->>R: create
+    R->>DB: insert
+    alt unique index conflict
+      DB-->>R: P2002
+      R-->>C: 409
     else stored
+      R-->>S: User
       S-->>C: 201 public user
     end
   end
