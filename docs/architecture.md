@@ -156,10 +156,10 @@ flowchart LR
 | Concern         | How                                                                                                                             |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | Local manual DB | Docker Compose (`docker-compose.yml`) + GNU Make (`make db-up`, `make db-migrate`, `make db-seed`)                              |
-| App connection  | `DATABASE_URL` in `.env` / `prisma.config.ts` (see `.env.example`)                                                              |
+| App connection  | `DATABASE_URL` in `.env` / `prisma.config.ts` (see `.env.example`); required for migrate/seed/runtime, not for generate alone   |
 | Nest wiring     | Global `PrismaModule` / `PrismaService` (composes `PrismaClient` + PrismaPg); `UserModule` factory-binds the repository adapter |
 | E2E database    | Testcontainers Postgres (not Compose); migrate deploy once per run; truncate between tests                                      |
-| Client codegen  | `prisma generate` → `src/generated/prisma` on `postinstall` and at the start of `pnpm build`                                    |
+| Client codegen  | `prisma generate` → `src/generated/prisma` on `postinstall` and at the start of `pnpm build` (works without a live DB / `.env`) |
 
 ### OpenAPI
 
