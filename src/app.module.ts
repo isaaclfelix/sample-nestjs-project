@@ -4,6 +4,7 @@ import { createObserveModule } from '@nestjs/observe';
 import { ApiModule } from './api/api.module.js';
 import { UserModule } from './api/user/user.module.js';
 import { LoggerMiddleware } from './logger.middleware.js';
+import { PrismaModule } from './persistence/prisma.module.js';
 import { WebModule } from './web/web.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
@@ -17,6 +18,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       appSecret: process.env?.OBSERVE_APP_SECRET ?? '',
       serviceId: 'sample-nestjs-project',
     }),
+    PrismaModule,
     ApiModule,
     WebModule,
     // ApiModule owns the greeting and the user controllers, so both sit under /api.

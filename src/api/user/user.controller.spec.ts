@@ -46,12 +46,14 @@ describe('UserController', () => {
     expect(userService.create).toHaveBeenCalledWith(dto);
   });
 
-  it('delegates findAll and findOne to the service', () => {
-    userService.findAll.mockReturnValue([publicUser]);
-    userService.findOne.mockReturnValue(publicUser);
+  it('delegates findAll and findOne to the service', async () => {
+    userService.findAll.mockResolvedValue([publicUser]);
+    userService.findOne.mockResolvedValue(publicUser);
 
-    expect(controller.findAll()).toEqual([publicUser]);
-    expect(controller.findOne(publicUser.id)).toEqual(publicUser);
+    await expect(controller.findAll()).resolves.toEqual([publicUser]);
+    await expect(controller.findOne(publicUser.id)).resolves.toEqual(
+      publicUser,
+    );
   });
 
   it('delegates update to the service', async () => {
@@ -68,8 +70,9 @@ describe('UserController', () => {
     });
   });
 
-  it('delegates remove to the service', () => {
-    controller.remove(publicUser.id);
+  it('delegates remove to the service', async () => {
+    userService.remove.mockResolvedValue(undefined);
+    await controller.remove(publicUser.id);
     expect(userService.remove).toHaveBeenCalledWith(publicUser.id);
   });
 
@@ -77,7 +80,7 @@ describe('UserController', () => {
     const handler = Object.getOwnPropertyDescriptor(
       UserController.prototype,
       'remove',
-    )?.value as ((id: string) => void) | undefined;
+    )?.value as ((id: string) => Promise<void>) | undefined;
     const httpCode = Reflect.getMetadata('__httpCode__', handler as object);
     expect(httpCode).toBe(HttpStatus.NO_CONTENT);
   });

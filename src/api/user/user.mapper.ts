@@ -6,7 +6,7 @@ import { UserResponseDto } from './dto/user-response.dto.js';
  *
  * Copies only allowlisted fields so the password hash never appears in responses.
  *
- * @param {User} user - The persisted user document.
+ * @param {User} user - The persisted domain user.
  * @returns {UserResponseDto} Public fields: id, email, username, displayName, verified.
  */
 export function toUserResponseDto(user: User): UserResponseDto {
