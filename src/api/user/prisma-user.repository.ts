@@ -1,62 +1,14 @@
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { Prisma } from '../../generated/prisma/client.js';
 import { PrismaService } from '../../persistence/prisma.service.js';
-import { User } from './entities/user.entity.js';
-import {
+import type { User } from './entities/user.entity.js';
+import { conflictFromUniqueViolation } from './prisma-unique-conflict.js';
+import { toDomainUser } from './user.mapper.js';
+import type {
   CreateUserRecord,
   UpdateUserRecord,
   UserRepository,
 } from './user.repository.js';
-
-type PrismaUserRow = {
-  id: string;
-  email: string;
-  username: string;
-  displayName: string;
-  password: string;
-  verified: boolean;
-};
-
-/**
- * Maps a Prisma `users` row to the domain {@link User} type.
- *
- * @param {PrismaUserRow} row - Raw Prisma user record.
- * @returns {User} Persistence-agnostic user.
- */
-function toDomainUser(row: PrismaUserRow): User {
-  return {
-    id: row.id,
-    email: row.email,
-    username: row.username,
-    displayName: row.displayName,
-    password: row.password,
-    verified: row.verified,
-  };
-}
-
-/**
- * Turns a Prisma unique-constraint error into an HTTP conflict.
- *
- * Expression indexes name email/username in the index id, so target matching
- * works for both column names and `users_*_lower_key` indexes.
- *
- * @param {Prisma.PrismaClientKnownRequestError} error - Prisma P2002 error.
- * @returns {ConflictException} Field-specific or generic conflict.
- */
-function conflictFromUniqueViolation(
-  error: Prisma.PrismaClientKnownRequestError,
-): ConflictException {
-  // meta.target may be a string, string[], or other shapes; stringify for matching.
-  const joined = JSON.stringify(error.meta?.target ?? '').toLowerCase();
-
-  if (joined.includes('email')) {
-    return new ConflictException('Email already in use');
-  }
-  if (joined.includes('username')) {
-    return new ConflictException('Username already in use');
-  }
-  return new ConflictException('Email or username already in use');
-}
 
 /**
  * Prisma adapter for {@link UserRepository}.
