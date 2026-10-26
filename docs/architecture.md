@@ -65,7 +65,8 @@ src/
     openapi.setup.ts
     common/               password hashing, Zod to OpenAPI
     user/                 users (controller, service, repository port/adapter)
-  persistence/            PrismaModule / PrismaService
+  persistence/            PrismaModule / PrismaService / PrismaPg helper
+  generated/prisma/       Prisma Client output (`prisma generate`; gitignored)
   web/                    HTML and React
     web.controller.ts     page routes
     web-view.service.ts
@@ -123,7 +124,7 @@ Schemas are the source of the TypeScript types (`z.infer`). Current contracts:
 
 ### Users, passwords, and responses
 
-`UserService` builds domain `User` values (UUID, Argon2id hash, field-by-field from the DTO) and persists them through a **repository port** (`USER_REPOSITORY` / `UserRepository`). The Prisma adapter (`PrismaUserRepository`) is the only place that imports `@prisma/client` models. Controllers and the service never depend on Prisma types.
+`UserService` builds domain `User` values (UUID, Argon2id hash, field-by-field from the DTO) and persists them through a **repository port** (`USER_REPOSITORY` / `UserRepository`). The Prisma adapter (`PrismaUserRepository`) is the only place that imports the generated Prisma Client. Controllers and the service never depend on Prisma types.
 
 Email and username uniqueness is enforced by Postgres expression unique indexes on `LOWER(email)` and `LOWER(username)` (see `prisma/migrations`). Stored casing is preserved. Unique violations surface as Prisma `P2002` and become HTTP 409 in the adapter.
 
@@ -137,7 +138,9 @@ Writes are not authenticated yet (see TD-001).
 
 ### Persistence
 
-PostgreSQL is the system of record. Prisma owns the **database** schema (`prisma/schema.prisma` + migrations). Zod owns the **HTTP** contracts. Domain `User` in `src/api/user/entities/user.entity.ts` is the port type between them. Formal Architecture Decision Records are deferred (TD-011); this section is the current decision record.
+PostgreSQL is the system of record. **Prisma 7** owns the **database** schema (`prisma/schema.prisma` + migrations) and CLI config (`prisma.config.ts`). The app talks to Postgres through `@prisma/adapter-pg`. Zod owns the **HTTP** contracts. Domain `User` in `src/api/user/entities/user.entity.ts` is the port type between them. Formal Architecture Decision Records are deferred (TD-011); this section is the current decision record.
+
+`prisma generate` writes the Prisma Client to `src/generated/prisma` (gitignored; regenerated on install/build). That folder is **not** migrations — SQL history lives in `prisma/migrations/` and is applied with `prisma migrate deploy`.
 
 ```mermaid
 flowchart LR
@@ -145,17 +148,18 @@ flowchart LR
   svc[UserService]
   port[UserRepository]
   adapter[PrismaUserRepository]
+  client[PrismaClient plus PrismaPg]
   db[(PostgreSQL)]
-  http --> svc --> port --> adapter --> db
+  http --> svc --> port --> adapter --> client --> db
 ```
 
-| Concern         | How                                                                                                |
-| --------------- | -------------------------------------------------------------------------------------------------- |
-| Local manual DB | Docker Compose (`docker-compose.yml`) + GNU Make (`make db-up`, `make db-migrate`, `make db-seed`) |
-| App connection  | `DATABASE_URL` in `.env` (see `.env.example`)                                                      |
-| Nest wiring     | Global `PrismaModule` / `PrismaService`; `UserModule` factory-binds the Prisma adapter             |
-| E2E database    | Testcontainers Postgres (not Compose); migrate deploy once per run; truncate between tests         |
-| Client codegen  | `prisma generate` on `postinstall` and at the start of `pnpm build`                                |
+| Concern         | How                                                                                                           |
+| --------------- | ------------------------------------------------------------------------------------------------------------- |
+| Local manual DB | Docker Compose (`docker-compose.yml`) + GNU Make (`make db-up`, `make db-migrate`, `make db-seed`)            |
+| App connection  | `DATABASE_URL` in `.env` / `prisma.config.ts` (see `.env.example`)                                            |
+| Nest wiring     | Global `PrismaModule` / `PrismaService` (PrismaPg adapter); `UserModule` factory-binds the repository adapter |
+| E2E database    | Testcontainers Postgres (not Compose); migrate deploy once per run; truncate between tests                    |
+| Client codegen  | `prisma generate` → `src/generated/prisma` on `postinstall` and at the start of `pnpm build`                  |
 
 ### OpenAPI
 

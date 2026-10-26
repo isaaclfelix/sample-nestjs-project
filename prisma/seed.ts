@@ -5,15 +5,17 @@
  */
 import { argon2, randomBytes } from 'node:crypto';
 import { promisify } from 'node:util';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../src/generated/prisma/client.js';
+import { createPrismaPgAdapter } from '../src/persistence/create-prisma-pg-adapter.js';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({ adapter: createPrismaPgAdapter() });
 const argon2Async = promisify(argon2);
 
 /**
  * Hashes a password the same way as the app (Argon2id) for the demo user.
  *
- * Kept inline so the seed does not import Nest application modules.
+ * Kept inline so the seed does not import Nest application modules beyond
+ * the shared Prisma adapter helper.
  *
  * @param {string} plaintextPassword - Password to hash.
  * @returns {Promise<string>} Encoded Argon2id record.

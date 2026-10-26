@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../src/generated/prisma/client.js';
+import { createPrismaPgAdapter } from '../src/persistence/create-prisma-pg-adapter.js';
 
 /**
  * Truncates all application tables between e2e tests.
@@ -8,7 +9,7 @@ import { PrismaClient } from '@prisma/client';
  * @returns {Promise<void>}
  */
 export async function truncateDatabase(): Promise<void> {
-  const prisma = new PrismaClient();
+  const prisma = new PrismaClient({ adapter: createPrismaPgAdapter() });
   try {
     // RESTART IDENTITY is a no-op for UUID PKs; CASCADE covers FKs when added later.
     await prisma.$executeRawUnsafe(

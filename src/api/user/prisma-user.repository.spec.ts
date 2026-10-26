@@ -1,5 +1,5 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../../generated/prisma/client.js';
 import { PrismaUserRepository } from './prisma-user.repository.js';
 import type { PrismaService } from '../../persistence/prisma.service.js';
 import type { CreateUserRecord } from './user.repository.js';
