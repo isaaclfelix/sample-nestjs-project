@@ -100,6 +100,19 @@ A **Husky** `pre-commit` hook runs **[lint-staged](https://github.com/lint-stage
 
 **Bypass when you must** (emergency only): same `HUSKY=0` pattern as above.
 
+## Local database helpers
+
+Local Postgres for `pnpm start:dev` uses Docker Compose and **GNU Make** (see root `Makefile`). Automated e2e uses Testcontainers instead.
+
+| Command                  | Role                              |
+| ------------------------ | --------------------------------- |
+| `make db-up`             | Start Postgres                    |
+| `make db-migrate-deploy` | Apply committed Prisma migrations |
+| `make db-seed`           | Optional demo user                |
+| `make db-down`           | Stop Compose (keeps the volume)   |
+
+Set `DATABASE_URL` from [`.env.example`](./.env.example). Details: [docs/architecture.md](./docs/architecture.md).
+
 ## Testing, coverage, and CI
 
 Full policy: [docs/testing-and-coverage.md](./docs/testing-and-coverage.md).
@@ -107,9 +120,9 @@ Full policy: [docs/testing-and-coverage.md](./docs/testing-and-coverage.md).
 | Command         | Role                                            |
 | --------------- | ----------------------------------------------- |
 | `pnpm test`     | Unit suite (`*.spec.ts`)                        |
-| `pnpm test:e2e` | E2E suite (`*.e2e-spec.ts`)                     |
+| `pnpm test:e2e` | E2E suite (`*.e2e-spec.ts`); needs Docker       |
 | `pnpm test:cov` | Units + coverage; fails below Vitest thresholds |
 
 - Coverage is **unit-only** (see Vitest config). E2E is a separate behavioral gate.
 - When you change **controllers or HTTP contracts**, update or add e2e specs in the same PR.
-- GitHub Actions workflow **CI** (`.github/workflows/ci.yml`) runs parallel jobs: `lint`, `build`, `unit`, `e2e`, `coverage`. All must be green; an admin should require those checks on `main` (steps in the docs above).
+- GitHub Actions workflow **CI** (`.github/workflows/ci.yml`) runs parallel jobs: `lint`, `build`, `unit`, `e2e`, `coverage`. All must be green; an admin should require those checks on `main` (steps in the docs above). The `e2e` job needs Docker (available on GitHub-hosted runners).

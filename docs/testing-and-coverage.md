@@ -9,7 +9,7 @@ How this repo runs unit tests, e2e tests, and coverage — locally and in CI.
 | `pnpm lint`     | Oxlint with `--type-aware`. Static analysis; **not** a full TypeScript emit. |
 | `pnpm build`    | Nest/`tsc` compile of app sources. Authoritative typecheck.                  |
 | `pnpm test`     | Unit suite (`*.spec.ts`).                                                    |
-| `pnpm test:e2e` | E2E suite (`*.e2e-spec.ts`) via HTTP against a Nest test app.                |
+| `pnpm test:e2e` | E2E suite (`*.e2e-spec.ts`) via HTTP against Nest + Testcontainers Postgres. |
 | `pnpm test:cov` | Same unit suite under V8 coverage; fails if thresholds are not met.          |
 
 HTML report after `pnpm test:cov`: open `coverage/index.html` (directory is gitignored).
@@ -28,15 +28,23 @@ CI installs with `pnpm install --frozen-lockfile`. Dependency build scripts are 
 
 [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on every pull request and on pushes to `main`. Parallel jobs:
 
-| Job        | Command                               |
-| ---------- | ------------------------------------- |
-| `lint`     | `pnpm lint`                           |
-| `build`    | `pnpm build`                          |
-| `unit`     | `pnpm test`                           |
-| `e2e`      | `pnpm test:e2e`                       |
-| `coverage` | `pnpm test:cov` + PR coverage comment |
+| Job        | Command                                           |
+| ---------- | ------------------------------------------------- |
+| `lint`     | `pnpm lint`                                       |
+| `build`    | `pnpm build`                                      |
+| `unit`     | `pnpm test`                                       |
+| `e2e`      | `pnpm test:e2e` (needs Docker for Testcontainers) |
+| `coverage` | `pnpm test:cov` + PR coverage comment             |
 
 `unit` and `coverage` both run the unit suite (once without instrumentation, once with). That is intentional so each check stays clear.
+
+## E2E and the database
+
+E2E boots `AppModule`, which requires a real Postgres. **Testcontainers** starts `postgres:16-alpine` once per `pnpm test:e2e` run (`test/e2e-global-setup.ts`), applies `prisma migrate deploy`, and shares `DATABASE_URL` with workers. Each test truncates tables via `createE2eApp` / `truncateDatabase` so suites stay isolated.
+
+- **Docker** must be available locally and on the CI runner (GitHub-hosted Ubuntu images include it).
+- Compose (`make db-up`) is for human `start:dev` only. E2E does **not** use Compose.
+- Unit tests mock `USER_REPOSITORY` (service) or `PrismaService` (adapter). They never start Docker. Adapter unit tests keep coverage above the Vitest floors when new persistence code lands.
 
 Why **lint and build are separate:** oxlint `--type-aware` uses type information but is not Nest/`tsc` emit. `pnpm build` still catches type errors the linter can miss (see [AGENTS.md](../AGENTS.md)).
 

@@ -1,8 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, StandardSchemaValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types.js';
-import { AppModule } from '../src/app.module.js';
+import { createE2eApp } from './e2e-app.js';
 
 const validBody = {
   email: 'ada@example.com',
@@ -15,13 +14,7 @@ describe('UserController (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new StandardSchemaValidationPipe());
-    await app.init();
+    app = await createE2eApp({ validationPipe: true });
   });
 
   afterEach(async () => {
@@ -92,6 +85,18 @@ describe('UserController (e2e)', () => {
           await createUser({
             email: 'other@example.com',
             username: 'ada_lovelace',
+          })
+        ).status,
+      ).toBe(409);
+    });
+
+    it('returns 409 for a case-only duplicate email', async () => {
+      expect((await createUser()).status).toBe(201);
+      expect(
+        (
+          await createUser({
+            email: 'ADA@EXAMPLE.COM',
+            username: 'OtherUser',
           })
         ).status,
       ).toBe(409);

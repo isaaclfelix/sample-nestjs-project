@@ -5,5 +5,10 @@ allowBuilds:
   '@prisma/client': true
   '@prisma/engines': true
   '@scarf/scarf': false
+  # Optional native addon for dockerode/ssh; fails without a C toolchain — deny.
+  cpu-features: false
   esbuild: true
   prisma: true
+  protobufjs: true
+  # Optional ssh2 crypto binding; pure-JS path is enough for local Docker.
+  ssh2: false

@@ -21,6 +21,7 @@ lerna-debug.log*
 # Tests
 /coverage
 /.nyc_output
+/test/.e2e-database-url
 
 # IDEs and editors
 /.idea

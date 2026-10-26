@@ -64,7 +64,8 @@ src/
     app.controller.ts     GET /api
     openapi.setup.ts
     common/               password hashing, Zod to OpenAPI
-    user/                 users
+    user/                 users (controller, service, repository port/adapter)
+  persistence/            PrismaModule / PrismaService
   web/                    HTML and React
     web.controller.ts     page routes
     web-view.service.ts
@@ -122,7 +123,9 @@ Schemas are the source of the TypeScript types (`z.infer`). Current contracts:
 
 ### Users, passwords, and responses
 
-`UserService` stores users in an in-memory `Map`. Create generates a UUID, hashes the password, and rejects a duplicate email or username (case-insensitive) with HTTP 409. The stored document is built field by field so extra DTO properties are not copied in.
+`UserService` builds domain `User` values (UUID, Argon2id hash, field-by-field from the DTO) and persists them through a **repository port** (`USER_REPOSITORY` / `UserRepository`). The Prisma adapter (`PrismaUserRepository`) is the only place that imports `@prisma/client` models. Controllers and the service never depend on Prisma types.
+
+Email and username uniqueness is enforced by Postgres expression unique indexes on `LOWER(email)` and `LOWER(username)` (see `prisma/migrations`). Stored casing is preserved. Unique violations surface as Prisma `P2002` and become HTTP 409 in the adapter.
 
 `hashPassword` uses Argon2id. The encoded string carries the algorithm, cost parameters, salt, and hash so verification can rebuild the same derivation. Cost parameters are constants in `src/api/common/password.ts` (see TD-005).
 
@@ -131,6 +134,28 @@ Schemas are the source of the TypeScript types (`z.infer`). Current contracts:
 Delete returns 204 whether or not the id existed. That is the contract, not debt.
 
 Writes are not authenticated yet (see TD-001).
+
+### Persistence
+
+PostgreSQL is the system of record. Prisma owns the **database** schema (`prisma/schema.prisma` + migrations). Zod owns the **HTTP** contracts. Domain `User` in `src/api/user/entities/user.entity.ts` is the port type between them. Formal Architecture Decision Records are deferred (TD-011); this section is the current decision record.
+
+```mermaid
+flowchart LR
+  http[Zod DTOs]
+  svc[UserService]
+  port[UserRepository]
+  adapter[PrismaUserRepository]
+  db[(PostgreSQL)]
+  http --> svc --> port --> adapter --> db
+```
+
+| Concern         | How                                                                                                |
+| --------------- | -------------------------------------------------------------------------------------------------- |
+| Local manual DB | Docker Compose (`docker-compose.yml`) + GNU Make (`make db-up`, `make db-migrate`, `make db-seed`) |
+| App connection  | `DATABASE_URL` in `.env` (see `.env.example`)                                                      |
+| Nest wiring     | Global `PrismaModule` / `PrismaService`; `UserModule` factory-binds the Prisma adapter             |
+| E2E database    | Testcontainers Postgres (not Compose); migrate deploy once per run; truncate between tests         |
+| Client codegen  | `prisma generate` on `postinstall` and at the start of `pnpm build`                                |
 
 ### OpenAPI
 
@@ -152,6 +177,8 @@ sequenceDiagram
   participant P as Validation pipe
   participant U as UserController
   participant S as UserService
+  participant R as UserRepository
+  participant DB as PostgreSQL
   C->>P: POST /api/user
   P->>P: createUserSchema
   alt invalid body
@@ -159,9 +186,13 @@ sequenceDiagram
   else valid body
     P->>U: CreateUserDto
     U->>S: create
-    alt duplicate email or username
-      S-->>C: 409
+    S->>R: create
+    R->>DB: insert
+    alt unique index conflict
+      DB-->>R: P2002
+      R-->>C: 409
     else stored
+      R-->>S: User
       S-->>C: 201 public user
     end
   end
