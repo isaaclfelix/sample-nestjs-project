@@ -78,6 +78,35 @@ describe('WebViewService', () => {
     }
   });
 
+  it('passes Vite transformRequest through for island CSS', async () => {
+    const previous = process.env.VITEST;
+    delete process.env.VITEST;
+    const transformRequest = vi.fn(async () => ({
+      code: 'const __vite__css = "._c{}";',
+    }));
+    const render: ServerEntry['render'] = async (
+      _page,
+      _props,
+      createAssets,
+    ) => {
+      const assets = await createAssets(['counter']);
+      return assets.islandCss.counter ?? '';
+    };
+    vi.mocked(loadServerEntry).mockResolvedValue({ render });
+    setViteDevServer({ ssrLoadModule: vi.fn(), transformRequest });
+
+    try {
+      const html = await new WebViewService().render('home', {
+        renderedAt: 't',
+      });
+
+      expect(html).toBe('._c{}');
+      expect(transformRequest).toHaveBeenCalled();
+    } finally {
+      process.env.VITEST = previous;
+    }
+  });
+
   it('reads the client manifest for production islands', async () => {
     const previous = process.env.VITEST;
     delete process.env.VITEST;
