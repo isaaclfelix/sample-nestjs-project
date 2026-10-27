@@ -18,6 +18,8 @@ export default defineConfig({
       include: ['src/**/*.ts'],
       exclude: [
         'src/main.ts',
+        // Vite build-time plugin (shell CSS size report); not Nest runtime.
+        'src/web/vite-shell-css-budget.ts',
         'src/**/*.module.ts',
         'src/**/*.spec.ts',
         'src/**/*.tsx',

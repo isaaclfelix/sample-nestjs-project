@@ -17,7 +17,7 @@ HTML report after `pnpm test:cov`: open `coverage/index.html` (directory is giti
 ## Coverage policy
 
 - **Unit coverage only.** Thresholds apply to `src/**/*.ts` via [`vitest.config.ts`](../vitest.config.ts).
-- **Excluded from coverage:** `src/main.ts`, `**/*.module.ts`, `src/**/*.tsx`, specs, `node_modules`, `dist`. Nest wiring, bootstrap, and React views add little signal next to the HTTP tests. Thresholds stay on `src/**/*.ts`.
+- **Excluded from coverage:** `src/main.ts`, `src/web/vite-shell-css-budget.ts` (Vite build plugin), `**/*.module.ts`, `src/**/*.tsx`, specs, `node_modules`, `dist`. Nest wiring, bootstrap, build plugins, and React views add little signal next to the HTTP tests. Thresholds stay on `src/**/*.ts`.
 - **E2E is a behavioral gate**, not part of the coverage percentage. Do not merge unit+e2e Istanbul reports for this project yet.
 - **Thresholds** (statements / branches / functions / lines) are floors locked a little under the measured baseline. Raise them when coverage improves; do not lower them to land a PR without team agreement.
 - When you change **controllers or HTTP contracts**, update or add `*.e2e-spec.ts` in the same PR.
