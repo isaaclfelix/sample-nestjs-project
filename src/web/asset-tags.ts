@@ -1,13 +1,20 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+/** One `<style>` block to emit in the document head (e.g. inlined shell). */
+export interface InlineStyleTag {
+  id: string;
+  css: string;
+}
+
 /**
- * Stylesheets and module scripts the document shell should emit.
+ * Stylesheets, head inlines, and module scripts the document shell should emit.
  *
- * Empty lists mean the page ships no client assets.
+ * Empty lists mean the page ships no client assets of that kind.
  */
 export interface AssetTags {
   stylesheets: string[];
+  inlineStyles: InlineStyleTag[];
   scripts: string[];
 }
 
@@ -26,6 +33,7 @@ export type ClientManifest = Record<string, ManifestChunk>;
 /** No client JavaScript and no stylesheets. */
 export const emptyAssetTags: AssetTags = {
   stylesheets: [],
+  inlineStyles: [],
   scripts: [],
 };
 
@@ -112,6 +120,7 @@ export function loadClientManifest(): ClientManifest {
 export function developmentAssetTags(): AssetTags {
   return {
     stylesheets: [shellStylesheetDev],
+    inlineStyles: [],
     scripts: [
       // Sets window.$RefreshReg$ before any island module evaluates.
       '/@id/@vitejs/plugin-react/preamble',
@@ -132,6 +141,7 @@ export function developmentAssetTags(): AssetTags {
 export function developmentShellOnlyAssetTags(): AssetTags {
   return {
     stylesheets: [shellStylesheetDev],
+    inlineStyles: [],
     scripts: [viteClientDev],
   };
 }
@@ -173,6 +183,7 @@ export function assetTagsFromManifest(manifest: ClientManifest): AssetTags {
 
   return {
     stylesheets: stylesheets.map((file) => `/${file}`),
+    inlineStyles: [],
     scripts: scripts.map((file) => `/${file}`),
   };
 }
@@ -198,51 +209,6 @@ export function shellStylesheetFromManifest(manifest: ClientManifest): string {
   }
 
   return `/${file}`;
-}
-
-/**
- * Chooses the asset tags for one rendered page.
- *
- * Every page links the shared sheet. A page with no islands gets no client
- * JavaScript. Development points at the Vite source entry. Production uses
- * the manifest and still omits island chunks and their CSS.
- *
- * @param {readonly string[]} islandNames - Island names rendered on the page.
- * @param {{ development: boolean; manifest?: ClientManifest }} source - Where client URLs come from.
- * @returns {AssetTags} Tags for the document shell.
- * @throws {Error} When a production page has no manifest, or the manifest has no shell.
- */
-export function assetTagsForIslands(
-  islandNames: readonly string[],
-  source: { development: boolean; manifest?: ClientManifest },
-): AssetTags {
-  if (source.development) {
-    if (islandNames.length === 0) {
-      return developmentShellOnlyAssetTags();
-    }
-
-    return developmentAssetTags();
-  }
-
-  if (!source.manifest) {
-    throw new Error('Production pages need the client manifest.');
-  }
-
-  const shell = shellStylesheetFromManifest(source.manifest);
-
-  if (islandNames.length === 0) {
-    return { stylesheets: [shell], scripts: [] };
-  }
-
-  const runtime = assetTagsFromManifest(source.manifest);
-
-  return {
-    stylesheets: [
-      shell,
-      ...runtime.stylesheets.filter((href) => href !== shell),
-    ],
-    scripts: runtime.scripts,
-  };
 }
 
 /**

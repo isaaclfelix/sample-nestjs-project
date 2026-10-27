@@ -9,7 +9,6 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  assetTagsForIslands,
   assetTagsFromManifest,
   clientManifestPath,
   developmentAssetTags,
@@ -19,6 +18,7 @@ import {
   setClientManifestReader,
   type ClientManifest,
 } from './asset-tags.js';
+import { createPageAssets } from './page-assets.js';
 
 const manifest: ClientManifest = {
   'src/web/client/hydrate.tsx': {
@@ -43,30 +43,36 @@ describe('asset tags', () => {
     setClientManifestReader(undefined);
   });
 
-  it('links only the shell when the page has no islands', () => {
-    expect(assetTagsForIslands([], { development: true })).toEqual(
-      developmentShellOnlyAssetTags(),
-    );
-    expect(assetTagsForIslands([], { development: false, manifest })).toEqual({
-      stylesheets: ['/assets/shell.css'],
-      scripts: [],
+  it('uses shell-only development tags when the page has no islands', async () => {
+    await expect(createPageAssets([], { development: true })).resolves.toEqual({
+      tags: developmentShellOnlyAssetTags(),
+      islandCss: {},
     });
   });
 
-  it('points development pages at the vite source entry', () => {
-    expect(assetTagsForIslands(['counter'], { development: true })).toEqual(
-      developmentAssetTags(),
-    );
+  it('points development pages at the vite source entry', async () => {
+    await expect(
+      createPageAssets(['counter'], { development: true }),
+    ).resolves.toEqual({
+      tags: developmentAssetTags(),
+      islandCss: {},
+    });
   });
 
-  it('links the shell and the runtime, not island chunks', () => {
-    const tags = assetTagsForIslands(['counter'], {
+  it('links the shell and the runtime, not island chunks', async () => {
+    const shellPath = join(process.cwd(), 'dist/client/assets/shell.css');
+    mkdirSync(join(shellPath, '..'), { recursive: true });
+    // Over budget so production keeps a <link> (matches full Bootstrap today).
+    writeFileSync(shellPath, 'x'.repeat(50 * 1024 + 1));
+
+    const { tags } = await createPageAssets(['counter'], {
       development: false,
       manifest,
     });
 
     expect(tags.stylesheets[0]).toBe('/assets/shell.css');
     expect(tags.stylesheets).toContain('/assets/app.css');
+    expect(tags.inlineStyles).toEqual([]);
     expect(tags.scripts.join(' ')).not.toContain('counter');
   });
 
@@ -79,6 +85,7 @@ describe('asset tags', () => {
       '/assets/plain.js',
     ]);
     expect(tags.stylesheets).toEqual(['/assets/app.css', '/assets/react.css']);
+    expect(tags.inlineStyles).toEqual([]);
     expect(tags.scripts.join(' ')).not.toContain('shell');
     expect(tags.scripts.join(' ')).not.toContain('counter');
     expect(tags.scripts.join(' ')).not.toContain('chart');
@@ -91,6 +98,7 @@ describe('asset tags', () => {
       }),
     ).toEqual({
       stylesheets: [],
+      inlineStyles: [],
       scripts: ['/assets/hydrate.js'],
     });
   });
@@ -101,15 +109,15 @@ describe('asset tags', () => {
     );
   });
 
-  it('throws in production when the manifest is missing', () => {
-    expect(() => assetTagsForIslands([], { development: false })).toThrow(
+  it('throws in production when the manifest is missing', async () => {
+    await expect(createPageAssets([], { development: false })).rejects.toThrow(
       'Production pages need the client manifest.',
     );
   });
 
-  it('throws when the manifest has no shell stylesheet', () => {
-    expect(() =>
-      assetTagsForIslands([], {
+  it('throws when the manifest has no shell stylesheet', async () => {
+    await expect(
+      createPageAssets([], {
         development: false,
         manifest: {
           'src/web/client/hydrate.tsx': {
@@ -118,7 +126,7 @@ describe('asset tags', () => {
           },
         },
       }),
-    ).toThrow('Client manifest is missing the shell stylesheet.');
+    ).rejects.toThrow('Client manifest is missing the shell stylesheet.');
   });
 
   it('reads a manifest file from disk', () => {

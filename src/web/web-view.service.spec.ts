@@ -1,3 +1,5 @@
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { setClientManifestReader } from './asset-tags.js';
 import {
   loadServerEntry,
@@ -56,9 +58,9 @@ describe('WebViewService', () => {
       _props,
       createAssets,
     ) => {
-      const idle = createAssets([]);
-      const active = createAssets(['counter']);
-      return `${idle.scripts.join(',')}|${active.scripts.join(',')}`;
+      const idle = await createAssets([]);
+      const active = await createAssets(['counter']);
+      return `${idle.tags.scripts.join(',')}|${active.tags.scripts.join(',')}`;
     };
     vi.mocked(loadServerEntry).mockResolvedValue({ render });
     setViteDevServer({ ssrLoadModule: vi.fn() });
@@ -79,6 +81,10 @@ describe('WebViewService', () => {
   it('reads the client manifest for production islands', async () => {
     const previous = process.env.VITEST;
     delete process.env.VITEST;
+    const shellPath = join(process.cwd(), 'dist/client/assets/shell.css');
+    mkdirSync(join(shellPath, '..'), { recursive: true });
+    writeFileSync(shellPath, 'x'.repeat(50 * 1024 + 1));
+
     setClientManifestReader(() => ({
       'src/web/client/hydrate.tsx': {
         file: 'assets/hydrate.js',
@@ -96,9 +102,9 @@ describe('WebViewService', () => {
       _props,
       createAssets,
     ) => {
-      const idle = createAssets([]);
-      const active = createAssets(['counter']);
-      return `${idle.scripts.join(',')}|${active.scripts.join(',')}`;
+      const idle = await createAssets([]);
+      const active = await createAssets(['counter']);
+      return `${idle.tags.scripts.join(',')}|${active.tags.scripts.join(',')}`;
     };
     vi.mocked(loadServerEntry).mockResolvedValue({ render });
 

@@ -24,25 +24,56 @@ function loadCounterIsland(): Promise<IslandModule> {
 }
 
 /**
- * Island name to a lazy loader.
+ * One registered island: lazy client loader plus optional module CSS path for
+ * development SSR inlining.
+ */
+export interface IslandRegistration {
+  load: () => Promise<IslandModule>;
+  /**
+   * Dev-only: Vite URL for the island's CSS module (e.g. `/src/web/islands/foo.module.scss`).
+   * Production resolves CSS from the client manifest instead.
+   */
+  cssModulePath?: string;
+}
+
+/**
+ * Island name to a lazy loader (and optional CSS module path for dev SSR).
  *
- * Each value is a dynamic `import()` so Vite emits a separate chunk. The
+ * Each `load` is a dynamic `import()` so Vite emits a separate chunk. The
  * client entry imports this object only. It must not statically import an
  * island component, or every island would ship in the entry bundle.
  */
+export const islandRegistry = {
+  counter: {
+    load: loadCounterIsland,
+    cssModulePath: '/src/web/islands/counter.module.scss',
+  },
+} as const satisfies Record<string, IslandRegistration>;
+
+/** Lazy loaders only — hydrate entry uses this shape. */
 export const islandLoaders = {
   counter: loadCounterIsland,
 } as const;
 
-/** Names registered in `islandLoaders`. */
-export type IslandName = keyof typeof islandLoaders;
+/** Names registered in `islandRegistry`. */
+export type IslandName = keyof typeof islandRegistry;
 
 /**
  * Reports whether a marker name has a client chunk.
  *
  * @param {string} name - Value of `data-island`.
- * @returns {boolean} True when the name is a key of `islandLoaders`.
+ * @returns {boolean} True when the name is a key of `islandRegistry`.
  */
 export function isIslandName(name: string): name is IslandName {
-  return Object.prototype.hasOwnProperty.call(islandLoaders, name);
+  return Object.prototype.hasOwnProperty.call(islandRegistry, name);
+}
+
+/**
+ * Returns the Vite-dev CSS module URL for an island, when registered.
+ *
+ * @param {IslandName} name - Registered island name.
+ * @returns {string | undefined} Absolute-from-root Vite URL, or undefined.
+ */
+export function islandCssModuleUrl(name: IslandName): string | undefined {
+  return islandRegistry[name].cssModulePath;
 }
