@@ -13,6 +13,7 @@ import {
   assetTagsFromManifest,
   clientManifestPath,
   developmentAssetTags,
+  developmentShellOnlyAssetTags,
   loadClientManifest,
   readClientManifest,
   setClientManifestReader,
@@ -34,7 +35,7 @@ const manifest: ClientManifest = {
   'plain.js': { file: 'assets/plain.js' },
   'src/web/islands/counter.tsx': { file: 'assets/counter.js' },
   'src/web/islands/chart.tsx': { file: 'assets/chart.js' },
-  'src/web/styles.css': { file: 'assets/shell.css', isEntry: true },
+  'src/web/styles.scss': { file: 'assets/shell.css', isEntry: true },
 };
 
 describe('asset tags', () => {
@@ -43,10 +44,9 @@ describe('asset tags', () => {
   });
 
   it('links only the shell when the page has no islands', () => {
-    expect(assetTagsForIslands([], { development: true })).toEqual({
-      stylesheets: ['/src/web/styles.css'],
-      scripts: [],
-    });
+    expect(assetTagsForIslands([], { development: true })).toEqual(
+      developmentShellOnlyAssetTags(),
+    );
     expect(assetTagsForIslands([], { development: false, manifest })).toEqual({
       stylesheets: ['/assets/shell.css'],
       scripts: [],

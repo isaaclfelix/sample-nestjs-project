@@ -30,10 +30,13 @@ export const emptyAssetTags: AssetTags = {
 };
 
 /** Dev URL for the shared sheet. Vite serves it as CSS for a stylesheet link. */
-export const shellStylesheetDev = '/src/web/styles.css';
+export const shellStylesheetDev = '/src/web/styles.scss';
 
 /** Manifest key for the shared sheet, which is its own client build input. */
-const shellStylesheetSource = 'src/web/styles.css';
+const shellStylesheetSource = 'src/web/styles.scss';
+
+/** Vite client runtime: HMR / full-reload for shell SCSS even without islands. */
+const viteClientDev = '/@vite/client';
 
 /** Manifest key for the browser hydrate entry. */
 const hydrateEntrySource = 'src/web/client/hydrate.tsx';
@@ -112,9 +115,24 @@ export function developmentAssetTags(): AssetTags {
     scripts: [
       // Sets window.$RefreshReg$ before any island module evaluates.
       '/@id/@vitejs/plugin-react/preamble',
-      '/@vite/client',
+      viteClientDev,
       '/src/web/client/hydrate.tsx',
     ],
+  };
+}
+
+/**
+ * Dev tags when the page has no islands.
+ *
+ * Still loads `/@vite/client` so shell SCSS edits trigger Vite reload
+ * without a separate CSS watcher or BrowserSync.
+ *
+ * @returns {AssetTags} Shell stylesheet plus the Vite client only.
+ */
+export function developmentShellOnlyAssetTags(): AssetTags {
+  return {
+    stylesheets: [shellStylesheetDev],
+    scripts: [viteClientDev],
   };
 }
 
@@ -200,7 +218,7 @@ export function assetTagsForIslands(
 ): AssetTags {
   if (source.development) {
     if (islandNames.length === 0) {
-      return { stylesheets: [shellStylesheetDev], scripts: [] };
+      return developmentShellOnlyAssetTags();
     }
 
     return developmentAssetTags();
