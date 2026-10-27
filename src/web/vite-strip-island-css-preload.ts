@@ -3,24 +3,34 @@ import { join } from 'node:path';
 import type { Plugin } from 'vite';
 
 /**
- * Removes `.css` entries from Vite's `__vite__mapDeps` preload table only.
+ * Marker so the rewrite is idempotent if writeBundle runs twice.
+ */
+const cssFilterMarker = '/*strip-island-css*/';
+
+/**
+ * Makes `__vite__mapDeps` omit `.css` URLs without shifting table indices.
+ *
+ * Vite emits `m.f=["island.js","react.js","island.css"]` and calls
+ * `__vite__mapDeps([0,1,2])`. Removing the CSS string from `m.f` leaves index
+ * `2` as `undefined`, which becomes
+ * `<link rel="modulepreload" href="…/undefined">`. Filtering after the map
+ * keeps indices stable and still prevents a second stylesheet inject (island
+ * CSS is already SSR-inlined).
  *
  * Must not strip arbitrary `.css` substrings from the hydrate chunk — that
  * file also embeds React DOM, which mentions stylesheets in source text.
  *
  * @param {string} code - Hydrate chunk source.
- * @returns {string} Source with CSS paths removed from mapDeps.
+ * @returns {string} Source whose mapDeps helper skips CSS URLs.
  */
 export function stripCssAssetPathsFromCode(code: string): string {
+  if (code.includes(cssFilterMarker)) {
+    return code;
+  }
+
   return code.replace(
-    /(__vite__mapDeps=\(i,m=__vite__mapDeps,d=\(m\.f\|\|\(m\.f=)(\[[^\]]*\])/g,
-    (_full, prefix: string, arrayLiteral: string) => {
-      const cleaned = arrayLiteral
-        .replace(/,?\s*["'][^"']+\.css["']/g, '')
-        .replace(/\[\s*,/g, '[')
-        .replace(/,\s*\]/g, ']');
-      return `${prefix}${cleaned}`;
-    },
+    /(__vite__mapDeps=\(i,m=__vite__mapDeps,d=\(m\.f\|\|\(m\.f=\[[^\]]*\]\)\)\)=>)i\.map\(i=>d\[i\]\)/g,
+    `$1i.map(i=>d[i]).filter((u)=>${cssFilterMarker}typeof u=="string"&&!u.endsWith(".css"))`,
   );
 }
 
