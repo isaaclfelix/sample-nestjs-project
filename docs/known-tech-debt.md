@@ -14,9 +14,10 @@ DELETE `/api/user/:id` returning **204** whether or not the user existed is an i
 
 ## Closed items
 
-| ID     | Area        | Resolution                                                                                         |
-| ------ | ----------- | -------------------------------------------------------------------------------------------------- |
-| TD-002 | Persistence | Case-insensitive unique `email` / `username` enforced by Postgres `LOWER(...)` indexes via Prisma. |
+| ID     | Area        | Resolution                                                                                                                                                                                  |
+| ------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TD-002 | Persistence | Case-insensitive unique `email` / `username` enforced by Postgres `LOWER(...)` indexes via Prisma.                                                                                          |
+| TD-017 | Web CSS     | Threshold-aware shell inline vs link; island sibling `<style>` SSR; strip island CSS from hydrate mapDeps. Fixture tests cover shell modes; full Bootstrap remains linked until handpicked. |
 
 ## Open items
 
@@ -37,4 +38,3 @@ DELETE `/api/user/:id` returning **204** whether or not the user existed is an i
 | TD-014 | Web CSS     | `size-limit` (or equivalent) for CI/local **fail-on-exceed** of the shell CSS budget                                                                                      | Vite plugin **reports** size vs `SHELL_CSS_BUDGET_BYTES` / 50 KiB gzip and never fails the build       | Emergency CSS fixes must not be blocked; add a hard gate when desired    | Doc only                                                                |
 | TD-015 | Web CSS     | Autoprefixer and/or broader Lightning CSS `targets` if the support matrix expands beyond Baseline Widely Available                                                        | No autoprefixer; Lightning CSS minify + Baseline handles modern prefixing/lowering                     | Redundant for current targets; revisit with TD-013                       | Doc only                                                                |
 | TD-016 | Web CSS     | Build or lint warning when island SCSS imports CSS-emitting shell/Bootstrap partials already in the shell                                                                 | Convention + docs only (`styles/_tokens.scss` for Sass API)                                            | Nice-to-have guardrail; tokens convention ships first                    | Doc only                                                                |
-| TD-017 | Web CSS     | Inline shell CSS in the document (threshold-aware) and inject each island’s CSS as a `<style>` above its SSR markup; suppress duplicate chunk CSS injection               | Shell is a head `<link>`; island CSS arrives with the JS chunk (FOUC risk for above-fold islands)      | Part II after the Sass compile pipeline; counter demo is the showcase    | Doc only                                                                |
