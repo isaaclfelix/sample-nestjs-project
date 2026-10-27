@@ -1,0 +1,14 @@
+// Sample island sheet (SCSS module). Ships with the counter chunk, not in
+// the document head. Uses Sass-only tokens — never re-import the shell sheet.
+// Remove with TD-009.
+
+@import '../styles/tokens';
+
+.count {
+  // Prove nesting + Bootstrap token access without emitting shell CSS twice.
+  font-weight: $font-weight-bold;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}

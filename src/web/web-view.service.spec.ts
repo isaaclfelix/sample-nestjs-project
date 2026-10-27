@@ -43,7 +43,7 @@ describe('WebViewService', () => {
       'Rendered on the server at 2026-10-22T12:00:00.000Z.',
     );
     expect(html).toContain('data-island="counter"');
-    expect(html).toContain('/src/web/styles.css');
+    expect(html).toContain('/src/web/styles.scss');
     expect(html).toContain('/src/web/client/hydrate.tsx');
     expect(html).not.toContain('assets/counter.js');
   });
@@ -69,7 +69,7 @@ describe('WebViewService', () => {
       });
 
       expect(html).toBe(
-        '|/@id/@vitejs/plugin-react/preamble,/@vite/client,/src/web/client/hydrate.tsx',
+        '/@vite/client|/@id/@vitejs/plugin-react/preamble,/@vite/client,/src/web/client/hydrate.tsx',
       );
     } finally {
       process.env.VITEST = previous;
@@ -89,7 +89,7 @@ describe('WebViewService', () => {
       },
       '_react.js': { file: 'assets/react.js' },
       'src/web/islands/counter.tsx': { file: 'assets/counter.js' },
-      'src/web/styles.css': { file: 'assets/shell.css', isEntry: true },
+      'src/web/styles.scss': { file: 'assets/shell.css', isEntry: true },
     }));
     const render: ServerEntry['render'] = async (
       _page,

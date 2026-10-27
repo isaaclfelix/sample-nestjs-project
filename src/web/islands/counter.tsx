@@ -1,5 +1,5 @@
 import { useState, type ReactElement } from 'react';
-import styles from './counter.module.css';
+import styles from './counter.module.scss';
 
 /**
  * Renders a button that increments a count.
