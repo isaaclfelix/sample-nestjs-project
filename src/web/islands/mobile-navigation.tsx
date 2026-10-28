@@ -1,5 +1,6 @@
 import { useState, type AnimationEvent, type ReactElement } from 'react';
 import styles from './mobile-navigation.module.scss';
+import Icon from '../shared/icon.js';
 
 /**
  * Interactive mobile-navigation island.
@@ -11,9 +12,6 @@ import styles from './mobile-navigation.module.scss';
  * @returns {ReactElement} Interactive island markup.
  */
 export default function MobileNavigation(): ReactElement {
-  const openLabel = 'Close Menu';
-  const closedLabel = 'Open Menu';
-
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
 
@@ -78,7 +76,7 @@ export default function MobileNavigation(): ReactElement {
         onClick={toggleOpen}
         aria-expanded={open}
       >
-        {open ? openLabel : closedLabel}
+        {open ? <Icon name="x-lg" /> : <Icon name="list" />}
       </button>
 
       <div
