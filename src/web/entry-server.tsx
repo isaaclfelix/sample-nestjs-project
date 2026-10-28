@@ -7,10 +7,12 @@ import type { PageAssets } from './page-assets.js';
 import { HomePage } from './pages/home-page.js';
 import { LoginPage } from './pages/login-page.js';
 import type { PagePropsMap, WebPageName } from './pages/page-props.js';
+import { RegisterPage } from './pages/register-page.js';
 
 const pages = {
   home: HomePage,
   login: LoginPage,
+  register: RegisterPage,
 } as const satisfies {
   [K in WebPageName]: (props: PagePropsMap[K]) => ReactElement;
 };

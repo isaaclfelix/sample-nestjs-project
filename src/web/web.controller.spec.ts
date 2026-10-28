@@ -21,4 +21,13 @@ describe('WebController', () => {
     await expect(controller.login()).resolves.toContain('<!DOCTYPE html>');
     expect(render).toHaveBeenCalledWith('login', {});
   });
+
+  it('asks the view service for the register page', async () => {
+    const render = vi.fn().mockResolvedValue('<!DOCTYPE html><html></html>');
+    const webViewService = { render } as unknown as WebViewService;
+    const controller = new WebController(webViewService);
+
+    await expect(controller.register()).resolves.toContain('<!DOCTYPE html>');
+    expect(render).toHaveBeenCalledWith('register', {});
+  });
 });

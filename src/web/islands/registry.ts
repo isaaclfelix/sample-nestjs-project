@@ -28,6 +28,15 @@ function loadLoginFormIsland(): Promise<IslandModule> {
 }
 
 /**
+ * Loads the register-form island chunk.
+ *
+ * @returns {Promise<IslandModule>} The register-form module.
+ */
+function loadRegisterFormIsland(): Promise<IslandModule> {
+  return import('./register-form.js') as Promise<IslandModule>;
+}
+
+/**
  * One registered island: lazy client loader plus optional module CSS path for
  * development SSR inlining.
  */
@@ -55,12 +64,16 @@ export const islandRegistry = {
   'login-form': {
     load: loadLoginFormIsland,
   },
+  'register-form': {
+    load: loadRegisterFormIsland,
+  },
 } as const satisfies Record<string, IslandRegistration>;
 
 /** Lazy loaders only — hydrate entry uses this shape. */
 export const islandLoaders = {
   'mobile-navigation': loadMobileNavigationIsland,
   'login-form': loadLoginFormIsland,
+  'register-form': loadRegisterFormIsland,
 } as const;
 
 /** Names registered in `islandRegistry`. */
@@ -83,5 +96,6 @@ export function isIslandName(name: string): name is IslandName {
  * @returns {string | undefined} Absolute-from-root Vite URL, or undefined.
  */
 export function islandCssModuleUrl(name: IslandName): string | undefined {
-  return islandRegistry[name].cssModulePath;
+  // `as const` omits optional keys; widen to the registration shape for access.
+  return (islandRegistry[name] as IslandRegistration).cssModulePath;
 }
