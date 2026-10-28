@@ -8,17 +8,21 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiTooManyRequestsResponse,
 } from '@nestjs/swagger';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { z } from 'zod';
 import { UserService } from './user.service.js';
 import { createUserSchema, type CreateUserDto } from './dto/create-user.dto.js';
@@ -50,6 +54,8 @@ export class UserController {
    * @returns {Promise<UserResponseDto>} The created public user (HTTP 201).
    */
   @Post()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @ApiOperation({ summary: 'Create a user' })
   @ApiCreatedResponse({
     description: 'User created.',
@@ -58,6 +64,10 @@ export class UserController {
   @ApiBadRequestResponse({ description: 'Request body failed validation.' })
   @ApiConflictResponse({
     description: 'Email or username already in use.',
+  })
+  @ApiForbiddenResponse({ description: 'Invalid CSRF token.' })
+  @ApiTooManyRequestsResponse({
+    description: 'Too many registration attempts.',
   })
   create(
     @Body({ schema: createUserSchema }) createUserDto: CreateUserDto,

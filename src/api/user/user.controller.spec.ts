@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus } from '@nestjs/common';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { UserController } from './user.controller.js';
 import { UserService } from './user.service.js';
 import { UserResponseDto } from './dto/user-response.dto.js';
@@ -26,6 +27,9 @@ describe('UserController', () => {
     vi.clearAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 100 }]),
+      ],
       controllers: [UserController],
       providers: [{ provide: UserService, useValue: userService }],
     }).compile();

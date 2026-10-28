@@ -1,6 +1,7 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { RouterModule } from '@nestjs/core';
 import { createObserveModule } from '@nestjs/observe';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { ApiModule } from './api/api.module.js';
 import { AuthModule } from './api/auth/auth.module.js';
 import { SessionMiddleware } from './api/auth/session.middleware.js';
@@ -21,15 +22,19 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       serviceId: 'sample-nestjs-project',
     }),
     PrismaModule,
+    ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 100 }]),
     AuthModule,
     ApiModule,
     WebModule,
-    // ApiModule owns the greeting and the user controllers, so both sit under /api.
+    // ApiModule owns the greeting, auth, and user controllers under /api.
     RouterModule.register([
       {
         path: 'api',
         module: ApiModule,
-        children: [{ path: '/', module: UserModule }],
+        children: [
+          { path: '/', module: UserModule },
+          { path: '/', module: AuthModule },
+        ],
       },
     ]),
   ],

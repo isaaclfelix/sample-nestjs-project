@@ -41,12 +41,14 @@ describe('UserService', () => {
     create: ReturnType<typeof vi.fn>;
     findAll: ReturnType<typeof vi.fn>;
     findById: ReturnType<typeof vi.fn>;
+    findByEmailOrUsername: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
     delete: ReturnType<typeof vi.fn>;
   } = {
     create: vi.fn(),
     findAll: vi.fn(),
     findById: vi.fn(),
+    findByEmailOrUsername: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
   };

@@ -56,6 +56,16 @@ export interface UserRepository {
   findById(id: string): Promise<User | null>;
 
   /**
+   * Loads one user by email or username (case-insensitive).
+   *
+   * Used by login when the client sends a single identifier field.
+   *
+   * @param {string} identifier - Email or username as typed by the user.
+   * @returns {Promise<User | null>} The user, or null when no match.
+   */
+  findByEmailOrUsername(identifier: string): Promise<User | null>;
+
+  /**
    * Applies a partial update and returns the new stored row.
    *
    * @param {string} id - User UUID.

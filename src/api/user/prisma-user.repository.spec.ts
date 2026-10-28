@@ -39,6 +39,7 @@ describe('PrismaUserRepository', () => {
         create: vi.fn(),
         findMany: vi.fn(),
         findUnique: vi.fn(),
+        findFirst: vi.fn(),
         update: vi.fn(),
         deleteMany: vi.fn(),
       },
@@ -150,6 +151,32 @@ describe('PrismaUserRepository', () => {
       prisma.client.user.findUnique.mockResolvedValue(null);
 
       await expect(repository.findById(row.id)).resolves.toBeNull();
+    });
+  });
+
+  describe('findByEmailOrUsername', () => {
+    it('queries email or username case-insensitively', async () => {
+      prisma.client.user.findFirst.mockResolvedValue(row);
+
+      await expect(
+        repository.findByEmailOrUsername('Ada@Example.com'),
+      ).resolves.toEqual(row);
+      expect(prisma.client.user.findFirst).toHaveBeenCalledWith({
+        where: {
+          OR: [
+            { email: { equals: 'Ada@Example.com', mode: 'insensitive' } },
+            { username: { equals: 'Ada@Example.com', mode: 'insensitive' } },
+          ],
+        },
+      });
+    });
+
+    it('returns null when no row matches', async () => {
+      prisma.client.user.findFirst.mockResolvedValue(null);
+
+      await expect(
+        repository.findByEmailOrUsername('missing'),
+      ).resolves.toBeNull();
     });
   });
 

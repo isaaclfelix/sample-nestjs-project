@@ -76,6 +76,24 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   /**
+   * Finds a user whose email or username matches the identifier (insensitive).
+   *
+   * @param {string} identifier - Email or username.
+   * @returns {Promise<User | null>} The matching user, or null.
+   */
+  async findByEmailOrUsername(identifier: string): Promise<User | null> {
+    const row = await this.prisma.client.user.findFirst({
+      where: {
+        OR: [
+          { email: { equals: identifier, mode: 'insensitive' } },
+          { username: { equals: identifier, mode: 'insensitive' } },
+        ],
+      },
+    });
+    return row ? toDomainUser(row) : null;
+  }
+
+  /**
    * Updates display name and/or password hash.
    *
    * @param {string} id - User UUID.

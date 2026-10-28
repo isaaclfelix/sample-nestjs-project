@@ -16,5 +16,6 @@ import { PrismaService } from '../../persistence/prisma.service.js';
       inject: [PrismaService],
     },
   ],
+  exports: [USER_REPOSITORY, UserService],
 })
 export class UserModule {}
