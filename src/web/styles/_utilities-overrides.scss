@@ -1,15 +1,19 @@
 // Shell $utilities trim — import after bootstrap/scss/utilities, before utilities/api.
 // Add families to map-get-multiple as needed; further shrink each entry with map-merge.
 
-// Keep only display, margin-bottom, and text-align, then shrink each family.
+// Keep display, spacing used by chrome/forms, and text-align; then shrink each family.
 // Display: none / flex with responsive variants (e.g. d-none d-md-flex); no print.
-// Margin-bottom: mb-0 only (footer paragraph), no responsive variants.
+// Margin-top: mt-3 (auth form footer link); no responsive variants.
+// Margin-bottom: mb-0 (lists/footer), mb-3 (form fields), mb-4 (page titles); no responsive.
+// Padding-y: py-4 (auth page container); no responsive variants.
 // Text-align: text-center only, no responsive variants.
 $utilities: map-get-multiple(
   $utilities,
   (
     'display',
+    'margin-top',
     'margin-bottom',
+    'padding-y',
     'text-align',
   )
 );
@@ -24,12 +28,32 @@ $utilities: map-merge(
           values: none flex,
         )
       ),
+    'margin-top': map-merge(
+        map-get($utilities, 'margin-top'),
+        (
+          responsive: false,
+          values: (
+            3: map-get($spacers, 3),
+          ),
+        )
+      ),
     'margin-bottom': map-merge(
         map-get($utilities, 'margin-bottom'),
         (
           responsive: false,
           values: (
             0: 0,
+            3: map-get($spacers, 3),
+            4: map-get($spacers, 4),
+          ),
+        )
+      ),
+    'padding-y': map-merge(
+        map-get($utilities, 'padding-y'),
+        (
+          responsive: false,
+          values: (
+            4: map-get($spacers, 4),
           ),
         )
       ),
