@@ -23,7 +23,7 @@ export default function Layout({
 
       {children}
 
-      <footer></footer>
+      <footer>© {new Date().getFullYear()} bed.dev</footer>
     </main>
   );
 }
