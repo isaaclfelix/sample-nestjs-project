@@ -12,6 +12,8 @@ Create or update pull requests **only when the user explicitly asks** (e.g. `/cr
 
 This NestJS project uses **[GitHub CLI](https://cli.github.com/)** (`gh`) for PRs. Branch and commit rules live in [CONTRIBUTING.md](../../../CONTRIBUTING.md). The human-facing form of the body is [`.github/PULL_REQUEST_TEMPLATE.md`](../../../.github/PULL_REQUEST_TEMPLATE.md) — keep sections in sync with this skill.
 
+**Mutations use REST only:** create and update PRs with `gh api` against the Pulls REST endpoints. Do **not** use `gh pr create` / `gh pr edit` — those GraphQL paths fail here (Projects classic `projectCards` deprecation) and waste a retry before a REST fallback. `gh pr view --json` is fine for inspect/verify.
+
 ## Defaults
 
 | Setting                        | Value                                                     |
@@ -142,35 +144,40 @@ Run with `required_permissions: ["all"]` (see **Agent shell** above).
 - Never `--force` / `--force-with-lease` unless the user explicitly requests it.
 - If the pre-push hook rejects the branch name, fix or stop — do not bypass hooks unless the user explicitly asks (`HUSKY=0`).
 
-### 5. Create or update
+### 5. Create or update (REST via `gh api`)
 
-**No open PR** for this head branch:
+Resolve the repo once, then create or patch. Always use `required_permissions: ["all"]`. Prefer `jq` + `--input -` so markdown bodies stay intact:
 
 ```bash
-gh pr create --base <base> --title "<title>" --body-file "$PR_BODY"
+OWNER_REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
+HEAD="$(git branch --show-current)"
 ```
 
-(`<base>` defaults to `main`. Use `required_permissions: ["all"]`.)
+**No open PR** for this head branch (`<base>` defaults to `main`):
+
+```bash
+jq -n \
+  --arg title "<title>" \
+  --arg body "$(cat "$PR_BODY")" \
+  --arg head "$HEAD" \
+  --arg base "<base>" \
+  '{title:$title, body:$body, head:$head, base:$base}' \
+| gh api --method POST "repos/${OWNER_REPO}/pulls" --input -
+```
 
 **Open PR exists** (`gh pr view` returns `number`, `state` is `OPEN`):
 
 ```bash
-gh pr edit <number> --title "<title>" --body-file "$PR_BODY"
-```
-
-(Use `required_permissions: ["all"]`.)
-
-If `gh pr edit` fails with GraphQL `projectCards` / Projects (classic) deprecation, the title/body were **not** applied — fall back to REST (same auth, still elevated permissions):
-
-```bash
-OWNER_REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
-gh api --method PATCH "repos/${OWNER_REPO}/pulls/<number>" \
-  -f title="<title>" \
-  -f body="$(cat "$PR_BODY")"
+jq -n \
+  --arg title "<title>" \
+  --arg body "$(cat "$PR_BODY")" \
+  '{title:$title, body:$body}' \
+| gh api --method PATCH "repos/${OWNER_REPO}/pulls/<number>" --input -
 ```
 
 - Do not change base on update unless the user asked.
 - If state is `CLOSED` or `MERGED`, do not silently reopen; report the URL and ask whether to open a new PR.
+- Do **not** call `gh pr create` / `gh pr edit` first.
 
 ### 6. Verify
 
@@ -196,5 +203,5 @@ gh pr view --json url,title,baseRefName,state
 - [ ] Tech debt is explicit (`None` or TD-IDs / new / resolved)
 - [ ] Spotcheck boxes reflect only verified steps
 - [ ] Branch pushed to `origin`
-- [ ] PR created or existing open PR updated
+- [ ] PR created or updated via REST (`gh api` POST/PATCH …/pulls), not `gh pr create`/`edit`
 - [ ] PR URL reported to the user

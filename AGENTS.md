@@ -106,9 +106,11 @@ Symptoms when `gh` is run in the default sandbox (do **not** treat these as a br
 - `gh auth status` claims the token in `~/.config/gh/hosts.yml` is invalid
 - `curl https://api.github.com/` → `CONNECT tunnel failed, response 403`
 
-The OAuth token and `gh` install are fine: the same commands succeed once the sandbox network restriction is lifted. Git SSH through the sandbox uses a separate `GIT_SSH_COMMAND` dialer; that path is **not** what `gh pr create` / `gh pr edit` use (`gh` talks HTTPS GraphQL with the `gho_` token).
+The OAuth token and `gh` install are fine: the same commands succeed once the sandbox network restriction is lifted. Git SSH through the sandbox uses a separate `GIT_SSH_COMMAND` dialer; that path is **not** what `gh` HTTPS calls use (`gho_` token to `api.github.com`).
 
-**Required:** for any agent Shell call that runs `gh` (auth status, `pr view` / `create` / `edit`, `api`, …) or that needs unrestricted GitHub HTTPS (and usually `git push` / `git fetch` to `origin` as well), request elevated permissions:
+For PR **create/update**, follow [`.agents/skills/create-pr/SKILL.md`](.agents/skills/create-pr/SKILL.md): use **`gh api` REST** (`POST`/`PATCH …/pulls`) only — not `gh pr create` / `gh pr edit`.
+
+**Required:** for any agent Shell call that runs `gh` (auth status, `pr view`, `api`, …) or that needs unrestricted GitHub HTTPS (and usually `git push` / `git fetch` to `origin` as well), request elevated permissions:
 
 - Prefer `required_permissions: ["all"]` (disables the sandbox for that command).
 - `required_permissions: ["full_network"]` is enough for HTTPS to `api.github.com` when filesystem sandboxing is not the blocker.
