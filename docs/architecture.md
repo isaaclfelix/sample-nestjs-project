@@ -302,6 +302,8 @@ The real product island today is `mobile-navigation` (drawer + toggle), rendered
 
 `src/web/islands/` currently mixes feature islands (component + CSS module) with registry loaders and the `Island` SSR/hydrate helper. Prefer the cleaner split used by `pages/`, `shared/`, and `ssr-components/` later (see TD-019).
 
+The `src/web/` root itself is also mixed: Nest artifacts (`web.module`, controller, `WebViewService`), Vite plugins (`vite-*`), page/asset helpers, and React shells (`document`, `entry-server`) sit beside feature folders. Group those by role when the tree gets hard to navigate (see TD-020).
+
 ### Styles
 
 Authoring and delivery are split on purpose. There is no PurgeCSS or critical-CSS extract: unused Bootstrap leaves by **handpicking** SCSS imports; unused island CSS never ships because that island was not rendered. Canonical when-to-island / when-to-module rules: [how-to-web-ui.md](./how-to-web-ui.md).
