@@ -9,8 +9,8 @@ describe('updateUserSchema', () => {
     expect(updateUserSchema.parse({ displayName: 'Ada' })).toEqual({
       displayName: 'Ada',
     });
-    expect(updateUserSchema.parse({ password: 'password1' })).toEqual({
-      password: 'password1',
+    expect(updateUserSchema.parse({ password: 'correct-horse' })).toEqual({
+      password: 'correct-horse',
     });
   });
 
@@ -26,6 +26,9 @@ describe('updateUserSchema', () => {
 
   it('still enforces create rules on fields that are present', () => {
     expect(updateUserSchema.safeParse({ password: 'short' }).success).toBe(
+      false,
+    );
+    expect(updateUserSchema.safeParse({ password: 'password1' }).success).toBe(
       false,
     );
     expect(updateUserSchema.safeParse({ displayName: '' }).success).toBe(false);

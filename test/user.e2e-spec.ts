@@ -7,7 +7,7 @@ const validBody = {
   email: 'ada@example.com',
   username: 'Ada_Lovelace',
   displayName: 'Ada Lovelace',
-  password: 'password1',
+  password: 'correct-horse',
 };
 
 describe('UserController (e2e)', () => {
@@ -176,7 +176,7 @@ describe('UserController (e2e)', () => {
 
       const { status, body } = await request(app.getHttpServer())
         .patch(`/api/user/${created.id}`)
-        .send({ password: 'new-password' });
+        .send({ password: 'correct-horse-2' });
 
       expect(status).toBe(200);
       expect(body).toEqual(created);

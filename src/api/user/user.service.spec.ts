@@ -14,7 +14,7 @@ const createUserDto: CreateUserDto = {
   email: 'ada@example.com',
   username: 'Ada_Lovelace',
   displayName: 'Ada Lovelace',
-  password: 'password1',
+  password: 'correct-horse',
 };
 
 /**
@@ -29,7 +29,7 @@ function storedUser(overrides: Partial<User> = {}): User {
     email: createUserDto.email,
     username: createUserDto.username,
     displayName: createUserDto.displayName,
-    password: 'hash(password1)',
+    password: 'hash(correct-horse)',
     verified: false,
     ...overrides,
   };
@@ -70,13 +70,13 @@ describe('UserService', () => {
 
       const created = await service.create(createUserDto);
 
-      expect(hashPassword).toHaveBeenCalledWith('password1');
+      expect(hashPassword).toHaveBeenCalledWith('correct-horse');
       expect(users.create).toHaveBeenCalledWith(
         expect.objectContaining({
           email: 'ada@example.com',
           username: 'Ada_Lovelace',
           displayName: 'Ada Lovelace',
-          password: 'hash(password1)',
+          password: 'hash(correct-horse)',
           verified: false,
         }),
       );
@@ -205,12 +205,12 @@ describe('UserService', () => {
       users.update.mockResolvedValue(user);
       vi.mocked(hashPassword).mockClear();
 
-      await service.update(user.id, { password: 'new-password' });
+      await service.update(user.id, { password: 'correct-horse-2' });
 
       expect(hashPassword).toHaveBeenCalledOnce();
-      expect(hashPassword).toHaveBeenCalledWith('new-password');
+      expect(hashPassword).toHaveBeenCalledWith('correct-horse-2');
       expect(users.update).toHaveBeenCalledWith(user.id, {
-        password: 'hash(new-password)',
+        password: 'hash(correct-horse-2)',
       });
     });
 

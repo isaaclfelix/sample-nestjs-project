@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { passwordSchema } from '../../../shared/password.schema.js';
 
 const usernameSchema = z
   .string()
@@ -19,7 +20,7 @@ export const createUserSchema = z.strictObject({
   email: z.email(),
   username: usernameSchema,
   displayName: z.string().trim().min(1).max(50),
-  password: z.string().min(8).meta({ example: 'password1' }),
+  password: passwordSchema,
 });
 
 export type CreateUserDto = z.infer<typeof createUserSchema>;

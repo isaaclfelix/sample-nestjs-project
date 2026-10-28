@@ -69,7 +69,7 @@ export default function RegisterForm(): ReactElement {
           className="form-control"
           autoComplete="new-password"
         />
-        <div className="form-text">At least 8 characters.</div>
+        <div className="form-text">At least 12 characters.</div>
       </div>
       <button type="submit" className="btn btn-light">
         Create account

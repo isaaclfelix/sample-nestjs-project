@@ -4,7 +4,7 @@ const validInput = {
   email: 'ada@example.com',
   username: 'Ada_Lovelace',
   displayName: 'Ada Lovelace',
-  password: 'password1',
+  password: 'correct-horse',
 };
 
 describe('createUserSchema', () => {
@@ -48,6 +48,8 @@ describe('createUserSchema', () => {
   it.each([
     [{ ...validInput, email: 'not-an-email' }, 'email'],
     [{ ...validInput, password: 'short' }, 'password'],
+    [{ ...validInput, password: 'password1' }, 'password'],
+    [{ ...validInput, password: 'a'.repeat(129) }, 'password'],
     [{ ...validInput, displayName: '' }, 'displayName'],
     [{ ...validInput, displayName: '   ' }, 'displayName'],
     [{ ...validInput, username: 'ab' }, 'username'],

@@ -39,7 +39,7 @@ describe('UserController', () => {
       email: publicUser.email,
       username: publicUser.username,
       displayName: publicUser.displayName,
-      password: 'password1',
+      password: 'correct-horse',
     };
 
     await expect(controller.create(dto)).resolves.toEqual(publicUser);

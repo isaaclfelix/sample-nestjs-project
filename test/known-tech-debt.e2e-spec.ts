@@ -27,7 +27,7 @@ describe('known tech debt (e2e)', () => {
         email: 'ada@example.com',
         username: 'Ada_Lovelace',
         displayName: 'Ada Lovelace',
-        password: 'password1',
+        password: 'correct-horse',
       });
 
     expect(status).toBe(401);

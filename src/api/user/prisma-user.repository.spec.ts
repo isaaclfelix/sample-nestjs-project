@@ -9,7 +9,7 @@ const row = {
   email: 'ada@example.com',
   username: 'Ada_Lovelace',
   displayName: 'Ada Lovelace',
-  password: 'hash(password1)',
+  password: 'hash(correct-horse)',
   verified: false,
 };
 
