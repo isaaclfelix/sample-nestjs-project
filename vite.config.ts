@@ -47,6 +47,8 @@ export default defineConfig(({ isSsrBuild }) => ({
             input: {
               hydrate: 'src/web/client/hydrate.tsx',
               shell: 'src/web/styles.scss',
+              // Opt-in sibling; only pages that declare it get a head link.
+              forms: 'src/web/styles/forms.scss',
             },
           },
         }),

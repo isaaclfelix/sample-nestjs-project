@@ -194,4 +194,30 @@ describe('createPageAssets island CSS', () => {
     expect(active.islandCss).toEqual({ 'mobile-navigation': '._i{}' });
     expect(active.tags.scripts).toContain('/assets/hydrate.js');
   });
+
+  it('links the forms sibling when the page opts in', async () => {
+    const dir = join(process.cwd(), 'dist/client/assets');
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, 'shell-forms-opt.css'), '.ok{}');
+
+    const manifest: ClientManifest = {
+      'src/web/styles.scss': {
+        file: 'assets/shell-forms-opt.css',
+        isEntry: true,
+      },
+      'src/web/styles/forms.scss': {
+        file: 'assets/forms-opt.css',
+        isEntry: true,
+      },
+    };
+
+    const assets = await createPageAssets([], {
+      development: false,
+      manifest,
+      pageStylesheets: ['forms'],
+    });
+
+    expect(assets.tags.inlineStyles).toEqual([{ id: 'shell', css: '.ok{}' }]);
+    expect(assets.tags.stylesheets).toEqual(['/assets/forms-opt.css']);
+  });
 });

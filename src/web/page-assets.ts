@@ -4,6 +4,7 @@ import {
   assetTagsFromManifest,
   developmentAssetTags,
   developmentShellOnlyAssetTags,
+  pageStylesheetHrefs,
   shellStylesheetFromManifest,
   type AssetTags,
   type ClientManifest,
@@ -13,6 +14,7 @@ import {
   type IslandName,
   islandCssModuleUrl,
 } from './islands/registry.js';
+import type { PageStylesheetName } from './page-stylesheets.js';
 import { chooseShellDelivery } from './shell-css-delivery.js';
 import { shellCssBudgetBytes } from './vite-shell-css-budget.js';
 
@@ -179,14 +181,40 @@ export function extractCssFromViteModule(code: string): string {
 }
 
 /**
+ * Appends opt-in page stylesheet links to asset tags.
+ *
+ * @param {AssetTags} tags - Shell / hydrate tags.
+ * @param {readonly PageStylesheetName[]} pageStylesheets - Sheets this page opted into.
+ * @param {{ development: boolean; manifest?: ClientManifest }} source - Asset source.
+ * @returns {AssetTags} Tags with page sibling `<link>` hrefs appended.
+ */
+function withPageStylesheets(
+  tags: AssetTags,
+  pageStylesheets: readonly PageStylesheetName[],
+  source: { development: boolean; manifest?: ClientManifest },
+): AssetTags {
+  const hrefs = pageStylesheetHrefs(pageStylesheets, source);
+
+  if (hrefs.length === 0) {
+    return tags;
+  }
+
+  return {
+    ...tags,
+    stylesheets: [...tags.stylesheets, ...hrefs],
+  };
+}
+
+/**
  * Builds tags and island CSS for one page render.
  *
  * Development keeps the shell as a `<link>` for HMR. Production may inline
- * the shell when under the raw-byte budget. Island CSS is always resolved for
- * SSR sibling `<style>` tags in both environments.
+ * the shell when under the raw-byte budget. Opt-in page siblings (e.g. forms)
+ * are always head `<link>`s when the page declares them. Island CSS is always
+ * resolved for SSR sibling `<style>` tags in both environments.
  *
  * @param {readonly string[]} islandNames - Islands collected on the first SSR pass.
- * @param {{ development: boolean; manifest?: ClientManifest; vite?: IslandCssTransformer }} source - Asset source.
+ * @param {{ development: boolean; manifest?: ClientManifest; vite?: IslandCssTransformer; pageStylesheets?: readonly PageStylesheetName[] }} source - Asset source.
  * @returns {Promise<PageAssets>} Document tags and island CSS map.
  */
 export async function createPageAssets(
@@ -195,13 +223,19 @@ export async function createPageAssets(
     development: boolean;
     manifest?: ClientManifest;
     vite?: IslandCssTransformer;
+    pageStylesheets?: readonly PageStylesheetName[];
   },
 ): Promise<PageAssets> {
+  const pageStylesheets = source.pageStylesheets ?? [];
+
   if (source.development) {
-    const tags =
+    const base =
       islandNames.length === 0
         ? developmentShellOnlyAssetTags()
         : developmentAssetTags();
+    const tags = withPageStylesheets(base, pageStylesheets, {
+      development: true,
+    });
 
     const islandCss = source.vite
       ? await islandCssFromVite(islandNames, source.vite)
@@ -217,14 +251,22 @@ export async function createPageAssets(
   const cssText = loadShellCssText(source.manifest);
   const shell = shellStyleTags(source.manifest, cssText, shellCssBudgetBytes());
   const islandCss = islandCssFromManifest(source.manifest, islandNames);
+  const pageLinks = {
+    development: false as const,
+    manifest: source.manifest,
+  };
 
   if (islandNames.length === 0) {
     return {
-      tags: {
-        stylesheets: shell.stylesheets,
-        inlineStyles: shell.inlineStyles,
-        scripts: [],
-      },
+      tags: withPageStylesheets(
+        {
+          stylesheets: shell.stylesheets,
+          inlineStyles: shell.inlineStyles,
+          scripts: [],
+        },
+        pageStylesheets,
+        pageLinks,
+      ),
       islandCss,
     };
   }
@@ -233,14 +275,18 @@ export async function createPageAssets(
   const shellHref = shellStylesheetFromManifest(source.manifest);
 
   return {
-    tags: {
-      stylesheets: [
-        ...shell.stylesheets,
-        ...runtime.stylesheets.filter((href) => href !== shellHref),
-      ],
-      inlineStyles: shell.inlineStyles,
-      scripts: runtime.scripts,
-    },
+    tags: withPageStylesheets(
+      {
+        stylesheets: [
+          ...shell.stylesheets,
+          ...runtime.stylesheets.filter((href) => href !== shellHref),
+        ],
+        inlineStyles: shell.inlineStyles,
+        scripts: runtime.scripts,
+      },
+      pageStylesheets,
+      pageLinks,
+    ),
     islandCss,
   };
 }

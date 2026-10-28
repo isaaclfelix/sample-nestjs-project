@@ -1,5 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import {
+  pageStylesheetRegistration,
+  type PageStylesheetName,
+} from './page-stylesheets.js';
 
 /** One `<style>` block to emit in the document head (e.g. inlined shell). */
 export interface InlineStyleTag {
@@ -189,26 +193,90 @@ export function assetTagsFromManifest(manifest: ClientManifest): AssetTags {
 }
 
 /**
+ * Resolves a CSS-only Vite entry from the production manifest.
+ *
+ * A CSS-only entry stores the path on `file`. An entry that also emits a
+ * script stores it on `css`. The script is not linked.
+ *
+ * @param {ClientManifest} manifest - Vite client manifest.
+ * @param {string} source - Manifest key (e.g. `src/web/styles.scss`).
+ * @param {string} label - Name used in the missing-chunk error.
+ * @returns {string} Root-relative stylesheet URL.
+ * @throws {Error} When the chunk is missing.
+ */
+function stylesheetFromManifestEntry(
+  manifest: ClientManifest,
+  source: string,
+  label: string,
+): string {
+  const chunk = manifest[source];
+  const file =
+    chunk?.css?.[0] ?? (chunk?.file.endsWith('.css') ? chunk.file : undefined);
+
+  if (!file) {
+    throw new Error(`Client manifest is missing the ${label} stylesheet.`);
+  }
+
+  return `/${file}`;
+}
+
+/**
  * Returns the shared stylesheet URL from a production manifest.
  *
  * The shell is its own build input, so its CSS is not on the hydrate chunk.
- * A CSS-only entry stores the path on `file`. An entry that also emits a
- * script stores it on `css`. The script is not linked.
  *
  * @param {ClientManifest} manifest - Vite client manifest.
  * @returns {string} Root-relative stylesheet URL.
  * @throws {Error} When the shell chunk is missing.
  */
 export function shellStylesheetFromManifest(manifest: ClientManifest): string {
-  const chunk = manifest[shellStylesheetSource];
-  const file =
-    chunk?.css?.[0] ?? (chunk?.file.endsWith('.css') ? chunk.file : undefined);
+  return stylesheetFromManifestEntry(manifest, shellStylesheetSource, 'shell');
+}
 
-  if (!file) {
-    throw new Error('Client manifest is missing the shell stylesheet.');
+/**
+ * Returns an opt-in page stylesheet URL from a production manifest.
+ *
+ * @param {ClientManifest} manifest - Vite client manifest.
+ * @param {PageStylesheetName} name - Registered page stylesheet id.
+ * @returns {string} Root-relative stylesheet URL.
+ * @throws {Error} When the stylesheet chunk is missing.
+ */
+export function pageStylesheetFromManifest(
+  manifest: ClientManifest,
+  name: PageStylesheetName,
+): string {
+  const { source } = pageStylesheetRegistration(name);
+  return stylesheetFromManifestEntry(manifest, source, name);
+}
+
+/**
+ * Dev and production hrefs for the page stylesheets a render opted into.
+ *
+ * Sibling sheets are always `<link>`s (not inlined into the shell budget).
+ *
+ * @param {readonly PageStylesheetName[]} names - Sheets for this page.
+ * @param {{ development: boolean; manifest?: ClientManifest }} source - Asset source.
+ * @returns {string[]} Root-relative or Vite-dev stylesheet URLs.
+ */
+export function pageStylesheetHrefs(
+  names: readonly PageStylesheetName[],
+  source: { development: boolean; manifest?: ClientManifest },
+): string[] {
+  if (names.length === 0) {
+    return [];
   }
 
-  return `/${file}`;
+  if (source.development) {
+    return names.map((name) => pageStylesheetRegistration(name).devUrl);
+  }
+
+  if (!source.manifest) {
+    throw new Error('Production pages need the client manifest.');
+  }
+
+  return names.map((name) =>
+    pageStylesheetFromManifest(source.manifest!, name),
+  );
 }
 
 /**

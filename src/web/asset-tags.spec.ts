@@ -14,6 +14,8 @@ import {
   developmentAssetTags,
   developmentShellOnlyAssetTags,
   loadClientManifest,
+  pageStylesheetFromManifest,
+  pageStylesheetHrefs,
   readClientManifest,
   setClientManifestReader,
   type ClientManifest,
@@ -38,6 +40,7 @@ const manifest: ClientManifest = {
   },
   'src/web/islands/chart.tsx': { file: 'assets/chart.js' },
   'src/web/styles.scss': { file: 'assets/shell.css', isEntry: true },
+  'src/web/styles/forms.scss': { file: 'assets/forms.css', isEntry: true },
 };
 
 describe('asset tags', () => {
@@ -52,6 +55,18 @@ describe('asset tags', () => {
     });
   });
 
+  it('appends opt-in forms stylesheet links in development', async () => {
+    const assets = await createPageAssets([], {
+      development: true,
+      pageStylesheets: ['forms'],
+    });
+
+    expect(assets.tags.stylesheets).toEqual([
+      ...developmentShellOnlyAssetTags().stylesheets,
+      '/src/web/styles/forms.scss',
+    ]);
+  });
+
   it('points development pages at the vite source entry', async () => {
     await expect(
       createPageAssets(['mobile-navigation'], { development: true }),
@@ -59,6 +74,18 @@ describe('asset tags', () => {
       tags: developmentAssetTags(),
       islandCss: {},
     });
+  });
+
+  it('resolves production page stylesheet hrefs from the manifest', () => {
+    expect(pageStylesheetFromManifest(manifest, 'forms')).toBe(
+      '/assets/forms.css',
+    );
+    expect(
+      pageStylesheetHrefs(['forms'], { development: false, manifest }),
+    ).toEqual(['/assets/forms.css']);
+    expect(pageStylesheetHrefs(['forms'], { development: true })).toEqual([
+      '/src/web/styles/forms.scss',
+    ]);
   });
 
   it('links the shell and the runtime, not island chunks', async () => {
