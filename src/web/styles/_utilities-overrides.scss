@@ -3,22 +3,17 @@
 
 // Keep only display utilities, then shrink to flex / inline-flex / none
 // without responsive or print variants (no print view yet).
-$utilities: map-get-multiple(
-  $utilities,
-  (
-    'display',
-  )
-);
+$utilities: map-get-multiple($utilities, ('display'));
 $utilities: map-merge(
   $utilities,
   (
     'display': map-merge(
-      map-get($utilities, 'display'),
-      (
-        responsive: false,
-        print: false,
-        values: flex inline-flex none,
-      )
-    ),
+        map-get($utilities, 'display'),
+        (
+          responsive: false,
+          print: false,
+          values: flex,
+        )
+      ),
   )
 );
