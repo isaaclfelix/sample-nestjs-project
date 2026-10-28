@@ -3,6 +3,8 @@ import doiuse from 'doiuse';
 import sortMediaQueries from 'postcss-sort-media-queries';
 import { defineConfig } from 'vite';
 import { shellCssBudgetPlugin } from './src/web/vite-shell-css-budget.js';
+import { stripIslandCssFromModulePreload } from './src/web/vite-strip-island-css-preload.js';
+import { suppressIslandCssClientInject } from './src/web/vite-suppress-island-css-inject.js';
 
 /**
  * Client and server builds for the React page layer.
@@ -16,7 +18,14 @@ import { shellCssBudgetPlugin } from './src/web/vite-shell-css-budget.js';
  * at Baseline Widely Available. The shell sheet is its own client input.
  */
 export default defineConfig(({ isSsrBuild }) => ({
-  plugins: [react(), ...(isSsrBuild ? [] : [shellCssBudgetPlugin()])],
+  plugins: [
+    react(),
+    // Dev: island CSS stays on SSR sibling <style>; do not also inject head tags.
+    suppressIslandCssClientInject(),
+    ...(isSsrBuild
+      ? []
+      : [shellCssBudgetPlugin(), stripIslandCssFromModulePreload()]),
+  ],
   build: {
     // Lean modern evergreen targets; older browsers are TD-013 / TD-015.
     target: 'baseline-widely-available',

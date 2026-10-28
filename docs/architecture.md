@@ -302,27 +302,38 @@ The home page includes a counter island so hydration can be clicked. It is a dem
 
 ### Styles
 
-Two kinds of CSS, chosen while authoring. There is no post-hoc critical-CSS extract or PurgeCSS pass: unused Bootstrap is removed later by handpicking SCSS imports (a priori), not by scanning templates.
+Authoring and delivery are split on purpose. There is no PurgeCSS or critical-CSS extract: unused Bootstrap leaves by **handpicking** SCSS imports; unused island CSS never ships because that island was not rendered. Canonical when-to-island / when-to-module rules: [how-to-web-ui.md](./how-to-web-ui.md).
 
-`src/web/styles.scss` is the shared shell sheet (today a full Bootstrap import; handpick reset, grid, type, and colors later). It is its own Vite client input, not an import of `client/hydrate.tsx`. The document emits one `<link>` because this app writes its own HTML and Vite will not inject it. In development the href is `/src/web/styles.scss` and `/@vite/client` is always loaded so SCSS edits reload without BrowserSync. In production the href comes from the client manifest. Compilation is Sass → PostCSS (`postcss-sort-media-queries` + doiuse warn-only) → Lightning CSS minify at **Baseline Widely Available**. A Vite plugin **reports** raw and gzip shell size against a configurable budget (`SHELL_CSS_BUDGET_BYTES`, default 50 KiB gzip) and never fails the build. Keep the sheet toward that budget once Bootstrap is handpicked; those bytes are render-blocking on purpose for first paint. Inlining the shell (and colocating island CSS as `<style>` next to island markup) is TD-017 (Part II).
+**Shell** (`src/web/styles.scss`) is the shared design-system sheet (today a full Bootstrap import; target handpick: reset, grid, type, colors — not Bootstrap components/JS). Own Vite client input. Compilation: Sass → PostCSS (media-query sort + doiuse warn) → Lightning CSS minify at **Baseline Widely Available**. Build **reports** raw + gzip vs `SHELL_CSS_BUDGET_BYTES` (default 50 KiB gzip). **Production** inlines the shell as `<style data-css="shell">` when **raw** size ≤ that budget; otherwise keeps a `<link>`. **Development** always `<link href="/src/web/styles.scss">` plus `/@vite/client` for HMR. Fixture tests cover both shell modes; full Bootstrap stays linked until handpicked.
 
-An island that needs its own rules imports a CSS module next to the component. Prefer `*.module.scss` when variables or nesting help; plain `*.module.css` remains valid. Islands may `@import` / `@use` `src/web/styles/_tokens.scss` (Bootstrap functions, variables, maps, mixins only—no CSS output). They must **not** import `styles.scss` or Bootstrap CSS-emitting partials already in the shell (duplicate rules). Warning when that happens is TD-016. Vite attaches the module to the island chunk and applies it when the dynamic `import()` runs, after the document has painted. Those URLs are not copied into `<head>`.
+**Islands — authoring:** Import a CSS module beside the interactive component (`*.module.scss` preferred). That puts CSS on the island’s Vite graph and supplies hashed classes. Use `styles/_tokens.scss` for Sass API only. Do **not** re-import the shell or Bootstrap CSS-emitting partials (TD-016).
 
-A late island rule can still move a box that is already on screen. That matters when the shift is in the viewport (CLS), not merely because the rule arrived late. Put a rule in the shared sheet when the server HTML would shift without it, or when the element is page chrome. Examples: body type and spacing, a fixed navbar, the box size of an above-the-fold control. Leave color, hover, and other decoration in the module. Do not ban above-the-fold islands. If one of them needs layout before paint, move those rules into the shell instead of linking every island stylesheet (until TD-017 inlines island CSS beside the markup).
+**Islands — delivery (unconventional):** The import stays on the component; the framework does **not** leave CSS only on the JS chunk. After SSR pass 1 collects island names, `createPageAssets` loads CSS text (prod: manifest `css` files; dev: Vite transform of `cssModulePath`). Pass 2 provides a framework-owned context; `Island` emits a sibling `<style data-css-island="{name}">` above the marker (once per name per page). Hydrate loads **JS only** — production keeps `__vite__mapDeps` indices intact but filters `.css` URLs out of preload results (removing array entries would leave `modulepreload` hrefs as `/undefined`); development rewrites Vite’s `updateStyle` so HMR updates the sibling tag instead of injecting a second `<style data-vite-dev-id>` in `<head>`.
 
-A server-only page component does not publish CSS by being rendered. Styles the browser must see are in the shared sheet or imported by a client module.
+```html
+<style data-css-island="counter">
+  ._count_xxx {
+    font-weight: 700;
+  }
+</style>
+<div data-island="counter" data-props="…">…</div>
+```
 
-Hydrating every island as soon as the entry loads, including ones below the fold, downloads their JS and CSS before the user scrolls (and Vite's runtime `modulepreload` for those dynamic imports runs at the same time). Delaying that until the marker is near the viewport, or streaming those islands, is TD-010. When that work lands, turn off `build.modulePreload` so the preload helper does not undo the delay. It is more optimization than this app needs while the only client component is the demo counter. It does not replace the shell link or the rule about which styles belong there.
+**Goals:** download-and-use-only-what-you-need (no head dump of every island sheet); no FOUC for SSR islands; no double delivery; shell stays the shared look (islands are not a backdoor design system).
+
+**Rejected:** head `<link>` per island; CSS only after chunk load; island-only-for-styling; SSR-only CSS modules; Tailwind-style utility sprawl; shipping Bootstrap component SCSS/JS in the shell.
+
+Hydrating every island as soon as the entry loads (including below the fold) is still TD-010 for **JS**; CSS for used islands is already in the HTML.
 
 ### Development and production
 
-|                                          | Development                                                                                                              | Production                                                       |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
-| How it starts                            | `pnpm start` / `start:dev`                                                                                               | `NODE_ENV=production` via `pnpm start:prod`                      |
-| SSR                                      | Vite middleware mode, `ssrLoadModule`                                                                                    | `dist/web-server/entry-server.js`                                |
-| Client scripts when an island is present | `/@id/@vitejs/plugin-react/preamble`, `/@vite/client`, `/src/web/client/hydrate.tsx`                                     | Manifest entry and its static imports, under `/`                 |
-| Styles                                   | Shell `<link href="/src/web/styles.scss">` plus `/@vite/client` even without islands. Island CSS arrives with its chunk. | Shell `<link>` from the manifest. Island CSS stays on its chunk. |
-| Static files                             | Vite serves source                                                                                                       | `express.static` on `dist/client`, with `index: false`           |
+|                                          | Development                                                                                                                                                                                              | Production                                                                                                                  |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| How it starts                            | `pnpm start` / `start:dev`                                                                                                                                                                               | `NODE_ENV=production` via `pnpm start:prod`                                                                                 |
+| SSR                                      | Vite middleware mode, `ssrLoadModule`                                                                                                                                                                    | `dist/web-server/entry-server.js`                                                                                           |
+| Client scripts when an island is present | `/@id/@vitejs/plugin-react/preamble`, `/@vite/client`, `/src/web/client/hydrate.tsx`                                                                                                                     | Manifest entry and its static imports, under `/`                                                                            |
+| Styles                                   | Shell `<link href="/src/web/styles.scss">` plus `/@vite/client`. Island CSS inlined as sibling `<style>`; Vite client inject is rewritten to update that sibling (no `data-vite-dev-id` head duplicate). | Shell `<style>` or `<link>` by raw-size budget. Island CSS inlined as sibling `<style>`; hydrate mapDeps has no island CSS. |
+| Static files                             | Vite serves source                                                                                                                                                                                       | `express.static` on `dist/client`, with `index: false`                                                                      |
 
 The React refresh preamble is required in development because this app writes its own HTML. Vite would inject that preamble into an `index.html`; it does not see ours. Without `window.$RefreshReg$`, an island module throws before `hydrateRoot` runs. Production builds do not include the refresh runtime.
 
@@ -341,24 +352,16 @@ flowchart LR
   ssr --> ssrOut["dist/web-server/entry-server.js"]
 ```
 
-## Adding a page
+## Adding a page or island
 
-1. Add a props type in `src/web/pages`, as a `.ts` file.
-2. Add the page component and register it in the `pages` map in `entry-server.tsx`.
-3. Add a `WebController` method that builds props and calls `webViewService.render(name, props)`.
-4. Keep the route off `/api` and the asset prefixes above.
-5. Leave `@ApiExcludeController()` on the controller.
+Follow [how-to-web-ui.md](./how-to-web-ui.md) (decision tree, anti-patterns, scaffold). Short wiring checklist:
 
-If the page renders no islands, do not add a script tag by hand. The empty asset list is the signal.
+**Page:** props type → page component → `entry-server` map → `WebController` → stay off `/api` and asset prefixes → `@ApiExcludeController()`.
 
-## Adding an island
-
-1. Add a component under `src/web/islands` with a default export and JSON-serializable props. Import a CSS module (`*.module.scss` preferred) beside it for rules that should download only with that island. Use `styles/_tokens.scss` for Sass variables/mixins; never re-import the shell sheet. Put layout that must be present on first paint in `src/web/styles.scss`.
-2. Add a `() => import('./that-file.js')` entry to `islandLoaders`. Do not statically import the component from `client/hydrate.tsx` or from another island's module graph if it should stay in its own chunk.
-3. Render `<Island name="..." component={...} props={...} />` from a server page.
-4. The server may import the component. That import stays in the SSR bundle, which is not sent to the browser.
+**Island:** interactive component → optional `*.module.scss` → `islandRegistry` / `islandLoaders` (+ `cssModulePath`) → `<Island>` on a page. Do not statically import islands into `hydrate.tsx`. Scaffold: `pnpm scaffold:web-ui` or the `create-web-ui` agent skill.
 
 ## Related docs
 
+- [How to add web UI](./how-to-web-ui.md) — SSR vs island vs module styles; anti-patterns; scaffold.
 - [Testing and coverage](./testing-and-coverage.md) — `.tsx` is outside unit coverage; HTTP behavior is covered by e2e.
 - [Known tech debt](./known-tech-debt.md) — TD-001 and TD-005 through TD-010 are the open limits of this design. Shared island client state is TD-008; the demo counter is TD-009. Below-the-fold islands still hydrate with the entry (TD-010). JSON-only island props and no shared client context are current limits of the same web layer, deferred until the dashboard needs more than CRUD.

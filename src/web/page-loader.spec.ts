@@ -6,6 +6,7 @@ import {
   type ServerEntry,
   type ServerEntryLoader,
 } from './page-loader.js';
+import type { PageAssets } from './page-assets.js';
 
 describe('page loader', () => {
   afterEach(() => {
@@ -59,10 +60,11 @@ describe('page loader', () => {
 
   it('imports the source entry when no loader is injected', async () => {
     const entry = await loadServerEntry({ vitest: true });
+    const assets: PageAssets = { tags: emptyAssetTags, islandCss: {} };
     const html = await entry.render(
       'home',
       { renderedAt: '2026-10-22T12:00:00.000Z' },
-      () => emptyAssetTags,
+      () => assets,
     );
 
     expect(html.startsWith('<!DOCTYPE html>')).toBe(true);

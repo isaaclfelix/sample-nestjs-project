@@ -86,3 +86,11 @@ Follow these conventions when adding or refactoring application code so reviews 
 - CLI scripts and seeds that need app crypto **import** shared modules (for example `src/api/common/password.ts`); do not duplicate hashing or verification.
 - Nest wrappers around vendor clients use **composition** (own a `client` / dependency field), not `extends`, unless there is a documented exception. `PrismaService` owns `PrismaClient`.
 - **One interface/type per file is not required.** Port-related types may live next to the port that uses them (for example `CreateUserRecord` beside `UserRepository`).
+
+## 7. Web UI (SSR pages and islands)
+
+When adding or changing browser-facing pages under `src/web/`:
+
+- Follow [docs/how-to-web-ui.md](docs/how-to-web-ui.md) for the SSR vs island vs CSS-module decision tree and anti-patterns.
+- Prefer `pnpm scaffold:web-ui` or the `create-web-ui` agent skill over hand-wiring registry, loaders, and entry-server maps.
+- Shell CSS lives in `src/web/styles.scss`; island styles use `*.module.scss` beside the island and are inlined as sibling `<style>` tags at SSR — do not invent a parallel delivery path.

@@ -1,3 +1,5 @@
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { setClientManifestReader } from './asset-tags.js';
 import {
   loadServerEntry,
@@ -56,9 +58,9 @@ describe('WebViewService', () => {
       _props,
       createAssets,
     ) => {
-      const idle = createAssets([]);
-      const active = createAssets(['counter']);
-      return `${idle.scripts.join(',')}|${active.scripts.join(',')}`;
+      const idle = await createAssets([]);
+      const active = await createAssets(['counter']);
+      return `${idle.tags.scripts.join(',')}|${active.tags.scripts.join(',')}`;
     };
     vi.mocked(loadServerEntry).mockResolvedValue({ render });
     setViteDevServer({ ssrLoadModule: vi.fn() });
@@ -76,9 +78,42 @@ describe('WebViewService', () => {
     }
   });
 
+  it('passes Vite transformRequest through for island CSS', async () => {
+    const previous = process.env.VITEST;
+    delete process.env.VITEST;
+    const transformRequest = vi.fn(async () => ({
+      code: 'const __vite__css = "._c{}";',
+    }));
+    const render: ServerEntry['render'] = async (
+      _page,
+      _props,
+      createAssets,
+    ) => {
+      const assets = await createAssets(['counter']);
+      return assets.islandCss.counter ?? '';
+    };
+    vi.mocked(loadServerEntry).mockResolvedValue({ render });
+    setViteDevServer({ ssrLoadModule: vi.fn(), transformRequest });
+
+    try {
+      const html = await new WebViewService().render('home', {
+        renderedAt: 't',
+      });
+
+      expect(html).toBe('._c{}');
+      expect(transformRequest).toHaveBeenCalled();
+    } finally {
+      process.env.VITEST = previous;
+    }
+  });
+
   it('reads the client manifest for production islands', async () => {
     const previous = process.env.VITEST;
     delete process.env.VITEST;
+    const shellPath = join(process.cwd(), 'dist/client/assets/shell.css');
+    mkdirSync(join(shellPath, '..'), { recursive: true });
+    writeFileSync(shellPath, 'x'.repeat(50 * 1024 + 1));
+
     setClientManifestReader(() => ({
       'src/web/client/hydrate.tsx': {
         file: 'assets/hydrate.js',
@@ -96,9 +131,9 @@ describe('WebViewService', () => {
       _props,
       createAssets,
     ) => {
-      const idle = createAssets([]);
-      const active = createAssets(['counter']);
-      return `${idle.scripts.join(',')}|${active.scripts.join(',')}`;
+      const idle = await createAssets([]);
+      const active = await createAssets(['counter']);
+      return `${idle.tags.scripts.join(',')}|${active.tags.scripts.join(',')}`;
     };
     vi.mocked(loadServerEntry).mockResolvedValue({ render });
 

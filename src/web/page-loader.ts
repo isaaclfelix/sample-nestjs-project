@@ -1,7 +1,7 @@
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
-import type { AssetTags } from './asset-tags.js';
 import type { HomePageProps, WebPageName } from './pages/home-page.props.js';
+import type { PageAssets } from './page-assets.js';
 
 /**
  * Server render function implemented by the Vite SSR bundle.
@@ -10,17 +10,20 @@ export interface ServerEntry {
   render(
     page: WebPageName,
     props: HomePageProps,
-    createAssets: (islandNames: string[]) => AssetTags,
+    createAssets: (islandNames: string[]) => PageAssets | Promise<PageAssets>,
   ): Promise<string>;
 }
 
 /**
- * Enough of a Vite dev server to load the SSR module.
+ * Enough of a Vite dev server to load the SSR module and transform CSS.
  *
  * The full ViteDevServer satisfies this. Tests can pass a stub.
  */
 export interface ServerEntryLoader {
   ssrLoadModule(url: string): Promise<unknown>;
+  transformRequest?(
+    url: string,
+  ): Promise<{ code: string; map?: unknown } | null | undefined>;
 }
 
 let viteDevServer: ServerEntryLoader | undefined;
