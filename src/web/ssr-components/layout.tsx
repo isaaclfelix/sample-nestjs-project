@@ -1,5 +1,5 @@
-import { Island } from '../islands/island';
-import Navigation from '../islands/navigation';
+import Header from './header';
+import Footer from './footer';
 
 /**
  * Main layout component for the application.
@@ -16,14 +16,12 @@ export default function Layout({
   children: React.ReactNode;
 }): React.ReactNode {
   return (
-    <main>
-      <header className="site-header">
-        <Island name="navigation" component={Navigation} props={{}} />
-      </header>
+    <>
+      <Header />
 
-      {children}
+      <main>{children}</main>
 
-      <footer>© {new Date().getFullYear()} bed.dev</footer>
-    </main>
+      <Footer />
+    </>
   );
 }

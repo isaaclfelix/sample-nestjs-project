@@ -1,9 +1,18 @@
 // Shell $utilities trim — import after bootstrap/scss/utilities, before utilities/api.
 // Add families to map-get-multiple as needed; further shrink each entry with map-merge.
 
-// Keep only display utilities, then shrink to flex / inline-flex / none
-// without responsive or print variants (no print view yet).
-$utilities: map-get-multiple($utilities, ('display'));
+// Keep only display, margin-bottom, and text-align, then shrink each family.
+// Display: flex only, no responsive or print variants (no print view yet).
+// Margin-bottom: mb-0 only (footer paragraph), no responsive variants.
+// Text-align: text-center only, no responsive variants.
+$utilities: map-get-multiple(
+  $utilities,
+  (
+    'display',
+    'margin-bottom',
+    'text-align',
+  )
+);
 $utilities: map-merge(
   $utilities,
   (
@@ -13,6 +22,24 @@ $utilities: map-merge(
           responsive: false,
           print: false,
           values: flex,
+        )
+      ),
+    'margin-bottom': map-merge(
+        map-get($utilities, 'margin-bottom'),
+        (
+          responsive: false,
+          values: (
+            0: 0,
+          ),
+        )
+      ),
+    'text-align': map-merge(
+        map-get($utilities, 'text-align'),
+        (
+          responsive: false,
+          values: (
+            center: center,
+          ),
         )
       ),
   )

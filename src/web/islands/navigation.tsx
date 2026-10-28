@@ -1,5 +1,3 @@
-import styles from './navigation.module.scss';
-
 /**
  * Navigation component for the application.
  *
@@ -9,25 +7,39 @@ import styles from './navigation.module.scss';
  */
 export default function Navigation(): React.ReactNode {
   return (
-    <nav className={styles.navigationWrapper}>
-      <div className={`${styles.navigationContainer} container`}>
-        <div className={`${styles.navigationRow} row`}>
-          <div className={`${styles.navigationLogo} col display-6`}>
-            <a href="/" className={styles.navigationLogoLink}>
+    <nav>
+      <div className="navigation-container container">
+        <div className="navigation-row row">
+          <div className="navigation-logo col display-6">
+            <a href="/" className="navigation-logo-link">
               bed.dev
             </a>
           </div>
-          <div className={`${styles.navigationSeparator} col`} />
-          <div className="col">
-            <ul className={`${styles.navigationList} list-unstyled d-flex`}>
+          <div className="navigation-separator col" />
+          <div className="navigation-left col d-flex">
+            <ul className="navigation-list list-unstyled d-flex mb-0">
               <li>
-                <a href="/" className={styles.navigationLink}>
+                <a href="/" className="navigation-link">
                   Home
                 </a>
               </li>
               <li>
-                <a href="/api/docs" className={styles.navigationLink}>
+                <a href="/api/docs" className="navigation-link">
                   Swagger Docs
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div className="navigation-right col d-flex">
+            <ul className="navigation-list list-unstyled d-flex mb-0">
+              <li>
+                <a href="/login" className="navigation-link">
+                  Login
+                </a>
+              </li>
+              <li>
+                <a href="/register" className="navigation-link">
+                  Register
                 </a>
               </li>
             </ul>
