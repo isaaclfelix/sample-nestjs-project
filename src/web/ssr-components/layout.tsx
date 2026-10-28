@@ -17,7 +17,7 @@ export default function Layout({
 }): React.ReactNode {
   return (
     <main>
-      <header>
+      <header className="site-header">
         <Island name="navigation" component={Navigation} props={{}} />
       </header>
 

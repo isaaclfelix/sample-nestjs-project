@@ -1,3 +1,54 @@
+@import '../styles/tokens';
+
+.navigationWrapper {
+  box-shadow: $box-shadow-sm;
+}
+
+.navigationContainer {
+  padding: $spacer * 2;
+}
+
+.navigationRow {
+  align-items: center;
+}
+
+.navigationLogo,
+.navigationSeparator {
+  flex-grow: 0;
+  flex-shrink: 1;
+}
+
+.navigationLogoLink {
+  color: var(--bs-body-color);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--bs-primary);
+  }
+}
+
+.navigationSeparator {
+  align-self: stretch;
+
+  &::before {
+    border-left: 1px solid;
+    color: var(--bs-border-color);
+    content: '';
+    display: block;
+    height: 100%;
+  }
+}
+
 .navigationList {
+  gap: $spacer;
   margin-bottom: 0;
+}
+
+.navigationLink {
+  color: var(--bs-primary);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--bs-secondary);
+  }
 }
