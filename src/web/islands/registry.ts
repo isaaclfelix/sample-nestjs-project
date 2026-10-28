@@ -10,20 +10,6 @@ export interface IslandModule {
 }
 
 /**
- * Loads the demo counter chunk.
- *
- * The cast matches `IslandModule` because decoded props are a plain JSON
- * object. The home page passes `{ start: number }`. Remove this loader with
- * the counter under TD-009.
- *
- * @returns {Promise<IslandModule>} The counter module.
- */
-function loadCounterIsland(): Promise<IslandModule> {
-  // Props are checked by the page that renders the island, not by this cast.
-  return import('./counter.js') as Promise<IslandModule>;
-}
-
-/**
  * Loads the mobile-navigation island chunk.
  *
  * @returns {Promise<IslandModule>} The mobile-navigation module.
@@ -31,6 +17,7 @@ function loadCounterIsland(): Promise<IslandModule> {
 function loadMobileNavigationIsland(): Promise<IslandModule> {
   return import('./mobile-navigation.js') as Promise<IslandModule>;
 }
+
 /**
  * One registered island: lazy client loader plus optional module CSS path for
  * development SSR inlining.
@@ -52,10 +39,6 @@ export interface IslandRegistration {
  * island component, or every island would ship in the entry bundle.
  */
 export const islandRegistry = {
-  counter: {
-    load: loadCounterIsland,
-    cssModulePath: '/src/web/islands/counter.module.scss',
-  },
   'mobile-navigation': {
     load: loadMobileNavigationIsland,
     cssModulePath: '/src/web/islands/mobile-navigation.module.scss',
@@ -64,7 +47,6 @@ export const islandRegistry = {
 
 /** Lazy loaders only — hydrate entry uses this shape. */
 export const islandLoaders = {
-  counter: loadCounterIsland,
   'mobile-navigation': loadMobileNavigationIsland,
 } as const;
 

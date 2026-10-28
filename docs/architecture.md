@@ -258,13 +258,13 @@ The home page keeps its sentence in one template string. Adjacent text expressio
 
 ### Islands
 
-An island is a client component with its own React root. The server page places it with the `Island` helper. That helper is generic over props (`Island<P>`): `component` is a `ComponentType<P>` and `props` is `P`, so any island (counter today, others later) keeps those two in sync. There is no single React “Props” type beyond that—`PropsWithChildren` and friends are helpers around a per-component shape, not a substitute for `P`.
+An island is a client component with its own React root. The server page places it with the `Island` helper. That helper is generic over props (`Island<P>`): `component` is a `ComponentType<P>` and `props` is `P`, so each island keeps those two in sync. There is no single React “Props” type beyond that—`PropsWithChildren` and friends are helpers around a per-component shape, not a substitute for `P`.
 
 The server marker is:
 
 ```html
-<div data-island="counter" data-props="...">
-  <button type="button">Count: 0</button>
+<div data-island="mobile-navigation" data-props="...">
+  <!-- island SSR HTML -->
 </div>
 ```
 
@@ -280,15 +280,15 @@ The client entry imports the registry, not the island components:
 
 ```ts
 export const islandLoaders = {
-  counter: loadCounterIsland,
+  'mobile-navigation': loadMobileNavigationIsland,
 } as const;
 
-function loadCounterIsland() {
-  return import('./counter.js');
+function loadMobileNavigationIsland() {
+  return import('./mobile-navigation.js');
 }
 ```
 
-Vite emits a separate chunk per dynamic `import()`. The browser does not download that chunk until `import()` runs. A page that never renders `counter` never requests `counter-*.js`.
+Vite emits a separate chunk per dynamic `import()`. The browser does not download that chunk until `import()` runs. A page that never renders `mobile-navigation` never requests that island’s JS chunk.
 
 `assetTagsFromManifest` emits the hydrate entry and its static `imports` (React, for example). It does not walk `dynamicImports`, and it does not emit modulepreload links for them. Preloading those keys would fetch every island. Island CSS imported by a chunk is left on that chunk.
 
@@ -298,7 +298,7 @@ That default should be revisited if we ship TD-010 (viewport or streaming hydrat
 
 The registry's `isIslandName` check uses `hasOwnProperty`, so a marker named `toString` is unknown. An unknown name throws before hydration.
 
-The home page includes a counter island so hydration can be clicked. It is a demo. Remove the component, its CSS module, the registry entry, and the `<Island name="counter">` together (see TD-009). Nothing else should depend on it.
+The real product island today is `mobile-navigation` (drawer + toggle), rendered from SSR Navigation inside Layout.
 
 ### Styles
 
@@ -311,12 +311,10 @@ Authoring and delivery are split on purpose. There is no PurgeCSS or critical-CS
 **Islands — delivery (unconventional):** The import stays on the component; the framework does **not** leave CSS only on the JS chunk. After SSR pass 1 collects island names, `createPageAssets` loads CSS text (prod: manifest `css` files; dev: Vite transform of `cssModulePath`). Pass 2 provides a framework-owned context; `Island` emits a sibling `<style data-css-island="{name}">` above the marker (once per name per page). Hydrate loads **JS only** — production keeps `__vite__mapDeps` indices intact but filters `.css` URLs out of preload results (removing array entries would leave `modulepreload` hrefs as `/undefined`); development rewrites Vite’s `updateStyle` so HMR updates the sibling tag instead of injecting a second `<style data-vite-dev-id>` in `<head>`.
 
 ```html
-<style data-css-island="counter">
-  ._count_xxx {
-    font-weight: 700;
-  }
+<style data-css-island="mobile-navigation">
+  /* hashed module rules */
 </style>
-<div data-island="counter" data-props="…">…</div>
+<div data-island="mobile-navigation" data-props="…">…</div>
 ```
 
 **Icons:** Handpicked [Bootstrap Icons](https://icons.getbootstrap.com/) SVGs live in [`src/web/shared/icon.tsx`](../src/web/shared/icon.tsx). Import `<Icon name="…" />` from SSR components or islands; add a glyph to that file when a new icon is needed. No icon font package. Authoring steps: [how-to-web-ui.md](./how-to-web-ui.md#icons).
@@ -367,4 +365,4 @@ Follow [how-to-web-ui.md](./how-to-web-ui.md) (decision tree, anti-patterns, sca
 - [How to add web UI](./how-to-web-ui.md) — SSR vs island vs module styles; handpicked icons; anti-patterns; scaffold.
 
 - [Testing and coverage](./testing-and-coverage.md) — `.tsx` is outside unit coverage; HTTP behavior is covered by e2e.
-- [Known tech debt](./known-tech-debt.md) — TD-001 and TD-005 through TD-010 are the open limits of this design. Shared island client state is TD-008; the demo counter is TD-009. Below-the-fold islands still hydrate with the entry (TD-010). JSON-only island props and no shared client context are current limits of the same web layer, deferred until the dashboard needs more than CRUD.
+- [Known tech debt](./known-tech-debt.md) — TD-001 and TD-005 through TD-010 (TD-009 closed) are the open limits of this design. Shared island client state is TD-008. Below-the-fold islands still hydrate with the entry (TD-010). JSON-only island props and no shared client context are current limits of the same web layer, deferred until the dashboard needs more than CRUD.

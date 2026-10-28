@@ -71,6 +71,6 @@ describe('page loader', () => {
     expect(html).toContain(
       'Rendered on the server at 2026-10-22T12:00:00.000Z.',
     );
-    expect(html).toContain('data-island="counter"');
+    expect(html).toContain('data-island="mobile-navigation"');
   });
 });

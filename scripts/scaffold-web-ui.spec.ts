@@ -99,8 +99,8 @@ describe('parseScaffoldArgs', () => {
 });
 
 describe('patchIslandRegistry', () => {
-  const sample = `function loadCounterIsland(): Promise<IslandModule> {
-  return import('./counter.js') as Promise<IslandModule>;
+  const sample = `function loadMobileNavigationIsland(): Promise<IslandModule> {
+  return import('./mobile-navigation.js') as Promise<IslandModule>;
 }
 
 /**
@@ -113,14 +113,14 @@ export interface IslandRegistration {
 }
 
 export const islandRegistry = {
-  counter: {
-    load: loadCounterIsland,
-    cssModulePath: '/src/web/islands/counter.module.scss',
+  'mobile-navigation': {
+    load: loadMobileNavigationIsland,
+    cssModulePath: '/src/web/islands/mobile-navigation.module.scss',
   },
 } as const satisfies Record<string, IslandRegistration>;
 
 export const islandLoaders = {
-  counter: loadCounterIsland,
+  'mobile-navigation': loadMobileNavigationIsland,
 } as const;
 `;
 
@@ -141,7 +141,7 @@ export const islandLoaders = {
 
   it('rejects duplicate island names', () => {
     const plan = resolveScaffoldPlan({
-      name: 'counter',
+      name: 'mobile-navigation',
       mode: 'island',
       withStyles: false,
     });
@@ -172,8 +172,8 @@ describe('applyScaffoldPlan', () => {
     await mkdir(join(root, 'src/web/islands'), { recursive: true });
     await writeFile(
       join(root, 'src/web/islands/registry.ts'),
-      `function loadCounterIsland(): Promise<IslandModule> {
-  return import('./counter.js') as Promise<IslandModule>;
+      `function loadMobileNavigationIsland(): Promise<IslandModule> {
+  return import('./mobile-navigation.js') as Promise<IslandModule>;
 }
 
 /**
@@ -186,13 +186,13 @@ export interface IslandRegistration {
 }
 
 export const islandRegistry = {
-  counter: {
-    load: loadCounterIsland,
+  'mobile-navigation': {
+    load: loadMobileNavigationIsland,
   },
 } as const satisfies Record<string, IslandRegistration>;
 
 export const islandLoaders = {
-  counter: loadCounterIsland,
+  'mobile-navigation': loadMobileNavigationIsland,
 } as const;
 `,
       'utf8',

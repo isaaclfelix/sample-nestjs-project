@@ -32,21 +32,4 @@ describe('known tech debt (e2e)', () => {
 
     expect(status).toBe(401);
   });
-
-  /**
-   * TD-009 — desired: the demo counter island is gone from GET /.
-   * It is on the page today so hydration can be clicked.
-   * When this example unexpectedly passes, delete it and strike TD-009.
-   * Do not promote it. "No demo counter" is not an ongoing product rule.
-   * Update the hydration spec in the same change.
-   */
-  it.fails(
-    'TD-009: GET / does not render the demo counter island',
-    async () => {
-      const { status, text } = await request(app.getHttpServer()).get('/');
-
-      expect(status).toBe(200);
-      expect(text).not.toContain('data-island="counter"');
-    },
-  );
 });

@@ -26,14 +26,16 @@ const manifest: ClientManifest = {
     isEntry: true,
     imports: ['_react.js', 'missing.js', 'plain.js'],
     dynamicImports: [
-      'src/web/islands/counter.tsx',
+      'src/web/islands/mobile-navigation.tsx',
       'src/web/islands/chart.tsx',
     ],
     css: ['assets/app.css'],
   },
   '_react.js': { file: 'assets/react.js', css: ['assets/react.css'] },
   'plain.js': { file: 'assets/plain.js' },
-  'src/web/islands/counter.tsx': { file: 'assets/counter.js' },
+  'src/web/islands/mobile-navigation.tsx': {
+    file: 'assets/mobile-navigation.js',
+  },
   'src/web/islands/chart.tsx': { file: 'assets/chart.js' },
   'src/web/styles.scss': { file: 'assets/shell.css', isEntry: true },
 };
@@ -52,7 +54,7 @@ describe('asset tags', () => {
 
   it('points development pages at the vite source entry', async () => {
     await expect(
-      createPageAssets(['counter'], { development: true }),
+      createPageAssets(['mobile-navigation'], { development: true }),
     ).resolves.toEqual({
       tags: developmentAssetTags(),
       islandCss: {},
@@ -65,7 +67,7 @@ describe('asset tags', () => {
     // Over budget so production keeps a <link> (fixture oversized CSS).
     writeFileSync(shellPath, 'x'.repeat(50 * 1024 + 1));
 
-    const { tags } = await createPageAssets(['counter'], {
+    const { tags } = await createPageAssets(['mobile-navigation'], {
       development: false,
       manifest,
     });
@@ -73,7 +75,7 @@ describe('asset tags', () => {
     expect(tags.stylesheets[0]).toBe('/assets/shell.css');
     expect(tags.stylesheets).toContain('/assets/app.css');
     expect(tags.inlineStyles).toEqual([]);
-    expect(tags.scripts.join(' ')).not.toContain('counter');
+    expect(tags.scripts.join(' ')).not.toContain('mobile-navigation');
   });
 
   it('emits the entry and static imports, not island chunks', () => {
@@ -87,7 +89,7 @@ describe('asset tags', () => {
     expect(tags.stylesheets).toEqual(['/assets/app.css', '/assets/react.css']);
     expect(tags.inlineStyles).toEqual([]);
     expect(tags.scripts.join(' ')).not.toContain('shell');
-    expect(tags.scripts.join(' ')).not.toContain('counter');
+    expect(tags.scripts.join(' ')).not.toContain('mobile-navigation');
     expect(tags.scripts.join(' ')).not.toContain('chart');
   });
 
