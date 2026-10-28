@@ -1,3 +1,6 @@
+import { Island } from '../islands/island';
+import MobileNavigation from '../islands/mobile-navigation';
+
 /**
  * Navigation component for the application.
  *
@@ -44,12 +47,11 @@ export default function Navigation(): React.ReactNode {
               </li>
             </ul>
 
-            <button
-              type="button"
-              className="navigation-burger-button d-md-none btn btn-light btn-sm"
-            >
-              Toggle Menu
-            </button>
+            <Island
+              name="mobile-navigation"
+              component={MobileNavigation}
+              props={{}}
+            />
           </div>
         </div>
       </div>

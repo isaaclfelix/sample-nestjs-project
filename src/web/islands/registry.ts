@@ -24,6 +24,14 @@ function loadCounterIsland(): Promise<IslandModule> {
 }
 
 /**
+ * Loads the mobile-navigation island chunk.
+ *
+ * @returns {Promise<IslandModule>} The mobile-navigation module.
+ */
+function loadMobileNavigationIsland(): Promise<IslandModule> {
+  return import('./mobile-navigation.js') as Promise<IslandModule>;
+}
+/**
  * One registered island: lazy client loader plus optional module CSS path for
  * development SSR inlining.
  */
@@ -48,11 +56,16 @@ export const islandRegistry = {
     load: loadCounterIsland,
     cssModulePath: '/src/web/islands/counter.module.scss',
   },
+  'mobile-navigation': {
+    load: loadMobileNavigationIsland,
+    cssModulePath: '/src/web/islands/mobile-navigation.module.scss',
+  },
 } as const satisfies Record<string, IslandRegistration>;
 
 /** Lazy loaders only — hydrate entry uses this shape. */
 export const islandLoaders = {
   counter: loadCounterIsland,
+  'mobile-navigation': loadMobileNavigationIsland,
 } as const;
 
 /** Names registered in `islandRegistry`. */

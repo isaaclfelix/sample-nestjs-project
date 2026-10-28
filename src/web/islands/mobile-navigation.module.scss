@@ -1,0 +1,97 @@
+// Island-owned interaction styles. Keep small — not a second design system.
+// Use tokens for Sass API only; never re-import the shell sheet.
+// Enter/exit use keyframe animations. Resting open styles live on `.open`;
+// `.closing` uses animation-fill-mode: forwards until React clears it.
+
+@import '../styles/tokens';
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: $offcanvas-backdrop-opacity;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: $offcanvas-backdrop-opacity;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-out-left {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.navigationDrawerBackdrop {
+  background-color: $offcanvas-backdrop-bg;
+  height: 100%;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  visibility: hidden;
+  width: 100vw;
+  z-index: $zindex-offcanvas-backdrop;
+
+  // Resting open — keeps opacity after fade-in ends (fill-mode is none).
+  &.open {
+    animation: fade-in 0.3s ease-in-out;
+    opacity: $offcanvas-backdrop-opacity;
+    pointer-events: auto;
+    visibility: visible;
+  }
+
+  // Exit only — forwards holds the final frame until the class is removed.
+  &.closing {
+    animation: fade-out 0.3s ease-in-out forwards;
+    pointer-events: auto;
+    visibility: visible;
+  }
+}
+
+.navigationDrawer {
+  background-color: $offcanvas-bg-color;
+  border-right: solid $offcanvas-border-width $offcanvas-border-color;
+  box-shadow: $offcanvas-box-shadow;
+  height: 100%;
+  left: 0;
+  max-width: 100vw;
+  position: fixed;
+  top: 0;
+  transform: translateX(-100%);
+  width: $offcanvas-horizontal-width;
+  z-index: $zindex-offcanvas;
+
+  &.open {
+    animation: slide-in-left 0.3s ease-in-out;
+    transform: translateX(0);
+  }
+
+  &.closing {
+    animation: slide-out-left 0.3s ease-in-out forwards;
+  }
+}
