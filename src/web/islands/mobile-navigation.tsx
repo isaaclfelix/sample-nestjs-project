@@ -91,7 +91,7 @@ export default function MobileNavigation(): ReactElement {
         onAnimationEnd={handleAnimationEnd}
         aria-hidden={!open && !closing}
       >
-        <div className={`${styles.navigationDrawerHeader} d-flex`}>
+        <div className={`${styles.navigationDrawerHeader} d-flex p-4`}>
           <h5 className="display-6 mb-0">Navigation</h5>
           <button
             className={`${styles.navigationDrawerCloseButton} btn btn-light btn-sm d-flex`}
@@ -101,24 +101,32 @@ export default function MobileNavigation(): ReactElement {
           </button>
         </div>
 
-        <div className={styles.navigationDrawerContent}>
+        <div className={`${styles.navigationDrawerContent} p-3`}>
           <ul className="list-unstyled mb-0">
             <li>
-              <a href="/">Home</a>
+              <a href="/" className="p-3">
+                Home
+              </a>
             </li>
             <li>
-              <a href="/api/docs">Swagger Docs</a>
+              <a href="/api/docs" className="p-3">
+                Swagger Docs
+              </a>
             </li>
           </ul>
         </div>
 
-        <div className={styles.navigationDrawerFooter}>
+        <div className={`${styles.navigationDrawerFooter} p-3`}>
           <ul className="list-unstyled mb-0">
             <li>
-              <a href="/login">Login</a>
+              <a href="/login" className="p-3">
+                Login
+              </a>
             </li>
             <li>
-              <a href="/register">Register</a>
+              <a href="/register" className="p-3">
+                Register
+              </a>
             </li>
           </ul>
         </div>

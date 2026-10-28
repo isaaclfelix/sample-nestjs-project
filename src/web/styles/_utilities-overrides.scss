@@ -5,6 +5,7 @@
 // Display: none / flex with responsive variants (e.g. d-none d-md-flex); no print.
 // Margin-top: mt-3 (auth form footer link); no responsive variants.
 // Margin-bottom: mb-0 (lists/footer), mb-3 (form fields), mb-4 (page titles); no responsive.
+// Padding: p-3 (drawer sections/links), p-4 (site nav + drawer header); no responsive.
 // Padding-y: py-4 (auth page container); no responsive variants.
 // Text-align: text-center only, no responsive variants.
 $utilities: map-get-multiple(
@@ -13,6 +14,7 @@ $utilities: map-get-multiple(
     'display',
     'margin-top',
     'margin-bottom',
+    'padding',
     'padding-y',
     'text-align',
   )
@@ -43,6 +45,16 @@ $utilities: map-merge(
           responsive: false,
           values: (
             0: 0,
+            3: map-get($spacers, 3),
+            4: map-get($spacers, 4),
+          ),
+        )
+      ),
+    'padding': map-merge(
+        map-get($utilities, 'padding'),
+        (
+          responsive: false,
+          values: (
             3: map-get($spacers, 3),
             4: map-get($spacers, 4),
           ),

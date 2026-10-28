@@ -11,7 +11,7 @@ import MobileNavigation from '../islands/mobile-navigation';
 export default function Navigation(): React.ReactNode {
   return (
     <nav>
-      <div className="navigation-container container">
+      <div className="container p-4">
         <div className="navigation-row row">
           <div className="navigation-logo col display-6">
             <a href="/" className="navigation-logo-link">

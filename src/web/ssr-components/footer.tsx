@@ -11,7 +11,7 @@ import React from 'react';
 export default function Footer(): React.ReactNode {
   return (
     <footer className="site-footer">
-      <div className="container">
+      <div className="container p-4">
         <div className="row">
           <div className="col">
             <p className="mb-0 text-center">
