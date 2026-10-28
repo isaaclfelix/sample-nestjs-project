@@ -41,6 +41,9 @@ import.meta.hot.prune(() => __vite__removeStyle(__vite__id))
     );
     expect(next).toContain('el.textContent = $css');
     expect(next).toContain('__vite__removeStyle($id)');
+    // Defensive ASI: IIFE must not run as a call on the preceding CSS string.
+    expect(next).toMatch(/const __vite__css = [^\n]+\n;?\(\(\$id, \$css\) =>/);
+    expect(next).toContain(';(($id, $css) => { /* data-css-island-hmr */');
   });
 
   it('is idempotent', () => {

@@ -39,9 +39,11 @@ export function rewriteIslandCssClientInject(
   // Only kebab names from the filesystem; safe inside a CSS attribute selector.
   const selector = `style[data-css-island="${islandName}"]`;
 
+  // Leading `;` is required: the prior line is `const __vite__css = "..."`.
+  // Without it, ASI treats `(...)(...)` as calling that string (not a function).
   const update = code.replace(
     /__vite__updateStyle\((__vite__id), (__vite__css)\)/g,
-    `(($id, $css) => { /* data-css-island-hmr */ const el = document.querySelector(${JSON.stringify(selector)}); if (el) { el.textContent = $css; return; } __vite__updateStyle($id, $css); })($1, $2)`,
+    `;(($id, $css) => { /* data-css-island-hmr */ const el = document.querySelector(${JSON.stringify(selector)}); if (el) { el.textContent = $css; return; } __vite__updateStyle($id, $css); })($1, $2)`,
   );
 
   return update.replace(
