@@ -4,13 +4,13 @@ How this repo runs unit tests, e2e tests, and coverage — locally and in CI.
 
 ## Commands
 
-| Command         | What it does                                                                 |
-| --------------- | ---------------------------------------------------------------------------- |
-| `pnpm lint`     | Oxlint with `--type-aware`. Static analysis; **not** a full TypeScript emit. |
-| `pnpm build`    | Nest/`tsc` compile of app sources. Authoritative typecheck.                  |
-| `pnpm test`     | Unit suite (`*.spec.ts`).                                                    |
-| `pnpm test:e2e` | E2E suite (`*.e2e-spec.ts`) via HTTP against Nest + Testcontainers Postgres. |
-| `pnpm test:cov` | Same unit suite under V8 coverage; fails if thresholds are not met.          |
+| Command         | What it does                                                                                                                                                                                         |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm lint`     | Oxlint with `--type-aware`. Static analysis; **not** a full TypeScript emit.                                                                                                                         |
+| `pnpm build`    | Nest/`tsc` compile of app sources. Authoritative typecheck.                                                                                                                                          |
+| `pnpm test`     | Unit suite (`*.spec.ts`).                                                                                                                                                                            |
+| `pnpm test:e2e` | E2E suite (`*.e2e-spec.ts`) via HTTP against Nest + Testcontainers Postgres. CSRF e2e loads `/register` or `/login` and parses the meta tag (no JSON CSRF endpoint). Browser UI journeys are TD-025. |
+| `pnpm test:cov` | Same unit suite under V8 coverage; fails if thresholds are not met.                                                                                                                                  |
 
 HTML report after `pnpm test:cov`: open `coverage/index.html` (directory is gitignored).
 
@@ -62,6 +62,7 @@ Until that is set, CI still runs and goes red on failure, but GitHub will not hi
 
 Documented for later; do not treat these as current requirements:
 
+- **Vitest browser mode / Playwright** — real browser user-journey e2e for login/register islands (tracked as [TD-025](./known-tech-debt.md)).
 - **Codecov / Coveralls** — patch coverage on changed lines (catches “forgot tests on new functions” when global % still passes).
 - **Coverage ratchet** — auto-raise thresholds on `main` when coverage increases.
 - **Mutation testing (StrykerJS)** — measures whether tests would fail if code were wrong; stronger than line coverage, slower to run.

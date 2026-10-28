@@ -70,6 +70,14 @@ Canonical helper: [`src/web/shared/icon.tsx`](../src/web/shared/icon.tsx).
 
 Do **not** add icons ad hoc inside a single island or page when others will need them — extend `icon.tsx` so the registry stays the one source of available glyphs.
 
+## Auth forms (login / register islands)
+
+When wiring islands to the API (react-hook-form + Zod is the expected approach):
+
+- Read the SSR `<meta name="csrf-token">` and send it as `X-CSRF-TOKEN` on mutating `fetch` calls with `credentials: 'same-origin'`.
+- Import shared schemas from `src/shared/` and API DTOs under `src/api/.../dto` rather than duplicating password/username rules.
+- See [architecture.md — Frontend contract](./architecture.md#frontend-contract-islands--api) for status codes and error mapping. Real browser journey tests are TD-025.
+
 ## Anti-patterns
 
 - **SSR-only component importing a CSS module** — If it is not interactive, it should not need interaction-specific styles. Extend the shell, opt into a page sibling, or promote to an island because it will gain interaction.

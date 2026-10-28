@@ -143,7 +143,7 @@ Browser mutations use cookie sessions plus a CSRF token (Laravel-style), not cli
 - **Session middleware** loads or creates a guest session from the HttpOnly `sid` cookie and attaches it to the request for HTML pages and `/api` (Vite/static asset paths are skipped).
 - **CsrfGuard** (global) requires header `X-CSRF-TOKEN` to match the session token on mutating `/api` methods (`POST` / `PATCH` / `DELETE` / `PUT`). Safe methods and non-API routes pass through.
 - SSR embeds `<meta name="csrf-token" content="…">` on HTML documents. There is **no** JSON CSRF mint endpoint; e2e obtains the token by loading `/register` or `/login` (same as the browser).
-- Login will regenerate the session id and attach `userId` (see AuthModule). Session rows live in Postgres (`sessions`).
+- Login regenerates the session id and attaches `userId` (see AuthModule). Session rows live in Postgres (`sessions`).
 
 ```mermaid
 sequenceDiagram
@@ -162,6 +162,17 @@ sequenceDiagram
   Browser->>Nest: PATCH /api/user/:id with session plus CSRF
   Nest-->>Browser: 200 or 401 or 403
 ```
+
+### Frontend contract (islands → API)
+
+Login/register islands are not wired yet. When they are (likely react-hook-form + Zod), follow this contract so client and server stay aligned:
+
+1. Read `<meta name="csrf-token">` from the document.
+2. Call `/api/...` with `credentials: 'same-origin'` and header `X-CSRF-TOKEN` set to that value.
+3. Reuse shared Zod pieces from `src/shared/` (e.g. `passwordSchema`) and compose with API DTOs (`createUserSchema`, `loginSchema`) for client `safeParse` / RHF resolvers — do not re-state password rules in the island.
+4. Map HTTP outcomes to UI: **400** field errors from Zod, **409** uniqueness on register, **401** generic login failure (“Invalid credentials”), **403** missing/invalid CSRF, **429** throttle.
+
+Browser-driven journey tests (Vitest browser mode / Playwright) are tracked as TD-025; current e2e is HTTP/supertest only.
 
 ### Persistence
 
@@ -420,4 +431,4 @@ Follow [how-to-web-ui.md](./how-to-web-ui.md) (decision tree, anti-patterns, sca
 - [How to add web UI](./how-to-web-ui.md) — SSR vs island vs module styles; handpicked icons; anti-patterns; scaffold.
 
 - [Testing and coverage](./testing-and-coverage.md) — `.tsx` is outside unit coverage; HTTP behavior is covered by e2e.
-- [Known tech debt](./known-tech-debt.md) — TD-001 and TD-005 through TD-010 (TD-009 closed) are the open limits of this design. Shared island client state is TD-008. Below-the-fold islands still hydrate with the entry (TD-010). JSON-only island props and no shared client context are current limits of the same web layer, deferred until the dashboard needs more than CRUD.
+- [Known tech debt](./known-tech-debt.md) — TD-005 through TD-010 (TD-001/TD-004/TD-009 closed) plus auth follow-ups TD-022–TD-025. Shared island client state is TD-008. Below-the-fold islands still hydrate with the entry (TD-010). JSON-only island props and no shared client context are current limits of the same web layer, deferred until the dashboard needs more than CRUD.

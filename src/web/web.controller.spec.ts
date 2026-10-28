@@ -1,4 +1,3 @@
-import type { Request } from 'express';
 import { WebController } from './web.controller.js';
 import type { WebViewService } from './web-view.service.js';
 
@@ -6,9 +5,16 @@ import type { WebViewService } from './web-view.service.js';
  * Minimal request stub with an optional CSRF token on the session.
  *
  * @param {string} [csrfToken] - Token SessionMiddleware would attach.
- * @returns {Request} Express request stub.
+ * @returns {{ session?: { id: string; userId: null; csrfToken: string; expiresAt: Date } }} Request stub.
  */
-function reqWithCsrf(csrfToken?: string): Request {
+function reqWithCsrf(csrfToken?: string): {
+  session?: {
+    id: string;
+    userId: null;
+    csrfToken: string;
+    expiresAt: Date;
+  };
+} {
   return {
     session: csrfToken
       ? {
@@ -18,7 +24,7 @@ function reqWithCsrf(csrfToken?: string): Request {
           expiresAt: new Date(),
         }
       : undefined,
-  } as Request;
+  };
 }
 
 describe('WebController', () => {
@@ -27,9 +33,9 @@ describe('WebController', () => {
     const webViewService = { render } as unknown as WebViewService;
     const controller = new WebController(webViewService);
 
-    await expect(controller.home(reqWithCsrf('csrf-home'))).resolves.toContain(
-      '<!DOCTYPE html>',
-    );
+    await expect(
+      controller.home(reqWithCsrf('csrf-home') as never),
+    ).resolves.toContain('<!DOCTYPE html>');
     expect(render).toHaveBeenCalledWith(
       'home',
       {
@@ -45,7 +51,7 @@ describe('WebController', () => {
     const controller = new WebController(webViewService);
 
     await expect(
-      controller.login(reqWithCsrf('csrf-login')),
+      controller.login(reqWithCsrf('csrf-login') as never),
     ).resolves.toContain('<!DOCTYPE html>');
     expect(render).toHaveBeenCalledWith(
       'login',
@@ -60,7 +66,7 @@ describe('WebController', () => {
     const controller = new WebController(webViewService);
 
     await expect(
-      controller.register(reqWithCsrf('csrf-register')),
+      controller.register(reqWithCsrf('csrf-register') as never),
     ).resolves.toContain('<!DOCTYPE html>');
     expect(render).toHaveBeenCalledWith(
       'register',

@@ -11,6 +11,7 @@ export interface ServerEntry {
     page: K,
     props: PagePropsMap[K],
     createAssets: (islandNames: string[]) => PageAssets | Promise<PageAssets>,
+    csrfToken?: string,
   ): Promise<string>;
 }
 
