@@ -1,8 +1,10 @@
-import { islandCssModuleUrl, isIslandName } from './registry.js';
+import { islandCssModuleUrl, islandLoaders, isIslandName } from './registry.js';
 
 describe('island registry', () => {
   it('recognizes registered island names', () => {
     expect(isIslandName('mobile-navigation')).toBe(true);
+    expect(isIslandName('login-form')).toBe(true);
+    expect(isIslandName('register-form')).toBe(true);
     expect(isIslandName('chart')).toBe(false);
     expect(isIslandName('toString')).toBe(false);
   });
@@ -11,5 +13,19 @@ describe('island registry', () => {
     expect(islandCssModuleUrl('mobile-navigation')).toBe(
       '/src/web/islands/mobile-navigation.module.scss',
     );
+    expect(islandCssModuleUrl('login-form')).toBeUndefined();
+    expect(islandCssModuleUrl('register-form')).toBeUndefined();
+  });
+
+  it('lazy-loads each registered island module', async () => {
+    await expect(islandLoaders['mobile-navigation']()).resolves.toMatchObject({
+      default: expect.any(Function),
+    });
+    await expect(islandLoaders['login-form']()).resolves.toMatchObject({
+      default: expect.any(Function),
+    });
+    await expect(islandLoaders['register-form']()).resolves.toMatchObject({
+      default: expect.any(Function),
+    });
   });
 });

@@ -86,6 +86,15 @@ describe('asset tags', () => {
     expect(pageStylesheetHrefs(['forms'], { development: true })).toEqual([
       '/src/web/styles/forms.scss',
     ]);
+    expect(pageStylesheetHrefs([], { development: false, manifest })).toEqual(
+      [],
+    );
+  });
+
+  it('throws when production page stylesheets lack a manifest', () => {
+    expect(() =>
+      pageStylesheetHrefs(['forms'], { development: false }),
+    ).toThrow('Production pages need the client manifest.');
   });
 
   it('links the shell and the runtime, not island chunks', async () => {
