@@ -3,7 +3,7 @@ import { loadClientManifest } from './asset-tags.js';
 import { createPageAssets } from './page-assets.js';
 import { getViteDevServer, loadServerEntry } from './page-loader.js';
 import { pageStylesheetsByPage } from './page-stylesheets.js';
-import type { HomePageProps, WebPageName } from './pages/home-page.props.js';
+import type { PagePropsMap, WebPageName } from './pages/page-props.js';
 
 @Injectable()
 export class WebViewService {
@@ -18,11 +18,15 @@ export class WebViewService {
    * island. Island CSS is inlined as sibling `<style>` tags for islands used
    * on the page.
    *
-   * @param {WebPageName} page - Registered page name, not a component.
-   * @param {HomePageProps} props - JSON-serializable props for that page.
+   * @template {WebPageName} K - Page key in {@link PagePropsMap}.
+   * @param {K} page - Registered page name, not a component.
+   * @param {PagePropsMap[K]} props - JSON-serializable props for that page.
    * @returns {Promise<string>} HTML document including the doctype.
    */
-  async render(page: WebPageName, props: HomePageProps): Promise<string> {
+  async render<K extends WebPageName>(
+    page: K,
+    props: PagePropsMap[K],
+  ): Promise<string> {
     const vite = getViteDevServer();
     const entry = await loadServerEntry({
       vite,

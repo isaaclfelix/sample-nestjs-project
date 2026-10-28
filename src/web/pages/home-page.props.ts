@@ -7,6 +7,3 @@
 export interface HomePageProps {
   renderedAt: string;
 }
-
-/** Page names the server entry knows how to render. */
-export type WebPageName = 'home';

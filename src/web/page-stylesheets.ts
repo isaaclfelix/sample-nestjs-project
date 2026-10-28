@@ -38,7 +38,7 @@ export const pageStylesheetRegistry = {
  */
 export const pageStylesheetsByPage = {
   home: [] as const satisfies readonly PageStylesheetName[],
-};
+} as const;
 
 /**
  * Reports whether a name is a registered page stylesheet.
