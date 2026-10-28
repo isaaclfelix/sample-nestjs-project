@@ -46,6 +46,19 @@ flowchart TD
 
 Scaffold: `pnpm scaffold:web-ui --name my-widget --mode island --with-styles` (or omit `--with-styles`). Agents: use `.agents/skills/create-web-ui/SKILL.md`.
 
+## Icons
+
+Icons are **handpicked Bootstrap Icons** SVGs, same download-only-what-you-need rule as the shell Sass stack. There is no `bootstrap-icons` font/CSS package and no icon CDN.
+
+Canonical helper: [`src/web/shared/icon.tsx`](../src/web/shared/icon.tsx).
+
+1. Find the icon on [Bootstrap Icons](https://icons.getbootstrap.com/).
+2. Copy its inline SVG into a small function in `icon.tsx` and register it on the `icons` map (use the Bootstrap name, e.g. `list`, `x-lg`).
+3. Render with `<Icon name="list" />` from **SSR components** (`src/web/ssr-components/`) or **islands** (`src/web/islands/`). Both may import the shared helper.
+4. Prefer `fill="currentColor"` so shell / module `color` styles the glyph. In React, use camelCase SVG attributes (`fillRule`, not `fill-rule`).
+
+Do **not** add icons ad hoc inside a single island or page when others will need them — extend `icon.tsx` so the registry stays the one source of available glyphs.
+
 ## Anti-patterns
 
 - **SSR-only component importing a CSS module** — If it is not interactive, it should not need interaction-specific styles. Extend the shell, or promote to an island because it will gain interaction.
@@ -53,3 +66,4 @@ Scaffold: `pnpm scaffold:web-ui --name my-widget --mode island --with-styles` (o
 - Re-importing shell / Bootstrap **component** SCSS into an island module.
 - Growing a utility layer or mini-Bootstrap inside island modules.
 - Putting interaction CSS into the shell “just in case.”
+- Shipping the full Bootstrap Icons webfont / CSS sprite, or pasting one-off SVGs into islands instead of registering them in `shared/icon.tsx`.

@@ -94,3 +94,4 @@ When adding or changing browser-facing pages under `src/web/`:
 - Follow [docs/how-to-web-ui.md](docs/how-to-web-ui.md) for the SSR vs island vs CSS-module decision tree and anti-patterns.
 - Prefer `pnpm scaffold:web-ui` or the `create-web-ui` agent skill over hand-wiring registry, loaders, and entry-server maps.
 - Shell CSS lives in `src/web/styles.scss`; island styles use `*.module.scss` beside the island and are inlined as sibling `<style>` tags at SSR — do not invent a parallel delivery path.
+- Icons: handpick Bootstrap Icons SVGs into `src/web/shared/icon.tsx` and render `<Icon name="…" />` from SSR components or islands — do not ship the icon webfont or paste one-off SVGs (see [docs/how-to-web-ui.md](docs/how-to-web-ui.md#icons)).

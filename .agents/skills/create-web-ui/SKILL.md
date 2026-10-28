@@ -45,6 +45,7 @@ Map answers to the CLI:
 - Re-importing shell / Bootstrap **component** SCSS into an island module (tokens-only via `styles/_tokens.scss`).
 - Growing a utility layer or mini-Bootstrap inside island modules.
 - A second CSS delivery path (head links per island, CSS only after chunk load, skipping sibling `<style>` inlining).
+- Shipping the Bootstrap Icons webfont, or pasting one-off SVGs into an island — register glyphs in `src/web/shared/icon.tsx` instead ([how-to-web-ui.md § Icons](../../../docs/how-to-web-ui.md#icons)).
 
 ## After scaffolding
 

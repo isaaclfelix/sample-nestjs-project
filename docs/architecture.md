@@ -319,9 +319,11 @@ Authoring and delivery are split on purpose. There is no PurgeCSS or critical-CS
 <div data-island="counter" data-props="…">…</div>
 ```
 
+**Icons:** Handpicked [Bootstrap Icons](https://icons.getbootstrap.com/) SVGs live in [`src/web/shared/icon.tsx`](../src/web/shared/icon.tsx). Import `<Icon name="…" />` from SSR components or islands; add a glyph to that file when a new icon is needed. No icon font package. Authoring steps: [how-to-web-ui.md](./how-to-web-ui.md#icons).
+
 **Goals:** download-and-use-only-what-you-need (no head dump of every island sheet); no FOUC for SSR islands; no double delivery; shell stays the shared look (islands are not a backdoor design system).
 
-**Rejected:** head `<link>` per island; CSS only after chunk load; island-only-for-styling; SSR-only CSS modules; Tailwind-style utility sprawl; shipping Bootstrap component SCSS/JS in the shell.
+**Rejected:** head `<link>` per island; CSS only after chunk load; island-only-for-styling; SSR-only CSS modules; Tailwind-style utility sprawl; shipping Bootstrap component SCSS/JS in the shell; shipping the full Bootstrap Icons webfont.
 
 Hydrating every island as soon as the entry loads (including below the fold) is still TD-010 for **JS**; CSS for used islands is already in the HTML.
 
@@ -362,6 +364,7 @@ Follow [how-to-web-ui.md](./how-to-web-ui.md) (decision tree, anti-patterns, sca
 
 ## Related docs
 
-- [How to add web UI](./how-to-web-ui.md) — SSR vs island vs module styles; anti-patterns; scaffold.
+- [How to add web UI](./how-to-web-ui.md) — SSR vs island vs module styles; handpicked icons; anti-patterns; scaffold.
+
 - [Testing and coverage](./testing-and-coverage.md) — `.tsx` is outside unit coverage; HTTP behavior is covered by e2e.
 - [Known tech debt](./known-tech-debt.md) — TD-001 and TD-005 through TD-010 are the open limits of this design. Shared island client state is TD-008; the demo counter is TD-009. Below-the-fold islands still hydrate with the entry (TD-010). JSON-only island props and no shared client context are current limits of the same web layer, deferred until the dashboard needs more than CRUD.
