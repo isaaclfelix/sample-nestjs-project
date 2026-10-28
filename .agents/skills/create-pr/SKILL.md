@@ -160,6 +160,15 @@ gh pr edit <number> --title "<title>" --body-file "$PR_BODY"
 
 (Use `required_permissions: ["all"]`.)
 
+If `gh pr edit` fails with GraphQL `projectCards` / Projects (classic) deprecation, the title/body were **not** applied — fall back to REST (same auth, still elevated permissions):
+
+```bash
+OWNER_REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
+gh api --method PATCH "repos/${OWNER_REPO}/pulls/<number>" \
+  -f title="<title>" \
+  -f body="$(cat "$PR_BODY")"
+```
+
 - Do not change base on update unless the user asked.
 - If state is `CLOSED` or `MERGED`, do not silently reopen; report the URL and ask whether to open a new PR.
 
