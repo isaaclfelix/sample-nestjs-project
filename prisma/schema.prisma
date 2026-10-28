@@ -11,12 +11,27 @@ datasource db {
 }
 
 model User {
-  id          String  @id @default(uuid()) @db.Uuid
+  id          String    @id @default(uuid()) @db.Uuid
   email       String
   username    String
   displayName String
   password    String
-  verified    Boolean @default(false)
+  verified    Boolean   @default(false)
+  sessions    Session[]
 
   @@map("users")
+}
+
+model Session {
+  id        String   @id
+  userId    String?  @db.Uuid
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  csrfToken String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
 }

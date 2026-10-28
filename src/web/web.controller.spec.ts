@@ -1,33 +1,71 @@
+import type { Request } from 'express';
 import { WebController } from './web.controller.js';
 import type { WebViewService } from './web-view.service.js';
 
+/**
+ * Minimal request stub with an optional CSRF token on the session.
+ *
+ * @param {string} [csrfToken] - Token SessionMiddleware would attach.
+ * @returns {Request} Express request stub.
+ */
+function reqWithCsrf(csrfToken?: string): Request {
+  return {
+    session: csrfToken
+      ? {
+          id: 'session-id',
+          userId: null,
+          csrfToken,
+          expiresAt: new Date(),
+        }
+      : undefined,
+  } as Request;
+}
+
 describe('WebController', () => {
-  it('asks the view service for the home page', async () => {
+  it('asks the view service for the home page with CSRF', async () => {
     const render = vi.fn().mockResolvedValue('<!DOCTYPE html><html></html>');
     const webViewService = { render } as unknown as WebViewService;
     const controller = new WebController(webViewService);
 
-    await expect(controller.home()).resolves.toContain('<!DOCTYPE html>');
-    expect(render).toHaveBeenCalledWith('home', {
-      renderedAt: expect.any(String),
-    });
+    await expect(controller.home(reqWithCsrf('csrf-home'))).resolves.toContain(
+      '<!DOCTYPE html>',
+    );
+    expect(render).toHaveBeenCalledWith(
+      'home',
+      {
+        renderedAt: expect.any(String),
+      },
+      { csrfToken: 'csrf-home' },
+    );
   });
 
-  it('asks the view service for the login page', async () => {
+  it('asks the view service for the login page with CSRF', async () => {
     const render = vi.fn().mockResolvedValue('<!DOCTYPE html><html></html>');
     const webViewService = { render } as unknown as WebViewService;
     const controller = new WebController(webViewService);
 
-    await expect(controller.login()).resolves.toContain('<!DOCTYPE html>');
-    expect(render).toHaveBeenCalledWith('login', {});
+    await expect(
+      controller.login(reqWithCsrf('csrf-login')),
+    ).resolves.toContain('<!DOCTYPE html>');
+    expect(render).toHaveBeenCalledWith(
+      'login',
+      {},
+      { csrfToken: 'csrf-login' },
+    );
   });
 
-  it('asks the view service for the register page', async () => {
+  it('asks the view service for the register page with CSRF', async () => {
     const render = vi.fn().mockResolvedValue('<!DOCTYPE html><html></html>');
     const webViewService = { render } as unknown as WebViewService;
     const controller = new WebController(webViewService);
 
-    await expect(controller.register()).resolves.toContain('<!DOCTYPE html>');
-    expect(render).toHaveBeenCalledWith('register', {});
+    await expect(
+      controller.register(reqWithCsrf('csrf-register')),
+    ).resolves.toContain('<!DOCTYPE html>');
+    expect(render).toHaveBeenCalledWith(
+      'register',
+      {},
+      { csrfToken: 'csrf-register' },
+    );
   });
 });

@@ -134,7 +134,34 @@ Email and username uniqueness is enforced by Postgres expression unique indexes 
 
 Delete returns 204 whether or not the id existed. That is the contract, not debt.
 
-Writes are not authenticated yet (see TD-001).
+Writes are not authenticated yet beyond CSRF (see TD-001 for session auth on PATCH/DELETE).
+
+### Sessions and CSRF
+
+Browser mutations use cookie sessions plus a CSRF token (Laravel-style), not client JWTs.
+
+- **Session middleware** loads or creates a guest session from the HttpOnly `sid` cookie and attaches it to the request for HTML pages and `/api` (Vite/static asset paths are skipped).
+- **CsrfGuard** (global) requires header `X-CSRF-TOKEN` to match the session token on mutating `/api` methods (`POST` / `PATCH` / `DELETE` / `PUT`). Safe methods and non-API routes pass through.
+- SSR embeds `<meta name="csrf-token" content="…">` on HTML documents. There is **no** JSON CSRF mint endpoint; e2e obtains the token by loading `/register` or `/login` (same as the browser).
+- Login will regenerate the session id and attach `userId` (see AuthModule). Session rows live in Postgres (`sessions`).
+
+```mermaid
+sequenceDiagram
+  participant Browser
+  participant Nest
+  participant DB
+  Browser->>Nest: GET /register
+  Nest->>DB: ensure guest session
+  Nest-->>Browser: HTML plus Set-Cookie sid plus meta csrf-token
+  Browser->>Nest: POST /api/user with X-CSRF-TOKEN
+  Nest->>DB: create user
+  Nest-->>Browser: 201 UserResponseDto
+  Browser->>Nest: POST /api/auth/login with X-CSRF-TOKEN
+  Nest->>DB: findByEmailOrUsername verifyPassword regenerate session
+  Nest-->>Browser: 200 plus Set-Cookie new sid
+  Browser->>Nest: PATCH /api/user/:id with session plus CSRF
+  Nest-->>Browser: 200 or 401 or 403
+```
 
 ### Persistence
 

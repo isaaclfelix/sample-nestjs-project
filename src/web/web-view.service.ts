@@ -16,16 +16,18 @@ export class WebViewService {
    * are linked when {@link pageStylesheetsByPage} lists them for the page.
    * Client scripts are included only when the page rendered at least one
    * island. Island CSS is inlined as sibling `<style>` tags for islands used
-   * on the page.
+   * on the page. When `csrfToken` is provided it is embedded as a meta tag.
    *
    * @template {WebPageName} K - Page key in {@link PagePropsMap}.
    * @param {K} page - Registered page name, not a component.
    * @param {PagePropsMap[K]} props - JSON-serializable props for that page.
+   * @param {{ csrfToken?: string }} [options] - Optional CSRF token from the session.
    * @returns {Promise<string>} HTML document including the doctype.
    */
   async render<K extends WebPageName>(
     page: K,
     props: PagePropsMap[K],
+    options: { csrfToken?: string } = {},
   ): Promise<string> {
     const vite = getViteDevServer();
     const entry = await loadServerEntry({
@@ -36,16 +38,20 @@ export class WebViewService {
     const development = vite !== undefined || process.env.VITEST === 'true';
     const pageStylesheets = pageStylesheetsByPage[page];
 
-    return entry.render(page, props, (islandNames) =>
-      createPageAssets(islandNames, {
-        development,
-        manifest: development ? undefined : loadClientManifest(),
-        vite:
-          vite?.transformRequest !== undefined
-            ? { transformRequest: vite.transformRequest.bind(vite) }
-            : undefined,
-        pageStylesheets,
-      }),
+    return entry.render(
+      page,
+      props,
+      (islandNames) =>
+        createPageAssets(islandNames, {
+          development,
+          manifest: development ? undefined : loadClientManifest(),
+          vite:
+            vite?.transformRequest !== undefined
+              ? { transformRequest: vite.transformRequest.bind(vite) }
+              : undefined,
+          pageStylesheets,
+        }),
+      options.csrfToken,
     );
   }
 }

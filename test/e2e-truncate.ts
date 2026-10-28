@@ -13,7 +13,7 @@ export async function truncateDatabase(): Promise<void> {
   try {
     // RESTART IDENTITY is a no-op for UUID PKs; CASCADE covers FKs when added later.
     await prisma.$executeRawUnsafe(
-      'TRUNCATE TABLE "users" RESTART IDENTITY CASCADE',
+      'TRUNCATE TABLE "sessions", "users" RESTART IDENTITY CASCADE',
     );
   } finally {
     await prisma.$disconnect();

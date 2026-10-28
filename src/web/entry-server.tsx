@@ -30,12 +30,14 @@ const pages = {
  * @param {K} page - Key in the page map.
  * @param {PagePropsMap[K]} props - Props for that page.
  * @param {(islandNames: string[]) => PageAssets | Promise<PageAssets>} createAssets - Builds tags and island CSS from used islands.
+ * @param {string} [csrfToken] - Session CSRF token to embed in a meta tag.
  * @returns {Promise<string>} Document string starting with a doctype.
  */
 export async function render<K extends WebPageName>(
   page: K,
   props: PagePropsMap[K],
   createAssets: (islandNames: string[]) => PageAssets | Promise<PageAssets>,
+  csrfToken?: string,
 ): Promise<string> {
   const Page = pages[page] as (props: PagePropsMap[K]) => ReactElement;
   const islandNames = new Set<string>();
@@ -52,7 +54,7 @@ export async function render<K extends WebPageName>(
 
   const html = renderToString(
     <IslandCssContext.Provider value={{ cssByName: islandCss, emitted }}>
-      <Document assets={tags}>
+      <Document assets={tags} csrfToken={csrfToken}>
         <Page {...props} />
       </Document>
     </IslandCssContext.Provider>,
