@@ -24,11 +24,11 @@ flowchart TD
 
 | Put in the shell (`styles.scss`)                        | Put in island `*.module.scss`                      |
 | ------------------------------------------------------- | -------------------------------------------------- |
-| Handpicked Bootstrap: reset, type, colors, images, grid | Hover/focus after interaction, form state, spinner |
+| Handpicked Bootstrap: reset, type, colors, images, grid | Hover/focus after interaction, spinner, open state |
 | First-paint page chrome that would CLS without it       | Island-only decoration tied to behavior            |
 | Shared design-system look                               | Keep the file small — not a second framework       |
 
-**Target shell:** layout and content language (`root` / `reboot` / `type` / `images` / `containers` / `grid`) — not Bootstrap components/JS (navbars, tooltips, modals, buttons) and not `forms` yet (form validation/state CSS belongs with interactive auth islands when those land). The utilities Sass map is imported for later use; `utilities/api` is off so we do not ship a utility sprawl.
+**Target shell:** layout and content language (`root` / `reboot` / `type` / `images` / `containers` / `grid`) — not Bootstrap components/JS (navbars, tooltips, modals, buttons). The utilities Sass map is imported for later use; `utilities/api` is off so we do not ship a utility sprawl. Build interactive chrome as islands with small modules when needed.
 
 ## Steps: SSR-only page piece
 
