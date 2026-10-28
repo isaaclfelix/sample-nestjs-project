@@ -54,10 +54,10 @@
 }
 
 .navigation-link {
-  color: var(--bs-primary);
+  color: var(--bs-body-color);
   text-decoration: none;
 
   &:hover {
-    color: var(--bs-secondary);
+    color: var(--bs-primary);
   }
 }

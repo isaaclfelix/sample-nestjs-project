@@ -95,3 +95,40 @@
     animation: slide-out-left 0.3s ease-in-out forwards;
   }
 }
+
+.navigationDrawerHeader,
+.navigationDrawerContent,
+.navigationDrawerFooter {
+  padding: $offcanvas-padding-y $offcanvas-padding-x;
+}
+
+.navigationDrawerHeader {
+  align-items: center;
+  border-bottom: solid $offcanvas-border-width $offcanvas-border-color;
+  justify-content: space-between;
+}
+
+.navigationDrawerCloseButton {
+  margin-left: auto;
+}
+
+.navigationDrawerContent {
+  border-bottom: solid $offcanvas-border-width $offcanvas-border-color;
+}
+
+.navigationDrawerContent,
+.navigationDrawerFooter {
+  ul li {
+    a {
+      color: var(--bs-body-color);
+      display: block;
+      padding: $offcanvas-padding-y;
+      text-decoration: none;
+      width: 100%;
+
+      &:hover {
+        color: var(--bs-primary);
+      }
+    }
+  }
+}

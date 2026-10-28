@@ -20,7 +20,7 @@ export default function MobileNavigation(): ReactElement {
    *
    * @returns {void}
    */
-  const toggleOpen = (): void => {
+  const toggleDrawer = (): void => {
     if (open) {
       // Drop `.open` and run exit keyframes via `.closing`.
       setOpen(false);
@@ -73,7 +73,7 @@ export default function MobileNavigation(): ReactElement {
       <button
         type="button"
         className="navigation-burger-button d-md-none btn btn-light btn-sm"
-        onClick={toggleOpen}
+        onClick={toggleDrawer}
         aria-expanded={open}
       >
         {open ? <Icon name="x-lg" /> : <Icon name="list" />}
@@ -81,7 +81,7 @@ export default function MobileNavigation(): ReactElement {
 
       <div
         className={backdropClassName}
-        onClick={toggleOpen}
+        onClick={toggleDrawer}
         onAnimationEnd={handleAnimationEnd}
         aria-hidden={!open && !closing}
       />
@@ -90,7 +90,39 @@ export default function MobileNavigation(): ReactElement {
         className={drawerClassName}
         onAnimationEnd={handleAnimationEnd}
         aria-hidden={!open && !closing}
-      />
+      >
+        <div className={`${styles.navigationDrawerHeader} d-flex`}>
+          <h5 className="display-6 mb-0">Navigation</h5>
+          <button
+            className={`${styles.navigationDrawerCloseButton} btn btn-light btn-sm`}
+            onClick={toggleDrawer}
+          >
+            <Icon name="x-lg" />
+          </button>
+        </div>
+
+        <div className={styles.navigationDrawerContent}>
+          <ul className="list-unstyled mb-0">
+            <li>
+              <a href="/">Home</a>
+            </li>
+            <li>
+              <a href="/api/docs">Swagger Docs</a>
+            </li>
+          </ul>
+        </div>
+
+        <div className={styles.navigationDrawerFooter}>
+          <ul className="list-unstyled mb-0">
+            <li>
+              <a href="/login">Login</a>
+            </li>
+            <li>
+              <a href="/register">Register</a>
+            </li>
+          </ul>
+        </div>
+      </div>
     </>
   );
 }
