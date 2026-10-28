@@ -24,6 +24,15 @@ function loadCounterIsland(): Promise<IslandModule> {
 }
 
 /**
+ * Loads the navigation island.
+ *
+ * @returns {Promise<IslandModule>} The navigation module.
+ */
+function loadNavigationIsland(): Promise<IslandModule> {
+  return import('./navigation.js') as Promise<IslandModule>;
+}
+
+/**
  * One registered island: lazy client loader plus optional module CSS path for
  * development SSR inlining.
  */
@@ -48,11 +57,16 @@ export const islandRegistry = {
     load: loadCounterIsland,
     cssModulePath: '/src/web/islands/counter.module.scss',
   },
+  navigation: {
+    load: loadNavigationIsland,
+    cssModulePath: '/src/web/islands/navigation.module.scss',
+  },
 } as const satisfies Record<string, IslandRegistration>;
 
 /** Lazy loaders only — hydrate entry uses this shape. */
 export const islandLoaders = {
   counter: loadCounterIsland,
+  navigation: loadNavigationIsland,
 } as const;
 
 /** Names registered in `islandRegistry`. */

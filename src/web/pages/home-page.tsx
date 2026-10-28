@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import Counter from '../islands/counter.js';
 import { Island } from '../islands/island.js';
 import type { HomePageProps } from './home-page.props.js';
+import Layout from '../ssr-components/layout.js';
 
 /**
  * Renders the home page body.
@@ -17,9 +18,9 @@ export function HomePage({ renderedAt }: HomePageProps): ReactElement {
   const renderedLine = `Rendered on the server at ${renderedAt}.`;
 
   return (
-    <main>
+    <Layout>
       <p>{renderedLine}</p>
       <Island name="counter" component={Counter} props={{ start: 0 }} />
-    </main>
+    </Layout>
   );
 }
