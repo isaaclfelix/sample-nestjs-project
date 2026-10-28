@@ -1,3 +1,56 @@
-/* Shared sheet for every HTML page: handpick Bootstrap parts later instead of full import. */
+// Shell design system — handpicked Bootstrap 5.3 (Option B).
+// Import order mirrors node_modules/bootstrap/scss/bootstrap.scss.
+// Add partials only when a page needs them; never pull component SCSS “just in case”.
+// Spacing/flex utility classes stay off until utilities/api is enabled (optionally
+// with a trimmed $utilities map — see Bootstrap’s bootstrap-grid.scss).
 
-@import "bootstrap/scss/bootstrap";
+// Configuration
+@import 'bootstrap/scss/functions';
+// Variable overrides go here (after functions, before variables).
+
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/variables-dark';
+// Map overrides go here (after variables-dark, before maps).
+
+@import 'bootstrap/scss/maps';
+@import 'bootstrap/scss/mixins';
+@import 'bootstrap/scss/utilities'; // map only; no classes until utilities/api
+
+// Layout & content (no Bootstrap components / JS)
+@import 'bootstrap/scss/root';
+@import 'bootstrap/scss/reboot';
+@import 'bootstrap/scss/type';
+@import 'bootstrap/scss/images';
+@import 'bootstrap/scss/containers';
+@import 'bootstrap/scss/grid';
+// @import 'bootstrap/scss/tables';
+// @import 'bootstrap/scss/forms';
+// @import 'bootstrap/scss/buttons';
+// @import 'bootstrap/scss/transitions';
+// @import 'bootstrap/scss/dropdown';
+// @import 'bootstrap/scss/button-group';
+// @import 'bootstrap/scss/nav';
+// @import 'bootstrap/scss/navbar';
+// @import 'bootstrap/scss/card';
+// @import 'bootstrap/scss/accordion';
+// @import 'bootstrap/scss/breadcrumb';
+// @import 'bootstrap/scss/pagination';
+// @import 'bootstrap/scss/badge';
+// @import 'bootstrap/scss/alert';
+// @import 'bootstrap/scss/progress';
+// @import 'bootstrap/scss/list-group';
+// @import 'bootstrap/scss/close';
+// @import 'bootstrap/scss/toasts';
+// @import 'bootstrap/scss/modal';
+// @import 'bootstrap/scss/tooltip';
+// @import 'bootstrap/scss/popover';
+// @import 'bootstrap/scss/carousel';
+// @import 'bootstrap/scss/spinners';
+// @import 'bootstrap/scss/offcanvas';
+// @import 'bootstrap/scss/placeholders';
+
+// Helpers
+// @import 'bootstrap/scss/helpers';
+
+// Utilities
+// @import 'bootstrap/scss/utilities/api';

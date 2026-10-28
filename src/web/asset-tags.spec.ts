@@ -62,7 +62,7 @@ describe('asset tags', () => {
   it('links the shell and the runtime, not island chunks', async () => {
     const shellPath = join(process.cwd(), 'dist/client/assets/shell.css');
     mkdirSync(join(shellPath, '..'), { recursive: true });
-    // Over budget so production keeps a <link> (matches full Bootstrap today).
+    // Over budget so production keeps a <link> (fixture oversized CSS).
     writeFileSync(shellPath, 'x'.repeat(50 * 1024 + 1));
 
     const { tags } = await createPageAssets(['counter'], {
