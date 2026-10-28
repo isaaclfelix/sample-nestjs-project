@@ -96,7 +96,6 @@
   }
 }
 
-.navigationDrawerHeader,
 .navigationDrawerContent,
 .navigationDrawerFooter {
   padding: $offcanvas-padding-y $offcanvas-padding-x;
@@ -106,6 +105,7 @@
   align-items: center;
   border-bottom: solid $offcanvas-border-width $offcanvas-border-color;
   justify-content: space-between;
+  padding: $spacer * 2;
 }
 
 .navigationDrawerOpenButton,
