@@ -2,7 +2,7 @@
 // Add families to map-get-multiple as needed; further shrink each entry with map-merge.
 
 // Keep only display, margin-bottom, and text-align, then shrink each family.
-// Display: flex only, no responsive or print variants (no print view yet).
+// Display: none / flex with responsive variants (e.g. d-none d-md-flex); no print.
 // Margin-bottom: mb-0 only (footer paragraph), no responsive variants.
 // Text-align: text-center only, no responsive variants.
 $utilities: map-get-multiple(
@@ -19,9 +19,9 @@ $utilities: map-merge(
     'display': map-merge(
         map-get($utilities, 'display'),
         (
-          responsive: false,
+          responsive: true,
           print: false,
-          values: flex,
+          values: none flex,
         )
       ),
     'margin-bottom': map-merge(

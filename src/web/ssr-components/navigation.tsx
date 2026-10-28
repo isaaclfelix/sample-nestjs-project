@@ -16,7 +16,7 @@ export default function Navigation(): React.ReactNode {
             </a>
           </div>
           <div className="navigation-separator col" />
-          <div className="navigation-left col d-flex">
+          <div className="navigation-left col d-none d-md-flex">
             <ul className="navigation-list list-unstyled d-flex mb-0">
               <li>
                 <a href="/" className="navigation-link">
@@ -31,7 +31,7 @@ export default function Navigation(): React.ReactNode {
             </ul>
           </div>
           <div className="navigation-right col d-flex">
-            <ul className="navigation-list list-unstyled d-flex mb-0">
+            <ul className="navigation-list list-unstyled d-none d-md-flex mb-0">
               <li>
                 <a href="/login" className="navigation-link">
                   Login
@@ -43,6 +43,13 @@ export default function Navigation(): React.ReactNode {
                 </a>
               </li>
             </ul>
+
+            <button
+              type="button"
+              className="navigation-burger-button d-md-none btn btn-light btn-sm"
+            >
+              Toggle Menu
+            </button>
           </div>
         </div>
       </div>
