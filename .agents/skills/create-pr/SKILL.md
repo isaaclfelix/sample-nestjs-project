@@ -146,7 +146,7 @@ Run with `required_permissions: ["all"]` (see **Agent shell** above).
 
 ### 5. Create or update (REST via `gh api`)
 
-Resolve the repo once, then create or patch. Always use `required_permissions: ["all"]`. Prefer `jq` + `--input -` so markdown bodies stay intact:
+Resolve the repo once, then create or patch. Always use `required_permissions: ["all"]`. Build the JSON body with **Python** (do not rely on `jq` — it is often missing in WSL/agent images) and pipe to `gh api --input -`:
 
 ```bash
 OWNER_REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
@@ -156,23 +156,33 @@ HEAD="$(git branch --show-current)"
 **No open PR** for this head branch (`<base>` defaults to `main`):
 
 ```bash
-jq -n \
-  --arg title "<title>" \
-  --arg body "$(cat "$PR_BODY")" \
-  --arg head "$HEAD" \
-  --arg base "<base>" \
-  '{title:$title, body:$body, head:$head, base:$base}' \
+python3 - "$PR_BODY" "<title>" "$HEAD" "<base>" <<'PY' \
 | gh api --method POST "repos/${OWNER_REPO}/pulls" --input -
+import json, sys
+from pathlib import Path
+body_path, title, head, base = sys.argv[1:5]
+print(json.dumps({
+  "title": title,
+  "body": Path(body_path).read_text(),
+  "head": head,
+  "base": base,
+}))
+PY
 ```
 
 **Open PR exists** (`gh pr view` returns `number`, `state` is `OPEN`):
 
 ```bash
-jq -n \
-  --arg title "<title>" \
-  --arg body "$(cat "$PR_BODY")" \
-  '{title:$title, body:$body}' \
+python3 - "$PR_BODY" "<title>" <<'PY' \
 | gh api --method PATCH "repos/${OWNER_REPO}/pulls/<number>" --input -
+import json, sys
+from pathlib import Path
+body_path, title = sys.argv[1:3]
+print(json.dumps({
+  "title": title,
+  "body": Path(body_path).read_text(),
+}))
+PY
 ```
 
 - Do not change base on update unless the user asked.
