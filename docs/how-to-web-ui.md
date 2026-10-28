@@ -22,18 +22,18 @@ flowchart TD
 
 ## Shell vs island module
 
-| Put in the shell (`styles.scss`)                  | Put in island `*.module.scss`                      |
-| ------------------------------------------------- | -------------------------------------------------- |
-| Handpicked Bootstrap: reset, grid, type, colors   | Hover/focus after interaction, spinner, open state |
-| First-paint page chrome that would CLS without it | Island-only decoration tied to behavior            |
-| Shared design-system look                         | Keep the file small — not a second framework       |
+| Put in the shell (`styles.scss`)                               | Put in island `*.module.scss`                      |
+| -------------------------------------------------------------- | -------------------------------------------------- |
+| Handpicked Bootstrap: reset, type, colors, images, grid, forms | Hover/focus after interaction, spinner, open state |
+| First-paint page chrome that would CLS without it              | Island-only decoration tied to behavior            |
+| Shared design-system look                                      | Keep the file small — not a second framework       |
 
-**Target shell:** layout language only — not Bootstrap components/JS (navbars, tooltips, modals). Build those as islands with small modules when needed. This is neither “Bootstrap components everywhere” nor Tailwind utility sprawl.
+**Target shell:** layout and content language (`root` / `reboot` / `type` / `images` / `containers` / `grid` / `forms`) — not Bootstrap components/JS (navbars, tooltips, modals, buttons). The utilities Sass map is imported for later use; `utilities/api` is off so we do not ship a utility sprawl. Build interactive chrome as islands with small modules when needed.
 
 ## Steps: SSR-only page piece
 
 1. Add or extend a page under `src/web/pages/`.
-2. Use shell classes (grid/type/colors). Do **not** import a CSS module.
+2. Use shell classes (grid/type/images/forms). Do **not** import a CSS module.
 3. Wire the controller / `entry-server` page map as in architecture.md.
 
 ## Steps: interactive island

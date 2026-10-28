@@ -14,10 +14,10 @@ DELETE `/api/user/:id` returning **204** whether or not the user existed is an i
 
 ## Closed items
 
-| ID     | Area        | Resolution                                                                                                                                                                                  |
-| ------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| TD-002 | Persistence | Case-insensitive unique `email` / `username` enforced by Postgres `LOWER(...)` indexes via Prisma.                                                                                          |
-| TD-017 | Web CSS     | Threshold-aware shell inline vs link; island sibling `<style>` SSR; strip island CSS from hydrate mapDeps. Fixture tests cover shell modes; full Bootstrap remains linked until handpicked. |
+| ID     | Area        | Resolution                                                                                                                                                                                                         |
+| ------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| TD-002 | Persistence | Case-insensitive unique `email` / `username` enforced by Postgres `LOWER(...)` indexes via Prisma.                                                                                                                 |
+| TD-017 | Web CSS     | Threshold-aware shell inline vs link; island sibling `<style>` SSR; strip island CSS from hydrate mapDeps. Fixture tests cover shell modes. Shell Sass handpicked under the raw inline budget (no component SCSS). |
 
 ## Open items
 
