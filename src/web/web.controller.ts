@@ -1,6 +1,7 @@
 import { Controller, Get, Header } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 import type { HomePageProps } from './pages/home-page.props.js';
+import type { LoginPageProps } from './pages/login-page.props.js';
 import { WebViewService } from './web-view.service.js';
 
 @Controller()
@@ -24,5 +25,21 @@ export class WebController {
     };
 
     return this.webViewService.render('home', props);
+  }
+
+  /**
+   * Renders the login page as HTML.
+   *
+   * Form interactivity hydrates via the login-form island. Form CSS comes from
+   * the opt-in forms sibling stylesheet for this page.
+   *
+   * @returns {Promise<string>} Full HTML document (HTTP 200, text/html).
+   */
+  @Get('login')
+  @Header('Content-Type', 'text/html; charset=utf-8')
+  login(): Promise<string> {
+    const props: LoginPageProps = {};
+
+    return this.webViewService.render('login', props);
   }
 }

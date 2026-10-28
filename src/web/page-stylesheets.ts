@@ -38,6 +38,7 @@ export const pageStylesheetRegistry = {
  */
 export const pageStylesheetsByPage = {
   home: [] as const satisfies readonly PageStylesheetName[],
+  login: ['forms'] as const satisfies readonly PageStylesheetName[],
 } as const;
 
 /**

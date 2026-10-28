@@ -19,6 +19,15 @@ function loadMobileNavigationIsland(): Promise<IslandModule> {
 }
 
 /**
+ * Loads the login-form island chunk.
+ *
+ * @returns {Promise<IslandModule>} The login-form module.
+ */
+function loadLoginFormIsland(): Promise<IslandModule> {
+  return import('./login-form.js') as Promise<IslandModule>;
+}
+
+/**
  * One registered island: lazy client loader plus optional module CSS path for
  * development SSR inlining.
  */
@@ -43,11 +52,15 @@ export const islandRegistry = {
     load: loadMobileNavigationIsland,
     cssModulePath: '/src/web/islands/mobile-navigation.module.scss',
   },
+  'login-form': {
+    load: loadLoginFormIsland,
+  },
 } as const satisfies Record<string, IslandRegistration>;
 
 /** Lazy loaders only — hydrate entry uses this shape. */
 export const islandLoaders = {
   'mobile-navigation': loadMobileNavigationIsland,
+  'login-form': loadLoginFormIsland,
 } as const;
 
 /** Names registered in `islandRegistry`. */

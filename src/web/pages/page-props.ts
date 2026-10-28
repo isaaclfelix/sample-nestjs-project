@@ -1,4 +1,5 @@
 import type { HomePageProps } from './home-page.props.js';
+import type { LoginPageProps } from './login-page.props.js';
 
 /**
  * Props for each registered server page, keyed by page name.
@@ -9,6 +10,7 @@ import type { HomePageProps } from './home-page.props.js';
  */
 export type PagePropsMap = {
   home: HomePageProps;
+  login: LoginPageProps;
 };
 
 /** Page names the server entry knows how to render. */
