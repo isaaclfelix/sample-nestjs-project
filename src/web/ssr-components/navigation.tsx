@@ -18,7 +18,7 @@ export default function Navigation(): React.ReactNode {
               bed.dev
             </a>
           </div>
-          <div className="navigation-separator col" />
+          <div className="navigation-separator col d-none d-md-flex" />
           <div className="navigation-left col d-none d-md-flex">
             <ul className="navigation-list list-unstyled d-flex mb-0">
               <li>

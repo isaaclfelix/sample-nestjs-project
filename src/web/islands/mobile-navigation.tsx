@@ -72,11 +72,11 @@ export default function MobileNavigation(): ReactElement {
     <>
       <button
         type="button"
-        className="navigation-burger-button d-md-none btn btn-light btn-sm"
+        className={`${styles.navigationDrawerOpenButton} d-md-none btn btn-light btn-sm d-flex`}
         onClick={toggleDrawer}
         aria-expanded={open}
       >
-        {open ? <Icon name="x-lg" /> : <Icon name="list" />}
+        <Icon name="list" />
       </button>
 
       <div
@@ -94,7 +94,7 @@ export default function MobileNavigation(): ReactElement {
         <div className={`${styles.navigationDrawerHeader} d-flex`}>
           <h5 className="display-6 mb-0">Navigation</h5>
           <button
-            className={`${styles.navigationDrawerCloseButton} btn btn-light btn-sm`}
+            className={`${styles.navigationDrawerCloseButton} btn btn-light btn-sm d-flex`}
             onClick={toggleDrawer}
           >
             <Icon name="x-lg" />
