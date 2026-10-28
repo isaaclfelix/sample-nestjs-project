@@ -134,7 +134,7 @@ Email and username uniqueness is enforced by Postgres expression unique indexes 
 
 Delete returns 204 whether or not the id existed. That is the contract, not debt.
 
-Writes are not authenticated yet beyond CSRF (see TD-001 for session auth on PATCH/DELETE).
+`POST /api/user` is guest signup (CSRF + rate limit). `PATCH`/`DELETE` require an authenticated session and ownership of `:id`. The public list endpoint was removed.
 
 ### Sessions and CSRF
 

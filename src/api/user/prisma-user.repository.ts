@@ -53,18 +53,6 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   /**
-   * Lists every user ordered by id (stable for tests).
-   *
-   * @returns {Promise<User[]>} All users, or an empty array.
-   */
-  async findAll(): Promise<User[]> {
-    const rows = await this.prisma.client.user.findMany({
-      orderBy: { id: 'asc' },
-    });
-    return rows.map(toDomainUser);
-  }
-
-  /**
    * Loads one user by primary key.
    *
    * @param {string} id - User UUID.

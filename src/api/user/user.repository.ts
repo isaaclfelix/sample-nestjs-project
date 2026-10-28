@@ -41,13 +41,6 @@ export interface UserRepository {
   create(user: CreateUserRecord): Promise<User>;
 
   /**
-   * Lists all users in stable insertion order when the store provides it.
-   *
-   * @returns {Promise<User[]>} Every stored user, or an empty array.
-   */
-  findAll(): Promise<User[]>;
-
-  /**
    * Loads one user by id.
    *
    * @param {string} id - User UUID.

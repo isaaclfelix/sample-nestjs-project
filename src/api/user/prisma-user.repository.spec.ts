@@ -129,17 +129,6 @@ describe('PrismaUserRepository', () => {
     });
   });
 
-  describe('findAll', () => {
-    it('returns mapped users ordered by id', async () => {
-      prisma.client.user.findMany.mockResolvedValue([row]);
-
-      await expect(repository.findAll()).resolves.toEqual([row]);
-      expect(prisma.client.user.findMany).toHaveBeenCalledWith({
-        orderBy: { id: 'asc' },
-      });
-    });
-  });
-
   describe('findById', () => {
     it('returns a domain user when found', async () => {
       prisma.client.user.findUnique.mockResolvedValue(row);

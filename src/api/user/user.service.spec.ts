@@ -39,14 +39,12 @@ describe('UserService', () => {
   let service: UserService;
   const users: {
     create: ReturnType<typeof vi.fn>;
-    findAll: ReturnType<typeof vi.fn>;
     findById: ReturnType<typeof vi.fn>;
     findByEmailOrUsername: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
     delete: ReturnType<typeof vi.fn>;
   } = {
     create: vi.fn(),
-    findAll: vi.fn(),
     findById: vi.fn(),
     findByEmailOrUsername: vi.fn(),
     update: vi.fn(),
@@ -130,30 +128,6 @@ describe('UserService', () => {
       expect(users.create).toHaveBeenCalledWith(
         expect.objectContaining({ verified: false }),
       );
-    });
-  });
-
-  describe('findAll', () => {
-    it('returns an empty list when no users exist', async () => {
-      users.findAll.mockResolvedValue([]);
-      await expect(service.findAll()).resolves.toEqual([]);
-    });
-
-    it('returns every stored user without passwords', async () => {
-      users.findAll.mockResolvedValue([
-        storedUser(),
-        storedUser({
-          id: '22222222-2222-4222-8222-222222222222',
-          email: 'second@example.com',
-          username: 'SecondUser',
-        }),
-      ]);
-
-      const listed = await service.findAll();
-      expect(listed).toHaveLength(2);
-      for (const user of listed) {
-        expect(user).not.toHaveProperty('password');
-      }
     });
   });
 

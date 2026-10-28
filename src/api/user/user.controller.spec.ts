@@ -17,7 +17,6 @@ describe('UserController', () => {
   let controller: UserController;
   const userService = {
     create: vi.fn(),
-    findAll: vi.fn(),
     findOne: vi.fn(),
     update: vi.fn(),
     remove: vi.fn(),
@@ -50,11 +49,9 @@ describe('UserController', () => {
     expect(userService.create).toHaveBeenCalledWith(dto);
   });
 
-  it('delegates findAll and findOne to the service', async () => {
-    userService.findAll.mockResolvedValue([publicUser]);
+  it('delegates findOne to the service', async () => {
     userService.findOne.mockResolvedValue(publicUser);
 
-    await expect(controller.findAll()).resolves.toEqual([publicUser]);
     await expect(controller.findOne(publicUser.id)).resolves.toEqual(
       publicUser,
     );
