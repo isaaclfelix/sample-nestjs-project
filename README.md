@@ -6,7 +6,7 @@ How the two sides fit together: [docs/architecture.md](./docs/architecture.md).
 
 ## Prerequisites
 
-- A **Unix** environment. Local development is tested on **Ubuntu 26.04 LTS under WSL2**. macOS and native Windows (outside WSL) are not verified yet (**TD-027** in [docs/known-tech-debt.md](./docs/known-tech-debt.md)).
+- A **Unix** environment. Local development is tested on **Ubuntu 26.04 LTS under WSL2**. macOS and native Windows (outside WSL) are not verified yet ([ADR-0022](./docs/adr/0022-unix-wsl-playwright-browser-cache.md), **TD-027** in [docs/known-tech-debt.md](./docs/known-tech-debt.md)).
 - [pnpm](https://pnpm.io/installation) 12. This repo uses pnpm, not npm or Yarn.
 - Node.js 24.22.0. That version is pinned in [`.node-version`](./.node-version). `package.json` requires Node `>=24.7.0`.
 - [Docker](https://docs.docker.com/get-docker/) for e2e (Testcontainers) and for the optional local database.
