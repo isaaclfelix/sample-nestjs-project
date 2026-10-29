@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { passwordSchema } from '../../../shared/password.schema.js';
+import { passwordSchema } from '../../../shared/schemas/password.schema.js';
 
 export const loginSchema = z.strictObject({
   identifier: z.string().trim().min(1).meta({
