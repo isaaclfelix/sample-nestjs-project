@@ -14,7 +14,7 @@ const createUserDto: CreateUserDto = {
   email: 'ada@example.com',
   username: 'Ada_Lovelace',
   displayName: 'Ada Lovelace',
-  password: 'password1',
+  password: 'correct-horse',
 };
 
 /**
@@ -29,7 +29,7 @@ function storedUser(overrides: Partial<User> = {}): User {
     email: createUserDto.email,
     username: createUserDto.username,
     displayName: createUserDto.displayName,
-    password: 'hash(password1)',
+    password: 'hash(correct-horse)',
     verified: false,
     ...overrides,
   };
@@ -39,14 +39,14 @@ describe('UserService', () => {
   let service: UserService;
   const users: {
     create: ReturnType<typeof vi.fn>;
-    findAll: ReturnType<typeof vi.fn>;
     findById: ReturnType<typeof vi.fn>;
+    findByEmailOrUsername: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
     delete: ReturnType<typeof vi.fn>;
   } = {
     create: vi.fn(),
-    findAll: vi.fn(),
     findById: vi.fn(),
+    findByEmailOrUsername: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
   };
@@ -70,13 +70,13 @@ describe('UserService', () => {
 
       const created = await service.create(createUserDto);
 
-      expect(hashPassword).toHaveBeenCalledWith('password1');
+      expect(hashPassword).toHaveBeenCalledWith('correct-horse');
       expect(users.create).toHaveBeenCalledWith(
         expect.objectContaining({
           email: 'ada@example.com',
           username: 'Ada_Lovelace',
           displayName: 'Ada Lovelace',
-          password: 'hash(password1)',
+          password: 'hash(correct-horse)',
           verified: false,
         }),
       );
@@ -131,30 +131,6 @@ describe('UserService', () => {
     });
   });
 
-  describe('findAll', () => {
-    it('returns an empty list when no users exist', async () => {
-      users.findAll.mockResolvedValue([]);
-      await expect(service.findAll()).resolves.toEqual([]);
-    });
-
-    it('returns every stored user without passwords', async () => {
-      users.findAll.mockResolvedValue([
-        storedUser(),
-        storedUser({
-          id: '22222222-2222-4222-8222-222222222222',
-          email: 'second@example.com',
-          username: 'SecondUser',
-        }),
-      ]);
-
-      const listed = await service.findAll();
-      expect(listed).toHaveLength(2);
-      for (const user of listed) {
-        expect(user).not.toHaveProperty('password');
-      }
-    });
-  });
-
   describe('findOne', () => {
     it('returns the matching user', async () => {
       const user = storedUser();
@@ -205,12 +181,12 @@ describe('UserService', () => {
       users.update.mockResolvedValue(user);
       vi.mocked(hashPassword).mockClear();
 
-      await service.update(user.id, { password: 'new-password' });
+      await service.update(user.id, { password: 'correct-horse-2' });
 
       expect(hashPassword).toHaveBeenCalledOnce();
-      expect(hashPassword).toHaveBeenCalledWith('new-password');
+      expect(hashPassword).toHaveBeenCalledWith('correct-horse-2');
       expect(users.update).toHaveBeenCalledWith(user.id, {
-        password: 'hash(new-password)',
+        password: 'hash(correct-horse-2)',
       });
     });
 

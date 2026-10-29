@@ -1,0 +1,22 @@
+// Opt-in page sibling — Bootstrap form chrome for pages that declare it.
+// Not part of the shell: home and other non-form pages must not download this.
+// Rationale and revisit triggers: docs/architecture.md (Styles) and TD-021.
+//
+// Selective imports only (not bootstrap/scss/forms). Validation is included so
+// the next plan can toggle .is-invalid / feedback without a second CSS change.
+// Unused selectors inside these partials (file/date/sizes; select/check hooks
+// in validation) are accepted at ~11 KiB raw / ~2 KiB gzip — see TD-021.
+//
+// Still out: form-check, form-select, form-range, floating-labels, input-group.
+
+@import './tokens';
+
+@import 'bootstrap/scss/forms/labels';
+@import 'bootstrap/scss/forms/form-control';
+@import 'bootstrap/scss/forms/form-text';
+@import 'bootstrap/scss/forms/validation';
+
+// Form-level API errors — plain colored text (not Bootstrap alert).
+.form-api-error {
+  color: var(--bs-form-invalid-color);
+}

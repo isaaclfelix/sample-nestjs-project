@@ -41,19 +41,22 @@ export interface UserRepository {
   create(user: CreateUserRecord): Promise<User>;
 
   /**
-   * Lists all users in stable insertion order when the store provides it.
-   *
-   * @returns {Promise<User[]>} Every stored user, or an empty array.
-   */
-  findAll(): Promise<User[]>;
-
-  /**
    * Loads one user by id.
    *
    * @param {string} id - User UUID.
    * @returns {Promise<User | null>} The user, or null when missing.
    */
   findById(id: string): Promise<User | null>;
+
+  /**
+   * Loads one user by email or username (case-insensitive).
+   *
+   * Used by login when the client sends a single identifier field.
+   *
+   * @param {string} identifier - Email or username as typed by the user.
+   * @returns {Promise<User | null>} The user, or null when no match.
+   */
+  findByEmailOrUsername(identifier: string): Promise<User | null>;
 
   /**
    * Applies a partial update and returns the new stored row.

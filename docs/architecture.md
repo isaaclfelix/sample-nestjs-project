@@ -115,12 +115,12 @@ E2E boots `AppModule` and never runs `src/main.ts`. The prefix has to live in th
 
 Schemas are the source of the TypeScript types (`z.infer`). Current contracts:
 
-| Schema               | Rules                                                                                                                                                                                              |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `createUserSchema`   | Strict object: email, username, display name, password of at least 8 characters. Unknown keys are rejected. Usernames are trimmed, a leading `@` is stripped, then checked for length and pattern. |
-| `updateUserSchema`   | Create schema without email and username, every remaining field optional, still strict, and at least one of `displayName` or `password` is required.                                               |
-| `userIdSchema`       | UUID path parameter.                                                                                                                                                                               |
-| `userResponseSchema` | Public user: `id`, `email`, `username`, `displayName`, `verified`. No password.                                                                                                                    |
+| Schema               | Rules                                                                                                                                                                                                                                                         |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `createUserSchema`   | Strict object: email, username, display name, password via shared `passwordSchema` (min 12 / max 128, NIST-oriented; no composition rules). Unknown keys are rejected. Usernames are trimmed, a leading `@` is stripped, then checked for length and pattern. |
+| `updateUserSchema`   | Create schema without email and username, every remaining field optional, still strict, and at least one of `displayName` or `password` is required.                                                                                                          |
+| `userIdSchema`       | UUID path parameter.                                                                                                                                                                                                                                          |
+| `userResponseSchema` | Public user: `id`, `email`, `username`, `displayName`, `verified`. No password.                                                                                                                                                                               |
 
 ### Users, passwords, and responses
 
@@ -134,7 +134,47 @@ Email and username uniqueness is enforced by Postgres expression unique indexes 
 
 Delete returns 204 whether or not the id existed. That is the contract, not debt.
 
-Writes are not authenticated yet (see TD-001).
+`POST /api/user` is guest signup (CSRF + rate limit). `PATCH`/`DELETE` require an authenticated session and ownership of `:id`. The public list endpoint was removed.
+
+### Sessions and CSRF
+
+Browser mutations use cookie sessions plus a CSRF token (Laravel-style), not client JWTs.
+
+- **Session middleware** loads or creates a guest session from the HttpOnly `sid` cookie and attaches it to the request for HTML pages and `/api` (Vite/static asset paths are skipped).
+- **CsrfGuard** (global) requires header `X-CSRF-TOKEN` to match the session token on mutating `/api` methods (`POST` / `PATCH` / `DELETE` / `PUT`). Safe methods and non-API routes pass through.
+- SSR embeds `<meta name="csrf-token" content="…">` on HTML documents. There is **no** JSON CSRF mint endpoint; e2e obtains the token by loading `/register` or `/login` (same as the browser).
+- Login regenerates the session id and attaches `userId` (see AuthModule). Session rows live in Postgres (`sessions`).
+
+```mermaid
+sequenceDiagram
+  participant Browser
+  participant Nest
+  participant DB
+  Browser->>Nest: GET /register
+  Nest->>DB: ensure guest session
+  Nest-->>Browser: HTML plus Set-Cookie sid plus meta csrf-token
+  Browser->>Nest: POST /api/user with X-CSRF-TOKEN
+  Nest->>DB: create user
+  Nest-->>Browser: 201 UserResponseDto
+  Browser->>Nest: POST /api/auth/login with X-CSRF-TOKEN
+  Nest->>DB: findByEmailOrUsername verifyPassword regenerate session
+  Nest-->>Browser: 200 plus Set-Cookie new sid
+  Browser->>Nest: PATCH /api/user/:id with session plus CSRF
+  Nest-->>Browser: 200 or 401 or 403
+```
+
+### Frontend contract (islands → API)
+
+Login/register islands submit via `useApiMutation` (react-hook-form + Zod on the forms). Keep client and server aligned:
+
+1. Read `<meta name="csrf-token">` via `getCsrfToken` / `getCsrfTokenHeader` under `src/web/client/`.
+2. Call `/api/...` with native `fetch`, spreading `apiRequestDefaults` (`credentials: 'same-origin'`, JSON content type) and `...getCsrfTokenHeader()`.
+3. Reuse shared Zod pieces from `src/shared/schemas/` (e.g. `passwordSchema`, `emailSchema`) and compose with API DTOs (`createUserSchema`, `loginSchema`) for RHF resolvers — do not re-state field rules in the island.
+4. Map HTTP outcomes to UI: client Zod / **400** field errors, **409** uniqueness on register, **401** generic login failure (“Invalid credentials”), **403** missing/invalid CSRF, **429** throttle. Form-level API errors use plain colored text (`.form-api-error`), not Bootstrap alerts.
+5. Register succeeds with **201** then navigates to `/login` (no auto-login). Login succeeds with **200** then navigates to `/`. Logout is best-effort (always navigate to `/login` after the attempt).
+6. Nav auth chrome is SSR-driven from `req.session.userId` (`isAuthenticated` page prop). `/login` and `/register` redirect authenticated users to `/`.
+
+Browser-driven form UI-state and journey tests (Vitest browser mode / Playwright) are tracked as TD-025; current e2e is HTTP/supertest only.
 
 ### Persistence
 
@@ -258,13 +298,13 @@ The home page keeps its sentence in one template string. Adjacent text expressio
 
 ### Islands
 
-An island is a client component with its own React root. The server page places it with the `Island` helper. That helper is generic over props (`Island<P>`): `component` is a `ComponentType<P>` and `props` is `P`, so any island (counter today, others later) keeps those two in sync. There is no single React “Props” type beyond that—`PropsWithChildren` and friends are helpers around a per-component shape, not a substitute for `P`.
+An island is a client component with its own React root. The server page places it with the `Island` helper. That helper is generic over props (`Island<P>`): `component` is a `ComponentType<P>` and `props` is `P`, so each island keeps those two in sync. There is no single React “Props” type beyond that—`PropsWithChildren` and friends are helpers around a per-component shape, not a substitute for `P`.
 
 The server marker is:
 
 ```html
-<div data-island="counter" data-props="...">
-  <button type="button">Count: 0</button>
+<div data-island="mobile-navigation" data-props="...">
+  <!-- island SSR HTML -->
 </div>
 ```
 
@@ -280,15 +320,15 @@ The client entry imports the registry, not the island components:
 
 ```ts
 export const islandLoaders = {
-  counter: loadCounterIsland,
+  'mobile-navigation': loadMobileNavigationIsland,
 } as const;
 
-function loadCounterIsland() {
-  return import('./counter.js');
+function loadMobileNavigationIsland() {
+  return import('./mobile-navigation.js');
 }
 ```
 
-Vite emits a separate chunk per dynamic `import()`. The browser does not download that chunk until `import()` runs. A page that never renders `counter` never requests `counter-*.js`.
+Vite emits a separate chunk per dynamic `import()`. The browser does not download that chunk until `import()` runs. A page that never renders `mobile-navigation` never requests that island’s JS chunk.
 
 `assetTagsFromManifest` emits the hydrate entry and its static `imports` (React, for example). It does not walk `dynamicImports`, and it does not emit modulepreload links for them. Preloading those keys would fetch every island. Island CSS imported by a chunk is left on that chunk.
 
@@ -298,42 +338,70 @@ That default should be revisited if we ship TD-010 (viewport or streaming hydrat
 
 The registry's `isIslandName` check uses `hasOwnProperty`, so a marker named `toString` is unknown. An unknown name throws before hydration.
 
-The home page includes a counter island so hydration can be clicked. It is a demo. Remove the component, its CSS module, the registry entry, and the `<Island name="counter">` together (see TD-009). Nothing else should depend on it.
+The real product island today is `mobile-navigation` (drawer + toggle), rendered from SSR Navigation inside Layout.
+
+`src/web/islands/` currently mixes feature islands (component + CSS module) with registry loaders and the `Island` SSR/hydrate helper. Prefer the cleaner split used by `pages/`, `shared/`, and `ssr-components/` later (see TD-019).
+
+The `src/web/` root itself is also mixed: Nest artifacts (`web.module`, controller, `WebViewService`), Vite plugins (`vite-*`), page/asset helpers, and React shells (`document`, `entry-server`) sit beside feature folders. Group those by role when the tree gets hard to navigate (see TD-020).
 
 ### Styles
 
-Authoring and delivery are split on purpose. There is no PurgeCSS or critical-CSS extract: unused Bootstrap leaves by **handpicking** SCSS imports; unused island CSS never ships because that island was not rendered. Canonical when-to-island / when-to-module rules: [how-to-web-ui.md](./how-to-web-ui.md).
+Authoring and delivery are split on purpose. There is no PurgeCSS or critical-CSS extract: unused Bootstrap leaves by **handpicking** SCSS imports; unused island CSS never ships because that island was not rendered; unused **page sibling** sheets never ship because the page did not opt in. Canonical when-to-island / when-to-module / when-to-sibling rules: [how-to-web-ui.md](./how-to-web-ui.md). Formal ADRs are still TD-011 — decisions below live here until an ADR is extracted.
 
-**Shell** (`src/web/styles.scss`) is the shared design-system sheet: handpicked Bootstrap Option B — config (including the utilities Sass map), `root`, `reboot`, `type`, `images`, `containers`, and `grid`. No Bootstrap components/JS; other partials (`forms`, `utilities/api`, helpers, tables, transitions, …) stay commented until needed. Own Vite client input. Compilation: Sass → PostCSS (media-query sort + doiuse warn) → Lightning CSS minify at **Baseline Widely Available**. Build **reports** raw + gzip vs `SHELL_CSS_BUDGET_BYTES` (default 50 KiB). **Production** inlines the shell as `<style data-css="shell">` when **raw** size ≤ that budget (handpicked shell is under budget today); otherwise keeps a `<link>`. **Development** always `<link href="/src/web/styles.scss">` plus `/@vite/client` for HMR. Fixture tests cover both shell modes.
+CSS ships in **three lanes**:
+
+| Lane                   | When                                             | Role                                                                       |
+| ---------------------- | ------------------------------------------------ | -------------------------------------------------------------------------- |
+| **Shell**              | Every HTML page                                  | Shared layout/content language                                             |
+| **Page sibling sheet** | Only pages that opt in (`pageStylesheetsByPage`) | Shared Bootstrap component CSS that must not tax every page (today: forms) |
+| **Island module**      | Only when that island is rendered                | Small non-Bootstrap interaction decoration; tokens-only Sass API           |
+
+**Shell** (`src/web/styles.scss`) is the shared design-system sheet: handpicked Bootstrap Option B — config (including the utilities Sass map), `root`, `reboot`, `type`, `images`, `containers`, and `grid`, plus handpicked `_buttons.scss`. No Bootstrap forms (or other heavy component stacks) in the shell — `// @import 'bootstrap/scss/forms'` stays commented. Own Vite client input. Compilation: Sass → PostCSS (media-query sort + doiuse warn) → Lightning CSS minify at **Baseline Widely Available**. Build **reports** raw + gzip vs `SHELL_CSS_BUDGET_BYTES` (default 50 KiB). **Production** inlines the shell as `<style data-css="shell">` when **raw** size ≤ that budget (handpicked shell is under budget today); otherwise keeps a `<link>`. **Development** always `<link href="/src/web/styles.scss">` plus `/@vite/client` for HMR. Fixture tests cover both shell modes.
+
+#### Optional page stylesheets (forms)
+
+**Problem:** Full Bootstrap forms were audited as large, so forms stayed out of the shell. Not every page needs forms. Putting resting (or validation) form CSS on islands would violate “no island only to ship CSS.” Splitting validation onto islands looked attractive for “interaction CSS,” but measured Bootstrap `validation` is only ~1.2 KiB gzip and wiring Bootstrap into CSS modules is more complex than the download win.
+
+**Choice:** One shared **opt-in sibling** sheet [`src/web/styles/forms.scss`](../src/web/styles/forms.scss) (Vite client input `forms`, parallel to `shell`). Pages list `'forms'` in [`pageStylesheetsByPage`](../src/web/page-stylesheets.ts); `createPageAssets` emits a head `<link>` (dev: `/src/web/styles/forms.scss`; prod: hashed file from the manifest). The sheet imports selective Bootstrap partials only:
+
+- `forms/labels`, `forms/form-control`, `forms/form-text`, `forms/validation`
+
+Not the full `forms` barrel (no form-check, form-select, range, floating-labels, input-group as separate imports). Measured size ~11 KiB raw / ~2 KiB gzip. Validation CSS ships **before** JS toggles those classes so the next validation UI plan needs no second stylesheet change; markup stays initial-state until then.
+
+**Accepted unused CSS on form pages:** Bootstrap’s `form-control` and `validation` partials embed extra selectors (file/date/sizes/textarea; select/check/input-group/floating hooks) inside the same files — they are not pulled in by importing `form-select` / `form-check`. We accept that waste at current size rather than forking partials like `_buttons.scss` or building per-page form subsets. Login and register share one sheet because they share the same resting vocabulary.
+
+**Rule:** Small shared Bootstrap form partials (including validation) belong on opt-in siblings, **not** islands. Islands exist for interactivity; island modules may use tokens + tiny non-Bootstrap rules only. Do **not** re-import CSS-emitting Bootstrap form partials into `*.module.scss` (TD-016 still applies to islands).
+
+**Revisit:** [TD-021](./known-tech-debt.md) — sibling raw size ≳16 KiB, clear per-page divergence (>3 KiB gzip unused relative to another form page), or a buttons-style allowlist becomes worth maintaining.
 
 **Islands — authoring:** Import a CSS module beside the interactive component (`*.module.scss` preferred). That puts CSS on the island’s Vite graph and supplies hashed classes. Use `styles/_tokens.scss` for Sass API only. Do **not** re-import the shell or Bootstrap CSS-emitting partials (TD-016).
 
 **Islands — delivery (unconventional):** The import stays on the component; the framework does **not** leave CSS only on the JS chunk. After SSR pass 1 collects island names, `createPageAssets` loads CSS text (prod: manifest `css` files; dev: Vite transform of `cssModulePath`). Pass 2 provides a framework-owned context; `Island` emits a sibling `<style data-css-island="{name}">` above the marker (once per name per page). Hydrate loads **JS only** — production keeps `__vite__mapDeps` indices intact but filters `.css` URLs out of preload results (removing array entries would leave `modulepreload` hrefs as `/undefined`); development rewrites Vite’s `updateStyle` so HMR updates the sibling tag instead of injecting a second `<style data-vite-dev-id>` in `<head>`.
 
 ```html
-<style data-css-island="counter">
-  ._count_xxx {
-    font-weight: 700;
-  }
+<style data-css-island="mobile-navigation">
+  /* hashed module rules */
 </style>
-<div data-island="counter" data-props="…">…</div>
+<div data-island="mobile-navigation" data-props="…">…</div>
 ```
 
-**Goals:** download-and-use-only-what-you-need (no head dump of every island sheet); no FOUC for SSR islands; no double delivery; shell stays the shared look (islands are not a backdoor design system).
+**Icons:** Handpicked [Bootstrap Icons](https://icons.getbootstrap.com/) SVGs live in [`src/web/shared/icon.tsx`](../src/web/shared/icon.tsx). Import `<Icon name="…" />` from SSR components or islands; add a glyph to that file when a new icon is needed. No icon font package. Authoring steps: [how-to-web-ui.md](./how-to-web-ui.md#icons).
 
-**Rejected:** head `<link>` per island; CSS only after chunk load; island-only-for-styling; SSR-only CSS modules; Tailwind-style utility sprawl; shipping Bootstrap component SCSS/JS in the shell.
+**Goals:** download-and-use-only-what-you-need (no head dump of every island or sibling sheet); no FOUC for SSR islands; no double delivery; shell stays the always-on look; siblings carry opt-in design-system components; islands are not a backdoor design system or CSS CDN.
+
+**Rejected:** head `<link>` per island; CSS only after chunk load; island-only-for-styling; SSR-only CSS modules; Tailwind-style utility sprawl; shipping Bootstrap forms (or other heavy component SCSS/JS) in the shell; shipping the full Bootstrap Icons webfont; Bootstrap form partials inside island CSS modules.
 
 Hydrating every island as soon as the entry loads (including below the fold) is still TD-010 for **JS**; CSS for used islands is already in the HTML.
 
 ### Development and production
 
-|                                          | Development                                                                                                                                                                                              | Production                                                                                                                  |
-| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| How it starts                            | `pnpm start` / `start:dev`                                                                                                                                                                               | `NODE_ENV=production` via `pnpm start:prod`                                                                                 |
-| SSR                                      | Vite middleware mode, `ssrLoadModule`                                                                                                                                                                    | `dist/web-server/entry-server.js`                                                                                           |
-| Client scripts when an island is present | `/@id/@vitejs/plugin-react/preamble`, `/@vite/client`, `/src/web/client/hydrate.tsx`                                                                                                                     | Manifest entry and its static imports, under `/`                                                                            |
-| Styles                                   | Shell `<link href="/src/web/styles.scss">` plus `/@vite/client`. Island CSS inlined as sibling `<style>`; Vite client inject is rewritten to update that sibling (no `data-vite-dev-id` head duplicate). | Shell `<style>` or `<link>` by raw-size budget. Island CSS inlined as sibling `<style>`; hydrate mapDeps has no island CSS. |
-| Static files                             | Vite serves source                                                                                                                                                                                       | `express.static` on `dist/client`, with `index: false`                                                                      |
+|                                          | Development                                                                                                                                                                                                                                                                     | Production                                                                                                                                                |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| How it starts                            | `pnpm start` / `start:dev`                                                                                                                                                                                                                                                      | `NODE_ENV=production` via `pnpm start:prod`                                                                                                               |
+| SSR                                      | Vite middleware mode, `ssrLoadModule`                                                                                                                                                                                                                                           | `dist/web-server/entry-server.js`                                                                                                                         |
+| Client scripts when an island is present | `/@id/@vitejs/plugin-react/preamble`, `/@vite/client`, `/src/web/client/hydrate.tsx`                                                                                                                                                                                            | Manifest entry and its static imports, under `/`                                                                                                          |
+| Styles                                   | Shell `<link href="/src/web/styles.scss">` plus `/@vite/client`. Opt-in siblings (e.g. forms) as extra `<link>`s when the page opts in. Island CSS inlined as sibling `<style>`; Vite client inject is rewritten to update that sibling (no `data-vite-dev-id` head duplicate). | Shell `<style>` or `<link>` by raw-size budget. Opt-in siblings as `<link>`s. Island CSS inlined as sibling `<style>`; hydrate mapDeps has no island CSS. |
+| Static files                             | Vite serves source                                                                                                                                                                                                                                                              | `express.static` on `dist/client`, with `index: false`                                                                                                    |
 
 The React refresh preamble is required in development because this app writes its own HTML. Vite would inject that preamble into an `index.html`; it does not see ours. Without `window.$RefreshReg$`, an island module throws before `hydrateRoot` runs. Production builds do not include the refresh runtime.
 
@@ -362,6 +430,7 @@ Follow [how-to-web-ui.md](./how-to-web-ui.md) (decision tree, anti-patterns, sca
 
 ## Related docs
 
-- [How to add web UI](./how-to-web-ui.md) — SSR vs island vs module styles; anti-patterns; scaffold.
+- [How to add web UI](./how-to-web-ui.md) — SSR vs island vs module styles; handpicked icons; anti-patterns; scaffold.
+
 - [Testing and coverage](./testing-and-coverage.md) — `.tsx` is outside unit coverage; HTTP behavior is covered by e2e.
-- [Known tech debt](./known-tech-debt.md) — TD-001 and TD-005 through TD-010 are the open limits of this design. Shared island client state is TD-008; the demo counter is TD-009. Below-the-fold islands still hydrate with the entry (TD-010). JSON-only island props and no shared client context are current limits of the same web layer, deferred until the dashboard needs more than CRUD.
+- [Known tech debt](./known-tech-debt.md) — TD-005 through TD-010 (TD-001/TD-004/TD-009 closed) plus auth follow-ups TD-022–TD-025. Shared island client state is TD-008. Below-the-fold islands still hydrate with the entry (TD-010). JSON-only island props and no shared client context are current limits of the same web layer, deferred until the dashboard needs more than CRUD.

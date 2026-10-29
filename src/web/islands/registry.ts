@@ -10,19 +10,40 @@ export interface IslandModule {
 }
 
 /**
- * Loads the demo counter chunk.
+ * Loads the mobile-navigation island chunk.
  *
- * The cast matches `IslandModule` because decoded props are a plain JSON
- * object. The home page passes `{ start: number }`. Remove this loader with
- * the counter under TD-009.
- *
- * @returns {Promise<IslandModule>} The counter module.
+ * @returns {Promise<IslandModule>} The mobile-navigation module.
  */
-function loadCounterIsland(): Promise<IslandModule> {
-  // Props are checked by the page that renders the island, not by this cast.
-  return import('./counter.js') as Promise<IslandModule>;
+function loadMobileNavigationIsland(): Promise<IslandModule> {
+  return import('./mobile-navigation.js') as Promise<IslandModule>;
 }
 
+/**
+ * Loads the login-form island chunk.
+ *
+ * @returns {Promise<IslandModule>} The login-form module.
+ */
+function loadLoginFormIsland(): Promise<IslandModule> {
+  return import('./login-form.js') as Promise<IslandModule>;
+}
+
+/**
+ * Loads the register-form island chunk.
+ *
+ * @returns {Promise<IslandModule>} The register-form module.
+ */
+function loadRegisterFormIsland(): Promise<IslandModule> {
+  return import('./register-form.js') as Promise<IslandModule>;
+}
+
+/**
+ * Loads the logout-button island chunk.
+ *
+ * @returns {Promise<IslandModule>} The logout-button module.
+ */
+function loadLogoutButtonIsland(): Promise<IslandModule> {
+  return import('./logout-button.js') as Promise<IslandModule>;
+}
 /**
  * One registered island: lazy client loader plus optional module CSS path for
  * development SSR inlining.
@@ -44,15 +65,27 @@ export interface IslandRegistration {
  * island component, or every island would ship in the entry bundle.
  */
 export const islandRegistry = {
-  counter: {
-    load: loadCounterIsland,
-    cssModulePath: '/src/web/islands/counter.module.scss',
+  'mobile-navigation': {
+    load: loadMobileNavigationIsland,
+    cssModulePath: '/src/web/islands/mobile-navigation.module.scss',
+  },
+  'login-form': {
+    load: loadLoginFormIsland,
+  },
+  'register-form': {
+    load: loadRegisterFormIsland,
+  },
+  'logout-button': {
+    load: loadLogoutButtonIsland,
   },
 } as const satisfies Record<string, IslandRegistration>;
 
 /** Lazy loaders only — hydrate entry uses this shape. */
 export const islandLoaders = {
-  counter: loadCounterIsland,
+  'mobile-navigation': loadMobileNavigationIsland,
+  'login-form': loadLoginFormIsland,
+  'register-form': loadRegisterFormIsland,
+  'logout-button': loadLogoutButtonIsland,
 } as const;
 
 /** Names registered in `islandRegistry`. */
@@ -75,5 +108,6 @@ export function isIslandName(name: string): name is IslandName {
  * @returns {string | undefined} Absolute-from-root Vite URL, or undefined.
  */
 export function islandCssModuleUrl(name: IslandName): string | undefined {
-  return islandRegistry[name].cssModulePath;
+  // `as const` omits optional keys; widen to the registration shape for access.
+  return (islandRegistry[name] as IslandRegistration).cssModulePath;
 }

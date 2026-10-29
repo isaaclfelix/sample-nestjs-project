@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus } from '@nestjs/common';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { UserController } from './user.controller.js';
 import { UserService } from './user.service.js';
 import { UserResponseDto } from './dto/user-response.dto.js';
@@ -16,7 +17,6 @@ describe('UserController', () => {
   let controller: UserController;
   const userService = {
     create: vi.fn(),
-    findAll: vi.fn(),
     findOne: vi.fn(),
     update: vi.fn(),
     remove: vi.fn(),
@@ -26,6 +26,9 @@ describe('UserController', () => {
     vi.clearAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 100 }]),
+      ],
       controllers: [UserController],
       providers: [{ provide: UserService, useValue: userService }],
     }).compile();
@@ -39,18 +42,16 @@ describe('UserController', () => {
       email: publicUser.email,
       username: publicUser.username,
       displayName: publicUser.displayName,
-      password: 'password1',
+      password: 'correct-horse',
     };
 
     await expect(controller.create(dto)).resolves.toEqual(publicUser);
     expect(userService.create).toHaveBeenCalledWith(dto);
   });
 
-  it('delegates findAll and findOne to the service', async () => {
-    userService.findAll.mockResolvedValue([publicUser]);
+  it('delegates findOne to the service', async () => {
     userService.findOne.mockResolvedValue(publicUser);
 
-    await expect(controller.findAll()).resolves.toEqual([publicUser]);
     await expect(controller.findOne(publicUser.id)).resolves.toEqual(
       publicUser,
     );

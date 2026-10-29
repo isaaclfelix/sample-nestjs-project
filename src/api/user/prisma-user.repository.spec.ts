@@ -9,7 +9,7 @@ const row = {
   email: 'ada@example.com',
   username: 'Ada_Lovelace',
   displayName: 'Ada Lovelace',
-  password: 'hash(password1)',
+  password: 'hash(correct-horse)',
   verified: false,
 };
 
@@ -39,6 +39,7 @@ describe('PrismaUserRepository', () => {
         create: vi.fn(),
         findMany: vi.fn(),
         findUnique: vi.fn(),
+        findFirst: vi.fn(),
         update: vi.fn(),
         deleteMany: vi.fn(),
       },
@@ -128,17 +129,6 @@ describe('PrismaUserRepository', () => {
     });
   });
 
-  describe('findAll', () => {
-    it('returns mapped users ordered by id', async () => {
-      prisma.client.user.findMany.mockResolvedValue([row]);
-
-      await expect(repository.findAll()).resolves.toEqual([row]);
-      expect(prisma.client.user.findMany).toHaveBeenCalledWith({
-        orderBy: { id: 'asc' },
-      });
-    });
-  });
-
   describe('findById', () => {
     it('returns a domain user when found', async () => {
       prisma.client.user.findUnique.mockResolvedValue(row);
@@ -150,6 +140,32 @@ describe('PrismaUserRepository', () => {
       prisma.client.user.findUnique.mockResolvedValue(null);
 
       await expect(repository.findById(row.id)).resolves.toBeNull();
+    });
+  });
+
+  describe('findByEmailOrUsername', () => {
+    it('queries email or username case-insensitively', async () => {
+      prisma.client.user.findFirst.mockResolvedValue(row);
+
+      await expect(
+        repository.findByEmailOrUsername('Ada@Example.com'),
+      ).resolves.toEqual(row);
+      expect(prisma.client.user.findFirst).toHaveBeenCalledWith({
+        where: {
+          OR: [
+            { email: { equals: 'Ada@Example.com', mode: 'insensitive' } },
+            { username: { equals: 'Ada@Example.com', mode: 'insensitive' } },
+          ],
+        },
+      });
+    });
+
+    it('returns null when no row matches', async () => {
+      prisma.client.user.findFirst.mockResolvedValue(null);
+
+      await expect(
+        repository.findByEmailOrUsername('missing'),
+      ).resolves.toBeNull();
     });
   });
 

@@ -1,0 +1,66 @@
+.site-header {
+  background-color: var(--bs-body-bg);
+  box-shadow: $box-shadow-sm;
+  position: sticky;
+  top: 0;
+  z-index: $zindex-sticky;
+}
+
+.navigation-row {
+  align-items: center;
+}
+
+.navigation-logo,
+.navigation-separator {
+  flex-grow: 0;
+  flex-shrink: 1;
+}
+
+.navigation-logo-link {
+  color: var(--bs-body-color);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--bs-primary);
+  }
+}
+
+.navigation-separator {
+  align-self: stretch;
+
+  &::before {
+    border-left: 1px solid;
+    color: var(--bs-border-color);
+    content: '';
+    display: block;
+    height: 100%;
+  }
+}
+
+.navigation-left {
+  justify-content: flex-start;
+}
+
+.navigation-right {
+  justify-content: flex-end;
+}
+
+.navigation-list {
+  gap: $spacer;
+}
+
+.navigation-link {
+  color: var(--bs-body-color);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--bs-primary);
+  }
+
+  // Logout is a button (needs CSRF POST) but should match Login/Register links.
+  &.btn {
+    border: 0;
+    padding: 0;
+    vertical-align: baseline;
+  }
+}

@@ -44,19 +44,6 @@ export class UserService {
   }
 
   /**
-   * Lists every stored user as a public DTO.
-   *
-   * Does not include password hashes.
-   *
-   * @returns {Promise<UserResponseDto[]>} All users, or an empty array when none exist.
-   */
-  async findAll(): Promise<UserResponseDto[]> {
-    // Return all users as UserResponseDto objects.
-    const all = await this.users.findAll();
-    return all.map(toUserResponseDto);
-  }
-
-  /**
    * Loads a stored user by id or fails.
    *
    * Used by find/update so missing ids share one NotFoundException.

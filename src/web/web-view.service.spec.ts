@@ -38,16 +38,17 @@ describe('WebViewService', () => {
     await restoreServerEntry();
     const html = await new WebViewService().render('home', {
       renderedAt: '2026-10-22T12:00:00.000Z',
+      isAuthenticated: false,
     });
 
     expect(html.startsWith('<!DOCTYPE html>')).toBe(true);
     expect(html).toContain(
       'Rendered on the server at 2026-10-22T12:00:00.000Z.',
     );
-    expect(html).toContain('data-island="counter"');
+    expect(html).toContain('data-island="mobile-navigation"');
     expect(html).toContain('/src/web/styles.scss');
     expect(html).toContain('/src/web/client/hydrate.tsx');
-    expect(html).not.toContain('assets/counter.js');
+    expect(html).not.toContain('assets/mobile-navigation.js');
   });
 
   it('uses dev asset tags when vite is registered', async () => {
@@ -59,7 +60,7 @@ describe('WebViewService', () => {
       createAssets,
     ) => {
       const idle = await createAssets([]);
-      const active = await createAssets(['counter']);
+      const active = await createAssets(['mobile-navigation']);
       return `${idle.tags.scripts.join(',')}|${active.tags.scripts.join(',')}`;
     };
     vi.mocked(loadServerEntry).mockResolvedValue({ render });
@@ -68,6 +69,7 @@ describe('WebViewService', () => {
     try {
       const html = await new WebViewService().render('home', {
         renderedAt: 't',
+        isAuthenticated: false,
       });
 
       expect(html).toBe(
@@ -89,8 +91,8 @@ describe('WebViewService', () => {
       _props,
       createAssets,
     ) => {
-      const assets = await createAssets(['counter']);
-      return assets.islandCss.counter ?? '';
+      const assets = await createAssets(['mobile-navigation']);
+      return assets.islandCss['mobile-navigation'] ?? '';
     };
     vi.mocked(loadServerEntry).mockResolvedValue({ render });
     setViteDevServer({ ssrLoadModule: vi.fn(), transformRequest });
@@ -98,6 +100,7 @@ describe('WebViewService', () => {
     try {
       const html = await new WebViewService().render('home', {
         renderedAt: 't',
+        isAuthenticated: false,
       });
 
       expect(html).toBe('._c{}');
@@ -119,11 +122,13 @@ describe('WebViewService', () => {
         file: 'assets/hydrate.js',
         isEntry: true,
         imports: ['_react.js'],
-        dynamicImports: ['src/web/islands/counter.tsx'],
+        dynamicImports: ['src/web/islands/mobile-navigation.tsx'],
         css: ['assets/app.css'],
       },
       '_react.js': { file: 'assets/react.js' },
-      'src/web/islands/counter.tsx': { file: 'assets/counter.js' },
+      'src/web/islands/mobile-navigation.tsx': {
+        file: 'assets/mobile-navigation.js',
+      },
       'src/web/styles.scss': { file: 'assets/shell.css', isEntry: true },
     }));
     const render: ServerEntry['render'] = async (
@@ -132,7 +137,7 @@ describe('WebViewService', () => {
       createAssets,
     ) => {
       const idle = await createAssets([]);
-      const active = await createAssets(['counter']);
+      const active = await createAssets(['mobile-navigation']);
       return `${idle.tags.scripts.join(',')}|${active.tags.scripts.join(',')}`;
     };
     vi.mocked(loadServerEntry).mockResolvedValue({ render });
@@ -140,10 +145,11 @@ describe('WebViewService', () => {
     try {
       const html = await new WebViewService().render('home', {
         renderedAt: 't',
+        isAuthenticated: false,
       });
 
       expect(html).toBe('|/assets/hydrate.js,/assets/react.js');
-      expect(html).not.toContain('counter.js');
+      expect(html).not.toContain('mobile-navigation.js');
     } finally {
       process.env.VITEST = previous;
     }

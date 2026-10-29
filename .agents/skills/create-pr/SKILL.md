@@ -12,6 +12,8 @@ Create or update pull requests **only when the user explicitly asks** (e.g. `/cr
 
 This NestJS project uses **[GitHub CLI](https://cli.github.com/)** (`gh`) for PRs. Branch and commit rules live in [CONTRIBUTING.md](../../../CONTRIBUTING.md). The human-facing form of the body is [`.github/PULL_REQUEST_TEMPLATE.md`](../../../.github/PULL_REQUEST_TEMPLATE.md) — keep sections in sync with this skill.
 
+**Mutations use REST only:** create and update PRs with `gh api` against the Pulls REST endpoints. Do **not** use `gh pr create` / `gh pr edit` — those GraphQL paths fail here (Projects classic `projectCards` deprecation) and waste a retry before a REST fallback. `gh pr view --json` is fine for inspect/verify.
+
 ## Defaults
 
 | Setting                        | Value                                                     |
@@ -81,6 +83,20 @@ Section order is fixed. Omit **Changes** only when **Summary** already covers th
   - Call out **new** debt this PR introduces (and that docs/`it.fails` were updated) or **resolved** debt (ID + cleanup).
 - **Spotcheck:** Single bottom sign-off (no separate Checklist). Check boxes only for steps actually verified in this session. Nest defaults: `pnpm lint`, `pnpm build`, `pnpm test`, `pnpm test:e2e`, `pnpm test:cov`, plus HTTP/API checks when endpoints change. Do **not** check **Ready for review** unless the user asked to assert that. Add PR-specific bullets under the manual/API line when useful. See [docs/testing-and-coverage.md](../../../docs/testing-and-coverage.md).
 
+## Agent shell (required for `gh`)
+
+Cursor's **default agent Shell sandbox blocks `api.github.com`**. Running `gh` there yields `Forbidden` or a false "token is invalid". That is not a broken `gh` install — see [AGENTS.md §8](../../../AGENTS.md).
+
+For **every** Shell invocation that runs `gh` or pushes/fetches `origin` over the network, set:
+
+```text
+required_permissions: ["all"]
+```
+
+(`full_network` can work for HTTPS-only `gh` calls; prefer `all` so push/SSH and `gh` behave like the user's terminal.)
+
+Do **not** ask the user to run `gh`, drive their terminal with Computer Use, or re-auth unless `gh auth status` fails under `required_permissions: ["all"]`.
+
 ## Workflow
 
 ### 1. Preconditions (fail fast)
@@ -90,7 +106,7 @@ Stop with a clear message if any fail:
 - [ ] User explicitly requested a PR or PR description update
 - [ ] Working tree clean (`git status`) — if dirty, ask to commit or stash first
 - [ ] `origin` remote exists (`git remote -v`)
-- [ ] `gh` authenticated (`gh auth status`)
+- [ ] `gh` authenticated (`gh auth status`) — check with `required_permissions: ["all"]`
 - [ ] Current branch is **not** a long-lived branch: `main`, `master`, `develop`, `staging`
 - [ ] Branch name matches CONTRIBUTING (`type/kebab-case`) unless the user overrides
 
@@ -105,7 +121,7 @@ git diff <base>...HEAD
 gh pr view --json number,url,title,baseRefName,state 2>/dev/null || true
 ```
 
-Use `<base>` = `main` or the user override. Prefer three-dot `git diff <base>...HEAD` for the PR range.
+Use `<base>` = `main` or the user override. Prefer three-dot `git diff <base>...HEAD` for the PR range. Run the `gh` line (and later create/edit/verify) with `required_permissions: ["all"]`.
 
 ### 3. Draft title and body
 
@@ -123,27 +139,55 @@ PR_BODY="$(mktemp)"
 git push -u origin HEAD
 ```
 
+Run with `required_permissions: ["all"]` (see **Agent shell** above).
+
 - Never `--force` / `--force-with-lease` unless the user explicitly requests it.
 - If the pre-push hook rejects the branch name, fix or stop — do not bypass hooks unless the user explicitly asks (`HUSKY=0`).
 
-### 5. Create or update
+### 5. Create or update (REST via `gh api`)
 
-**No open PR** for this head branch:
+Resolve the repo once, then create or patch. Always use `required_permissions: ["all"]`. Build the JSON body with **Python** (do not rely on `jq` — it is often missing in WSL/agent images) and pipe to `gh api --input -`:
 
 ```bash
-gh pr create --base <base> --title "<title>" --body-file "$PR_BODY"
+OWNER_REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
+HEAD="$(git branch --show-current)"
 ```
 
-(`<base>` defaults to `main`.)
+**No open PR** for this head branch (`<base>` defaults to `main`):
+
+```bash
+python3 - "$PR_BODY" "<title>" "$HEAD" "<base>" <<'PY' \
+| gh api --method POST "repos/${OWNER_REPO}/pulls" --input -
+import json, sys
+from pathlib import Path
+body_path, title, head, base = sys.argv[1:5]
+print(json.dumps({
+  "title": title,
+  "body": Path(body_path).read_text(),
+  "head": head,
+  "base": base,
+}))
+PY
+```
 
 **Open PR exists** (`gh pr view` returns `number`, `state` is `OPEN`):
 
 ```bash
-gh pr edit <number> --title "<title>" --body-file "$PR_BODY"
+python3 - "$PR_BODY" "<title>" <<'PY' \
+| gh api --method PATCH "repos/${OWNER_REPO}/pulls/<number>" --input -
+import json, sys
+from pathlib import Path
+body_path, title = sys.argv[1:3]
+print(json.dumps({
+  "title": title,
+  "body": Path(body_path).read_text(),
+}))
+PY
 ```
 
 - Do not change base on update unless the user asked.
 - If state is `CLOSED` or `MERGED`, do not silently reopen; report the URL and ask whether to open a new PR.
+- Do **not** call `gh pr create` / `gh pr edit` first.
 
 ### 6. Verify
 
@@ -151,7 +195,7 @@ gh pr edit <number> --title "<title>" --body-file "$PR_BODY"
 gh pr view --json url,title,baseRefName,state
 ```
 
-Return the PR URL to the user. Remove the temp body file when done.
+(Use `required_permissions: ["all"]`.) Return the PR URL to the user. Remove the temp body file when done.
 
 ## Safety
 
@@ -163,10 +207,11 @@ Return the PR URL to the user. Remove the temp body file when done.
 ## Checklist before finishing
 
 - [ ] User explicitly requested the PR
+- [ ] All `gh` / `git push` Shell calls used `required_permissions: ["all"]` (or equivalent)
 - [ ] Base is `main` or the user-specified branch
 - [ ] Body includes Summary, Motivation, Risks / notes, Tech debt, Spotcheck
 - [ ] Tech debt is explicit (`None` or TD-IDs / new / resolved)
 - [ ] Spotcheck boxes reflect only verified steps
 - [ ] Branch pushed to `origin`
-- [ ] PR created or existing open PR updated
+- [ ] PR created or updated via REST (`gh api` POST/PATCH …/pulls), not `gh pr create`/`edit`
 - [ ] PR URL reported to the user

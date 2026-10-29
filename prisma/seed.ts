@@ -30,7 +30,7 @@ async function main(): Promise<void> {
       email,
       username: 'Ada_Lovelace',
       displayName: 'Ada Lovelace',
-      password: await hashPassword('password1'),
+      password: await hashPassword('correct-horse'),
       verified: false,
     },
   });

@@ -94,3 +94,25 @@ When adding or changing browser-facing pages under `src/web/`:
 - Follow [docs/how-to-web-ui.md](docs/how-to-web-ui.md) for the SSR vs island vs CSS-module decision tree and anti-patterns.
 - Prefer `pnpm scaffold:web-ui` or the `create-web-ui` agent skill over hand-wiring registry, loaders, and entry-server maps.
 - Shell CSS lives in `src/web/styles.scss`; island styles use `*.module.scss` beside the island and are inlined as sibling `<style>` tags at SSR — do not invent a parallel delivery path.
+- Icons: handpick Bootstrap Icons SVGs into `src/web/shared/icon.tsx` and render `<Icon name="…" />` from SSR components or islands — do not ship the icon webfont or paste one-off SVGs (see [docs/how-to-web-ui.md](docs/how-to-web-ui.md#icons)).
+
+## 8. GitHub CLI and git remotes (Cursor agent shell)
+
+The user's IDE terminal can reach GitHub freely. The **agent Shell tool defaults to Cursor's network sandbox**, which injects `HTTP_PROXY` / `HTTPS_PROXY` / `ALL_PROXY` to a local allowlist proxy. That proxy **blocks `api.github.com`** (`CONNECT` 403). Without the proxy, DNS for `api.github.com` fails in the same sandbox.
+
+Symptoms when `gh` is run in the default sandbox (do **not** treat these as a broken login):
+
+- `Post "https://api.github.com/graphql": Forbidden`
+- `gh auth status` claims the token in `~/.config/gh/hosts.yml` is invalid
+- `curl https://api.github.com/` → `CONNECT tunnel failed, response 403`
+
+The OAuth token and `gh` install are fine: the same commands succeed once the sandbox network restriction is lifted. Git SSH through the sandbox uses a separate `GIT_SSH_COMMAND` dialer; that path is **not** what `gh` HTTPS calls use (`gho_` token to `api.github.com`).
+
+For PR **create/update**, follow [`.agents/skills/create-pr/SKILL.md`](.agents/skills/create-pr/SKILL.md): use **`gh api` REST** (`POST`/`PATCH …/pulls`) only — not `gh pr create` / `gh pr edit`.
+
+**Required:** for any agent Shell call that runs `gh` (auth status, `pr view`, `api`, …) or that needs unrestricted GitHub HTTPS (and usually `git push` / `git fetch` to `origin` as well), request elevated permissions:
+
+- Prefer `required_permissions: ["all"]` (disables the sandbox for that command).
+- `required_permissions: ["full_network"]` is enough for HTTPS to `api.github.com` when filesystem sandboxing is not the blocker.
+
+Do **not** work around this by asking the user to run `gh`, typing into their terminal via Computer Use, or re-running `gh auth login` unless `gh auth status` fails **outside** the sandbox (`required_permissions: ["all"]`). Keep using the normal `gh` workflow in [`.agents/skills/create-pr/SKILL.md`](.agents/skills/create-pr/SKILL.md).

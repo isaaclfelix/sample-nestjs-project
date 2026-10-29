@@ -17,9 +17,9 @@ function Stub(): ReactElement {
 
 describe('Island CSS inlining', () => {
   it('emits a style tag above the marker once per island name', () => {
-    const emitted = new Set<'counter'>();
+    const emitted = new Set<'mobile-navigation'>();
     const value: IslandCssContextValue = {
-      cssByName: { counter: '._count{font-weight:700}' },
+      cssByName: { 'mobile-navigation': '._count{font-weight:700}' },
       emitted,
     };
 
@@ -31,12 +31,12 @@ describe('Island CSS inlining', () => {
           Fragment,
           null,
           createElement(Island, {
-            name: 'counter',
+            name: 'mobile-navigation',
             component: Stub,
             props: {},
           }),
           createElement(Island, {
-            name: 'counter',
+            name: 'mobile-navigation',
             component: Stub,
             props: {},
           }),
@@ -44,8 +44,8 @@ describe('Island CSS inlining', () => {
       ),
     );
 
-    expect(html.match(/data-css-island="counter"/g)).toHaveLength(1);
-    expect(html.match(/data-island="counter"/g)).toHaveLength(2);
+    expect(html.match(/data-css-island="mobile-navigation"/g)).toHaveLength(1);
+    expect(html.match(/data-island="mobile-navigation"/g)).toHaveLength(2);
     expect(html).toContain('._count{font-weight:700}');
     expect(html.indexOf('data-css-island')).toBeLessThan(
       html.indexOf('data-island'),

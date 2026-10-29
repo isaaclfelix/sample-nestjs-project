@@ -2,7 +2,7 @@ import { stripCssAssetPathsFromCode } from './vite-strip-island-css-preload.js';
 
 describe('stripCssAssetPathsFromCode', () => {
   const input =
-    'const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/counter.js","assets/react.js","assets/counter.css"])))=>i.map(i=>d[i]);' +
+    'const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/mobile-navigation.js","assets/react.js","assets/mobile-navigation.css"])))=>i.map(i=>d[i]);' +
     '__vite__mapDeps([0,1,2]);' +
     'const other="keep.css";';
 
@@ -11,7 +11,7 @@ describe('stripCssAssetPathsFromCode', () => {
 
     // Table keeps the css path so indices in __vite__mapDeps([0,1,2]) stay valid.
     expect(out).toContain(
-      '["assets/counter.js","assets/react.js","assets/counter.css"]',
+      '["assets/mobile-navigation.js","assets/react.js","assets/mobile-navigation.css"]',
     );
     expect(out).toContain(
       '.filter((u)=>/*strip-island-css*/typeof u=="string"',

@@ -1,16 +1,17 @@
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
-import type { HomePageProps, WebPageName } from './pages/home-page.props.js';
 import type { PageAssets } from './page-assets.js';
+import type { PagePropsMap, WebPageName } from './pages/page-props.js';
 
 /**
  * Server render function implemented by the Vite SSR bundle.
  */
 export interface ServerEntry {
-  render(
-    page: WebPageName,
-    props: HomePageProps,
+  render<K extends WebPageName>(
+    page: K,
+    props: PagePropsMap[K],
     createAssets: (islandNames: string[]) => PageAssets | Promise<PageAssets>,
+    csrfToken?: string,
   ): Promise<string>;
 }
 

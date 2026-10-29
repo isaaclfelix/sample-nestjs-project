@@ -53,18 +53,6 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   /**
-   * Lists every user ordered by id (stable for tests).
-   *
-   * @returns {Promise<User[]>} All users, or an empty array.
-   */
-  async findAll(): Promise<User[]> {
-    const rows = await this.prisma.client.user.findMany({
-      orderBy: { id: 'asc' },
-    });
-    return rows.map(toDomainUser);
-  }
-
-  /**
    * Loads one user by primary key.
    *
    * @param {string} id - User UUID.
@@ -72,6 +60,24 @@ export class PrismaUserRepository implements UserRepository {
    */
   async findById(id: string): Promise<User | null> {
     const row = await this.prisma.client.user.findUnique({ where: { id } });
+    return row ? toDomainUser(row) : null;
+  }
+
+  /**
+   * Finds a user whose email or username matches the identifier (insensitive).
+   *
+   * @param {string} identifier - Email or username.
+   * @returns {Promise<User | null>} The matching user, or null.
+   */
+  async findByEmailOrUsername(identifier: string): Promise<User | null> {
+    const row = await this.prisma.client.user.findFirst({
+      where: {
+        OR: [
+          { email: { equals: identifier, mode: 'insensitive' } },
+          { username: { equals: identifier, mode: 'insensitive' } },
+        ],
+      },
+    });
     return row ? toDomainUser(row) : null;
   }
 

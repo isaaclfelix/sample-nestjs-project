@@ -4,13 +4,13 @@ How this repo runs unit tests, e2e tests, and coverage — locally and in CI.
 
 ## Commands
 
-| Command         | What it does                                                                 |
-| --------------- | ---------------------------------------------------------------------------- |
-| `pnpm lint`     | Oxlint with `--type-aware`. Static analysis; **not** a full TypeScript emit. |
-| `pnpm build`    | Nest/`tsc` compile of app sources. Authoritative typecheck.                  |
-| `pnpm test`     | Unit suite (`*.spec.ts`).                                                    |
-| `pnpm test:e2e` | E2E suite (`*.e2e-spec.ts`) via HTTP against Nest + Testcontainers Postgres. |
-| `pnpm test:cov` | Same unit suite under V8 coverage; fails if thresholds are not met.          |
+| Command         | What it does                                                                                                                                                                                         |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm lint`     | Oxlint with `--type-aware`. Static analysis; **not** a full TypeScript emit.                                                                                                                         |
+| `pnpm build`    | Nest/`tsc` compile of app sources. Authoritative typecheck.                                                                                                                                          |
+| `pnpm test`     | Unit suite (`*.spec.ts`).                                                                                                                                                                            |
+| `pnpm test:e2e` | E2E suite (`*.e2e-spec.ts`) via HTTP against Nest + Testcontainers Postgres. CSRF e2e loads `/register` or `/login` and parses the meta tag (no JSON CSRF endpoint). Browser UI journeys are TD-025. |
+| `pnpm test:cov` | Same unit suite under V8 coverage; fails if thresholds are not met.                                                                                                                                  |
 
 HTML report after `pnpm test:cov`: open `coverage/index.html` (directory is gitignored).
 
@@ -19,7 +19,7 @@ HTML report after `pnpm test:cov`: open `coverage/index.html` (directory is giti
 - **Unit coverage only.** Thresholds apply to `src/**/*.ts` via [`vitest.config.ts`](../vitest.config.ts).
 - **Excluded from coverage:** `src/main.ts`, `src/web/vite-shell-css-budget.ts` (Vite build plugin), `**/*.module.ts`, `src/**/*.tsx`, specs, `node_modules`, `dist`. Nest wiring, bootstrap, build plugins, and React views add little signal next to the HTTP tests. Thresholds stay on `src/**/*.ts`.
 - **E2E is a behavioral gate**, not part of the coverage percentage. Do not merge unit+e2e Istanbul reports for this project yet.
-- **Thresholds** (statements / branches / functions / lines) are floors locked a little under the measured baseline. Raise them when coverage improves; do not lower them to land a PR without team agreement.
+- **Thresholds** (statements / branches / functions / lines) are floors locked a little under the measured baseline. Raise them when coverage improves; do not lower them to land a PR without team agreement. Branch floor is **99%** (not 100%) because V8 attributes an unhit cond-expr on `@Injectable()` call sites that unit tests cannot exercise.
 - When you change **controllers or HTTP contracts**, update or add `*.e2e-spec.ts` in the same PR.
 
 ## CI workflow
@@ -62,6 +62,7 @@ Until that is set, CI still runs and goes red on failure, but GitHub will not hi
 
 Documented for later; do not treat these as current requirements:
 
+- **Vitest browser mode / Playwright** — real browser user-journey e2e for login/register islands (tracked as [TD-025](./known-tech-debt.md)).
 - **Codecov / Coveralls** — patch coverage on changed lines (catches “forgot tests on new functions” when global % still passes).
 - **Coverage ratchet** — auto-raise thresholds on `main` when coverage increases.
 - **Mutation testing (StrykerJS)** — measures whether tests would fail if code were wrong; stronger than line coverage, slower to run.

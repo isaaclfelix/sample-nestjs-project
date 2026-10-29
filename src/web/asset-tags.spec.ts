@@ -14,6 +14,8 @@ import {
   developmentAssetTags,
   developmentShellOnlyAssetTags,
   loadClientManifest,
+  pageStylesheetFromManifest,
+  pageStylesheetHrefs,
   readClientManifest,
   setClientManifestReader,
   type ClientManifest,
@@ -26,16 +28,19 @@ const manifest: ClientManifest = {
     isEntry: true,
     imports: ['_react.js', 'missing.js', 'plain.js'],
     dynamicImports: [
-      'src/web/islands/counter.tsx',
+      'src/web/islands/mobile-navigation.tsx',
       'src/web/islands/chart.tsx',
     ],
     css: ['assets/app.css'],
   },
   '_react.js': { file: 'assets/react.js', css: ['assets/react.css'] },
   'plain.js': { file: 'assets/plain.js' },
-  'src/web/islands/counter.tsx': { file: 'assets/counter.js' },
+  'src/web/islands/mobile-navigation.tsx': {
+    file: 'assets/mobile-navigation.js',
+  },
   'src/web/islands/chart.tsx': { file: 'assets/chart.js' },
   'src/web/styles.scss': { file: 'assets/shell.css', isEntry: true },
+  'src/web/styles/forms.scss': { file: 'assets/forms.css', isEntry: true },
 };
 
 describe('asset tags', () => {
@@ -50,13 +55,46 @@ describe('asset tags', () => {
     });
   });
 
+  it('appends opt-in forms stylesheet links in development', async () => {
+    const assets = await createPageAssets([], {
+      development: true,
+      pageStylesheets: ['forms'],
+    });
+
+    expect(assets.tags.stylesheets).toEqual([
+      ...developmentShellOnlyAssetTags().stylesheets,
+      '/src/web/styles/forms.scss',
+    ]);
+  });
+
   it('points development pages at the vite source entry', async () => {
     await expect(
-      createPageAssets(['counter'], { development: true }),
+      createPageAssets(['mobile-navigation'], { development: true }),
     ).resolves.toEqual({
       tags: developmentAssetTags(),
       islandCss: {},
     });
+  });
+
+  it('resolves production page stylesheet hrefs from the manifest', () => {
+    expect(pageStylesheetFromManifest(manifest, 'forms')).toBe(
+      '/assets/forms.css',
+    );
+    expect(
+      pageStylesheetHrefs(['forms'], { development: false, manifest }),
+    ).toEqual(['/assets/forms.css']);
+    expect(pageStylesheetHrefs(['forms'], { development: true })).toEqual([
+      '/src/web/styles/forms.scss',
+    ]);
+    expect(pageStylesheetHrefs([], { development: false, manifest })).toEqual(
+      [],
+    );
+  });
+
+  it('throws when production page stylesheets lack a manifest', () => {
+    expect(() =>
+      pageStylesheetHrefs(['forms'], { development: false }),
+    ).toThrow('Production pages need the client manifest.');
   });
 
   it('links the shell and the runtime, not island chunks', async () => {
@@ -65,7 +103,7 @@ describe('asset tags', () => {
     // Over budget so production keeps a <link> (fixture oversized CSS).
     writeFileSync(shellPath, 'x'.repeat(50 * 1024 + 1));
 
-    const { tags } = await createPageAssets(['counter'], {
+    const { tags } = await createPageAssets(['mobile-navigation'], {
       development: false,
       manifest,
     });
@@ -73,7 +111,7 @@ describe('asset tags', () => {
     expect(tags.stylesheets[0]).toBe('/assets/shell.css');
     expect(tags.stylesheets).toContain('/assets/app.css');
     expect(tags.inlineStyles).toEqual([]);
-    expect(tags.scripts.join(' ')).not.toContain('counter');
+    expect(tags.scripts.join(' ')).not.toContain('mobile-navigation');
   });
 
   it('emits the entry and static imports, not island chunks', () => {
@@ -87,7 +125,7 @@ describe('asset tags', () => {
     expect(tags.stylesheets).toEqual(['/assets/app.css', '/assets/react.css']);
     expect(tags.inlineStyles).toEqual([]);
     expect(tags.scripts.join(' ')).not.toContain('shell');
-    expect(tags.scripts.join(' ')).not.toContain('counter');
+    expect(tags.scripts.join(' ')).not.toContain('mobile-navigation');
     expect(tags.scripts.join(' ')).not.toContain('chart');
   });
 

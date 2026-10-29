@@ -1,20 +1,25 @@
 // Shell design system — handpicked Bootstrap 5.3 (Option B).
 // Import order mirrors node_modules/bootstrap/scss/bootstrap.scss.
 // Add partials only when a page needs them; never pull component SCSS “just in case”.
-// Spacing/flex utility classes stay off until utilities/api is enabled (optionally
-// with a trimmed $utilities map — see Bootstrap’s bootstrap-grid.scss).
+// Utility classes: full Bootstrap utilities map, then styles/_utilities-overrides.scss
+// trims it before utilities/api (same idea as Bootstrap’s bootstrap-grid.scss).
 
 // Configuration
 @import 'bootstrap/scss/functions';
+
 // Variable overrides go here (after functions, before variables).
 
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/variables-dark';
+
 // Map overrides go here (after variables-dark, before maps).
 
 @import 'bootstrap/scss/maps';
 @import 'bootstrap/scss/mixins';
-@import 'bootstrap/scss/utilities'; // map only; no classes until utilities/api
+@import 'bootstrap/scss/utilities';
+
+// Utilities overrides go here. Used to trim the utilities map before utilities/api.
+@import './styles/utilities-overrides';
 
 // Layout & content (no Bootstrap components / JS)
 @import 'bootstrap/scss/root';
@@ -25,7 +30,8 @@
 @import 'bootstrap/scss/grid';
 // @import 'bootstrap/scss/tables';
 // @import 'bootstrap/scss/forms';
-// @import 'bootstrap/scss/buttons';
+// Handpicked .btn + variants via styles/_buttons.scss (not full bootstrap/scss/buttons).
+@import './styles/buttons';
 // @import 'bootstrap/scss/transitions';
 // @import 'bootstrap/scss/dropdown';
 // @import 'bootstrap/scss/button-group';
@@ -52,5 +58,9 @@
 // Helpers
 // @import 'bootstrap/scss/helpers';
 
-// Utilities
-// @import 'bootstrap/scss/utilities/api';
+// Utilities (classes for the trimmed $utilities map above)
+@import 'bootstrap/scss/utilities/api';
+
+// Site-specific styles promoted to shell because they are global.
+@import './styles/site-header';
+@import './styles/site-footer';

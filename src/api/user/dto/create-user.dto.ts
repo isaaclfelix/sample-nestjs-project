@@ -1,25 +1,14 @@
 import { z } from 'zod';
-
-const usernameSchema = z
-  .string()
-  .trim()
-  .transform((value) => value.replace(/^@/, ''))
-  .pipe(
-    z
-      .string()
-      .min(3)
-      .max(20)
-      .regex(
-        /^[a-zA-Z][a-zA-Z0-9_]*$/,
-        'Must start with a letter and contain only letters, numbers, and underscores',
-      ),
-  );
+import { displayNameSchema } from '../../../shared/schemas/display-name.schema.js';
+import { emailSchema } from '../../../shared/schemas/email.schema.js';
+import { passwordSchema } from '../../../shared/schemas/password.schema.js';
+import { usernameSchema } from '../../../shared/schemas/username.schema.js';
 
 export const createUserSchema = z.strictObject({
-  email: z.email(),
+  email: emailSchema,
   username: usernameSchema,
-  displayName: z.string().trim().min(1).max(50),
-  password: z.string().min(8).meta({ example: 'password1' }),
+  displayName: displayNameSchema,
+  password: passwordSchema,
 });
 
 export type CreateUserDto = z.infer<typeof createUserSchema>;

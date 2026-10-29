@@ -1,0 +1,82 @@
+// Shell $utilities trim — import after bootstrap/scss/utilities, before utilities/api.
+// Add families to map-get-multiple as needed; further shrink each entry with map-merge.
+
+// Keep display, spacing used by chrome/forms, and text-align; then shrink each family.
+// Display: none / flex with responsive variants (e.g. d-none d-md-flex); no print.
+// Margin-top: mt-3 (auth form footer link); no responsive variants.
+// Margin-bottom: mb-0 (lists/footer), mb-3 (form fields), mb-4 (page titles); no responsive.
+// Padding: p-3 (drawer sections/links), p-4 (site nav + drawer header); no responsive.
+// Padding-y: py-4 (auth page container); no responsive variants.
+// Text-align: text-center only, no responsive variants.
+$utilities: map-get-multiple(
+  $utilities,
+  (
+    'display',
+    'margin-top',
+    'margin-bottom',
+    'padding',
+    'padding-y',
+    'text-align',
+  )
+);
+$utilities: map-merge(
+  $utilities,
+  (
+    'display': map-merge(
+        map-get($utilities, 'display'),
+        (
+          responsive: true,
+          print: false,
+          values: none flex,
+        )
+      ),
+    'margin-top': map-merge(
+        map-get($utilities, 'margin-top'),
+        (
+          responsive: false,
+          values: (
+            3: map-get($spacers, 3),
+          ),
+        )
+      ),
+    'margin-bottom': map-merge(
+        map-get($utilities, 'margin-bottom'),
+        (
+          responsive: false,
+          values: (
+            0: 0,
+            3: map-get($spacers, 3),
+            4: map-get($spacers, 4),
+          ),
+        )
+      ),
+    'padding': map-merge(
+        map-get($utilities, 'padding'),
+        (
+          responsive: false,
+          values: (
+            3: map-get($spacers, 3),
+            4: map-get($spacers, 4),
+          ),
+        )
+      ),
+    'padding-y': map-merge(
+        map-get($utilities, 'padding-y'),
+        (
+          responsive: false,
+          values: (
+            4: map-get($spacers, 4),
+          ),
+        )
+      ),
+    'text-align': map-merge(
+        map-get($utilities, 'text-align'),
+        (
+          responsive: false,
+          values: (
+            center: center,
+          ),
+        )
+      ),
+  )
+);

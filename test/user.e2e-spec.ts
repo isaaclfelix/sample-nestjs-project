@@ -2,29 +2,44 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types.js';
 import { createE2eApp } from './e2e-app.js';
+import {
+  obtainAuthenticatedSession,
+  obtainCsrfSession,
+  withCsrf,
+  type CsrfSession,
+} from './csrf-session.js';
 
 const validBody = {
   email: 'ada@example.com',
   username: 'Ada_Lovelace',
   displayName: 'Ada Lovelace',
-  password: 'password1',
+  password: 'correct-horse',
 };
 
 describe('UserController (e2e)', () => {
   let app: INestApplication<App>;
+  let csrf: CsrfSession;
 
   beforeEach(async () => {
     app = await createE2eApp({ validationPipe: true });
+    csrf = await obtainCsrfSession(app);
   });
 
   afterEach(async () => {
     await app.close();
   });
 
+  /**
+   * POSTs a create-user body with the guest CSRF session.
+   *
+   * @param {Record<string, unknown>} [overrides] - Fields to merge into the valid body.
+   * @returns {Promise<request.Response>} Supertest response.
+   */
   async function createUser(overrides: Record<string, unknown> = {}) {
-    return request(app.getHttpServer())
-      .post('/api/user')
-      .send({ ...validBody, ...overrides });
+    return withCsrf(request(app.getHttpServer()).post('/api/user'), csrf).send({
+      ...validBody,
+      ...overrides,
+    });
   }
 
   describe('POST /api/user', () => {
@@ -40,6 +55,15 @@ describe('UserController (e2e)', () => {
       });
       expect(body.id).toEqual(expect.any(String));
       expect(body).not.toHaveProperty('password');
+    });
+
+    it('rejects POST without a CSRF token', async () => {
+      const { status } = await request(app.getHttpServer())
+        .post('/api/user')
+        .set('Cookie', csrf.cookie)
+        .send(validBody);
+
+      expect(status).toBe(403);
     });
 
     it('normalizes a leading @ on username', async () => {
@@ -103,31 +127,6 @@ describe('UserController (e2e)', () => {
     });
   });
 
-  describe('GET /api/user', () => {
-    it('returns an empty array when no users exist', async () => {
-      const { status, body } = await request(app.getHttpServer()).get(
-        '/api/user',
-      );
-
-      expect(status).toBe(200);
-      expect(body).toEqual([]);
-    });
-
-    it('lists created users without passwords', async () => {
-      await createUser();
-      await createUser({
-        email: 'second@example.com',
-        username: 'SecondUser',
-      });
-
-      const { body } = await request(app.getHttpServer()).get('/api/user');
-      expect(body).toHaveLength(2);
-      for (const user of body) {
-        expect(user).not.toHaveProperty('password');
-      }
-    });
-  });
-
   describe('GET /api/user/:id', () => {
     it('returns the created user', async () => {
       const created = (await createUser()).body;
@@ -158,106 +157,177 @@ describe('UserController (e2e)', () => {
   });
 
   describe('PATCH /api/user/:id', () => {
-    it('updates displayName', async () => {
-      const created = (await createUser()).body;
+    it('updates displayName when the owner is signed in', async () => {
+      const { session, userId } = await obtainAuthenticatedSession(
+        app,
+        validBody,
+      );
 
-      const { status, body } = await request(app.getHttpServer())
-        .patch(`/api/user/${created.id}`)
-        .send({ displayName: 'Augusta Ada' });
+      const { status, body } = await withCsrf(
+        request(app.getHttpServer()).patch(`/api/user/${userId}`),
+        session,
+      ).send({ displayName: 'Augusta Ada' });
 
       expect(status).toBe(200);
       expect(body.displayName).toBe('Augusta Ada');
-      expect(body.email).toBe(created.email);
-      expect(body.username).toBe(created.username);
+      expect(body.email).toBe(validBody.email);
+      expect(body.username).toBe(validBody.username);
     });
 
-    it('updates password only', async () => {
+    it('returns 401 when PATCH has CSRF but no authenticated session', async () => {
       const created = (await createUser()).body;
 
-      const { status, body } = await request(app.getHttpServer())
-        .patch(`/api/user/${created.id}`)
-        .send({ password: 'new-password' });
+      const { status } = await withCsrf(
+        request(app.getHttpServer()).patch(`/api/user/${created.id}`),
+        csrf,
+      ).send({ displayName: 'Augusta Ada' });
+
+      expect(status).toBe(401);
+    });
+
+    it('returns 403 when PATCH targets another user', async () => {
+      const owner = await obtainAuthenticatedSession(app, validBody);
+      const other = await obtainAuthenticatedSession(app, {
+        email: 'other@example.com',
+        username: 'OtherUser',
+        displayName: 'Other',
+        password: 'correct-horse',
+      });
+
+      const { status } = await withCsrf(
+        request(app.getHttpServer()).patch(`/api/user/${owner.userId}`),
+        other.session,
+      ).send({ displayName: 'Hijacked' });
+
+      expect(status).toBe(403);
+    });
+
+    it('updates password only for the owner', async () => {
+      const { session, userId } = await obtainAuthenticatedSession(
+        app,
+        validBody,
+      );
+
+      const { status, body } = await withCsrf(
+        request(app.getHttpServer()).patch(`/api/user/${userId}`),
+        session,
+      ).send({ password: 'correct-horse-2' });
 
       expect(status).toBe(200);
-      expect(body).toEqual(created);
       expect(body).not.toHaveProperty('password');
+      expect(body.id).toBe(userId);
     });
 
     it('rejects an empty body', async () => {
-      const created = (await createUser()).body;
+      const { session, userId } = await obtainAuthenticatedSession(
+        app,
+        validBody,
+      );
 
-      const { status } = await request(app.getHttpServer())
-        .patch(`/api/user/${created.id}`)
-        .send({});
+      const { status } = await withCsrf(
+        request(app.getHttpServer()).patch(`/api/user/${userId}`),
+        session,
+      ).send({});
 
       expect(status).toBe(400);
     });
 
     it('rejects email and username on PATCH', async () => {
-      const created = (await createUser()).body;
+      const { session, userId } = await obtainAuthenticatedSession(
+        app,
+        validBody,
+      );
 
-      const { status } = await request(app.getHttpServer())
-        .patch(`/api/user/${created.id}`)
-        .send({
-          email: 'new@example.com',
-          username: 'new_handle',
-          displayName: 'Ada',
-        });
+      const { status } = await withCsrf(
+        request(app.getHttpServer()).patch(`/api/user/${userId}`),
+        session,
+      ).send({
+        email: 'new@example.com',
+        username: 'new_handle',
+        displayName: 'Ada',
+      });
 
       expect(status).toBe(400);
     });
 
     it('returns 400 when a provided field is invalid', async () => {
-      const created = (await createUser()).body;
+      const { session, userId } = await obtainAuthenticatedSession(
+        app,
+        validBody,
+      );
 
-      const { status } = await request(app.getHttpServer())
-        .patch(`/api/user/${created.id}`)
-        .send({ password: 'short' });
+      const { status } = await withCsrf(
+        request(app.getHttpServer()).patch(`/api/user/${userId}`),
+        session,
+      ).send({ password: 'short' });
 
       expect(status).toBe(400);
     });
 
-    it('returns 404 for an unknown id', async () => {
-      const { status } = await request(app.getHttpServer())
-        .patch('/api/user/11111111-1111-4111-8111-111111111111')
-        .send({ displayName: 'Ada' });
-
-      expect(status).toBe(404);
-    });
-
     it('returns 400 for a non-uuid path', async () => {
-      const { status } = await request(app.getHttpServer())
-        .patch('/api/user/not-a-uuid')
-        .send({ displayName: 'Ada' });
+      const { session } = await obtainAuthenticatedSession(app, validBody);
+
+      const { status } = await withCsrf(
+        request(app.getHttpServer()).patch('/api/user/not-a-uuid'),
+        session,
+      ).send({ displayName: 'Ada' });
 
       expect(status).toBe(400);
     });
   });
 
   describe('DELETE /api/user/:id', () => {
-    it('returns 204 and the user is gone', async () => {
-      const created = (await createUser()).body;
+    it('returns 204 and the user is gone for the owner', async () => {
+      const { session, userId } = await obtainAuthenticatedSession(
+        app,
+        validBody,
+      );
 
-      await request(app.getHttpServer())
-        .delete(`/api/user/${created.id}`)
+      await withCsrf(
+        request(app.getHttpServer()).delete(`/api/user/${userId}`),
+        session,
+      )
         .expect(204)
         .expect('');
 
-      await request(app.getHttpServer())
-        .get(`/api/user/${created.id}`)
-        .expect(404);
+      await request(app.getHttpServer()).get(`/api/user/${userId}`).expect(404);
     });
 
-    it('returns 204 even when the user does not exist', async () => {
-      await request(app.getHttpServer())
-        .delete('/api/user/11111111-1111-4111-8111-111111111111')
-        .expect(204);
+    it('returns 401 when DELETE has CSRF but no authenticated session', async () => {
+      const created = (await createUser()).body;
+
+      const { status } = await withCsrf(
+        request(app.getHttpServer()).delete(`/api/user/${created.id}`),
+        csrf,
+      );
+
+      expect(status).toBe(401);
+    });
+
+    it('returns 403 when DELETE targets another user', async () => {
+      const owner = await obtainAuthenticatedSession(app, validBody);
+      const other = await obtainAuthenticatedSession(app, {
+        email: 'other@example.com',
+        username: 'OtherUser',
+        displayName: 'Other',
+        password: 'correct-horse',
+      });
+
+      const { status } = await withCsrf(
+        request(app.getHttpServer()).delete(`/api/user/${owner.userId}`),
+        other.session,
+      );
+
+      expect(status).toBe(403);
     });
 
     it('returns 400 for a non-uuid path', async () => {
-      await request(app.getHttpServer())
-        .delete('/api/user/not-a-uuid')
-        .expect(400);
+      const { session } = await obtainAuthenticatedSession(app, validBody);
+
+      await withCsrf(
+        request(app.getHttpServer()).delete('/api/user/not-a-uuid'),
+        session,
+      ).expect(400);
     });
   });
 });
