@@ -17,7 +17,7 @@
   },
   "overrides": [
     {
-      "files": ["src/web/ui/**/*.{ts,tsx}"],
+      "files": [".storybook/**/*.{ts,tsx}", "src/web/ui/**/*.{ts,tsx}"],
       "rules": {
         "import/extensions": [
           "error",
