@@ -164,7 +164,7 @@ Login/register islands submit via `useApiMutation` (react-hook-form + Zod on the
 5. Register succeeds with **201** then navigates to `/login` (no auto-login). Login succeeds with **200** then navigates to `/`. Logout is best-effort (always navigate to `/login` after the attempt).
 6. Nav auth chrome is SSR-driven from `req.session.userId` (`isAuthenticated` page prop). `/login` and `/register` redirect authenticated users to `/`.
 
-Browser-driven form UI-state and journey tests are tracked as [TD-025](./known-tech-debt.md); current e2e is HTTP/supertest only.
+UI unit tests run in Vitest browser mode; auth journeys use Playwright against Nest ([ADR-0021](./adr/0021-vitest-browser-ui-testing.md)). HTTP e2e remains the API contract gate.
 
 ### Persistence
 

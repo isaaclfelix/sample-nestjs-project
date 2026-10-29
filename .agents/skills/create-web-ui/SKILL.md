@@ -53,4 +53,6 @@ Map answers to the CLI:
 
 **Island:** render `<Island name="…" component={…} props={…} />` from a page (import `Island` from `src/web/runtime/island/island`). Register in `runtime/island/registry.ts`. Framework inlines CSS as a sibling `<style data-css-island>` when `cssModulePath` is set; hydrate loads JS only.
 
+**Tests ([ADR-0021](../../../docs/adr/0021-vitest-browser-ui-testing.md)):** interactive islands need a co-located `*.spec.ts` in the Vitest browser project (Testing Library). Pages/islands that navigate or call the API also need browser e2e coverage (`*.browser-e2e-spec.ts`). Do not defer that to out-of-repo QA ([TD-026](../../../docs/known-tech-debt.md)).
+
 Run `pnpm lint` (and `pnpm build` if signatures/modules changed) after edits. Commit only when the user asks or AGENTS.md incremental commits applies — use the `create-commit` skill.

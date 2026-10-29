@@ -25,7 +25,7 @@ HTML report after `pnpm test:cov`: open `coverage/index.html` (directory is giti
 | HTTP e2e          | [`vitest.config.e2e-http.ts`](../vitest.config.e2e-http.ts)       | API contracts, SSR HTML smoke strings                         |
 | Browser e2e       | [`vitest.config.browser-e2e.ts`](../vitest.config.browser-e2e.ts) | Auth UI journeys against listening Nest + Vite middleware     |
 
-**In-repo vs out-of-repo:** this app owns the four layers above for every shipped path. Separate QA-org tooling (Cucumber repos, visual release matrices, cross-system sign-off) is deferred org-scale work, not a hole in in-repo coverage. See [ADR-0021](./adr/0021-vitest-browser-ui-testing.md).
+**In-repo vs out-of-repo:** this app owns the four layers above for every shipped path. Separate QA-org tooling (Cucumber repos, visual release matrices, cross-system sign-off) is optional later — [TD-026](./known-tech-debt.md), not a hole in current coverage. See [ADR-0021](./adr/0021-vitest-browser-ui-testing.md).
 
 ## Coverage policy
 
@@ -104,4 +104,4 @@ Documented for later; do not treat these as current requirements:
 - **Merged unit + e2e coverage** — costly and noisy for Nest bootstrap; usually not worth it early.
 - **SonarQube / SonarCloud** — broader quality gates.
 - **Path-specific thresholds** — e.g. a higher floor for `src/api/user/**`.
-- **Org-scale / out-of-repo QA** — only when a QA function or multi-system release process needs it (see ADR-0021 ownership line).
+- **Org-scale / out-of-repo QA** — [TD-026](./known-tech-debt.md) only when a QA function or multi-system release process needs it.
