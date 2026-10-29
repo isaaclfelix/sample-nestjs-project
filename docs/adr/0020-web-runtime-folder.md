@@ -1,6 +1,6 @@
 # ADR-0020: `src/web/runtime/` engines and styles shell
 
-- **Status:** Accepted
+- **Status:** Accepted (live paths updated by [ADR-0023](./0023-web-host-ui-protocol.md): Nest engines → `host/`, React → `ui/`, wire types → `protocol/`)
 - **Date:** 2026-10-29
 
 ## Context

@@ -1,29 +1,43 @@
 # How to add web UI (pages, islands, styles)
 
-Canonical decision tree for HTML UI in this Nest + islands app. Follow it when scaffolding by hand, via `pnpm scaffold:web-ui`, or with the `create-web-ui` agent skill. Delivery mechanics: [architecture.md](./architecture.md#styles). Why three lanes / forms sibling / island `<style>`: [ADR-0013](./adr/0013-css-three-lanes.md), [ADR-0014](./adr/0014-forms-sibling-stylesheet.md), [ADR-0015](./adr/0015-island-css-sibling-style.md). Folder layout: [ADR-0018](./adr/0018-island-runtime-folder.md), [ADR-0020](./adr/0020-web-runtime-folder.md); tree in [architecture.md](./architecture.md).
+Canonical decision tree for HTML UI in this Nest + islands app. Follow it when scaffolding by hand, via `pnpm scaffold:web-ui`, or with the `create-web-ui` agent skill. Delivery mechanics: [architecture.md](./architecture.md#styles). Why three lanes / forms sibling / island `<style>`: [ADR-0013](./adr/0013-css-three-lanes.md), [ADR-0014](./adr/0014-forms-sibling-stylesheet.md), [ADR-0015](./adr/0015-island-css-sibling-style.md). Host / UI / protocol: [ADR-0023](./adr/0023-web-host-ui-protocol.md); tree in [architecture.md](./architecture.md).
 
 ## Where things live (`src/web/`)
 
-| Path                      | Put here                                                                         |
-| ------------------------- | -------------------------------------------------------------------------------- |
-| `pages/`                  | Named SSR page components + prop types                                           |
-| `server-components/`      | Server-only presentational React, including editable `document.tsx` (HTML shell) |
-| `shared-components/`      | React used by both server-components and islands (e.g. icons)                    |
-| `islands/`                | Product interactive islands (+ optional `*.module.scss`)                         |
-| `runtime/island/`         | Island engine: marker, registry, props codec, hydrate entry                      |
-| `runtime/ssr/`            | `entry-server` + `page-loader` (not the document template)                       |
-| `runtime/asset-delivery/` | Head tags, page asset orchestration, stylesheet opt-in registry                  |
-| `styles/`                 | `shell.scss`, opt-in siblings (`forms.scss`), `_*.scss` partials                 |
-| `api-fetch/`              | Browser CSRF + `fetch` defaults for `/api`                                       |
-| `hooks/`                  | Island React hooks (e.g. `use-api-mutation`)                                     |
-| `vite-plugins/`           | Vite build plugins (shell budget, island CSS inject/preload)                     |
-| Nest files at root        | `web.module.ts`, `web.controller.ts`, `web-view.service.ts`                      |
+| Path                                                  | Put here                                                                         |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Nest root (`web.module.ts`, controller, view service) | Nest wiring only                                                                 |
+| `host/`                                               | Nest-executed SSR host (`page-loader`, `asset-delivery`)                         |
+| `protocol/`                                           | Wire types/data: SSR page props, `ServerEntry`, `PageAssets`, island CSS catalog |
+| `protocol/page-props/`                                | `*-page.ssr-props.ts` + `SsrPagePropsMap` (not next to UI pages)                 |
+| `ui/pages/`                                           | Named SSR page components + specs (no Nest prop files)                           |
+| `ui/server-components/`                               | Server-only presentational React, including `document.tsx`                       |
+| `ui/shared-components/`                               | React shared by server-components and islands (e.g. icons)                       |
+| `ui/islands/`                                         | Product interactive islands (+ optional `*.module.scss`)                         |
+| `ui/runtime/island/`                                  | Island marker, loaders registry, props codec, hydrate entry                      |
+| `ui/runtime/ssr/`                                     | `entry-server` only                                                              |
+| `ui/styles/`                                          | `shell.scss`, opt-in siblings (`forms.scss`), `_*.scss` partials                 |
+| `ui/api-fetch/`                                       | Browser CSRF + `fetch` defaults for `/api`                                       |
+| `ui/hooks/`                                           | Island React hooks (e.g. `use-api-mutation`)                                     |
+| `ui/vite-plugins/`                                    | Vite build plugins                                                               |
 
-Do **not** put product UI under `runtime/`; do **not** put engines under `islands/` or `server-components/`.
+Do **not** put product UI under `host/`; do **not** put Nest-executed engines under `ui/`. Both may import `protocol/` only.
+
+## SSR page props quirk
+
+SSR embed props look like “the page’s props,” but they are a Nest→Vite **embed contract**:
+
+1. Nest builds them; the Vite SSR page consumes them (not a React parent).
+2. JSON-serializable plain data only.
+3. Nest must not import `ui/pages/*.tsx`, so contracts live in `protocol/page-props/` as `*-page.ssr-props.ts` / `*PageSsrProps`.
+4. Do not colocate them under `ui/pages/` (including future per-component folders).
+5. Island props are separate (component props + `data-props` marker).
+
+See [ADR-0023](./adr/0023-web-host-ui-protocol.md).
 
 ## Decision tree
 
-1. **Static / SSR-only** (no client state, no hydrate-worthy events) → page or presentational child under `src/web/pages/`. **Not** an island. Style with the **shell** and, if needed, an **opt-in page sibling** sheet (not a CSS module).
+1. **Static / SSR-only** (no client state, no hydrate-worthy events) → page under `src/web/ui/pages/`. **Not** an island. Style with the **shell** and, if needed, an **opt-in page sibling** sheet (not a CSS module).
 2. **Needs interactivity** (`useState`, clicks, browser APIs) → register an **island** and render `<Island>`.
 3. **Needs styles beyond the shell / sibling** (spinner, open/closed, custom motion) → add a small `*.module.scss` beside the **island** component (CSS modules are canonical for island-owned rules).
 4. **Needs shared Bootstrap component CSS that must not tax every page** (e.g. forms) → opt the page into a **sibling stylesheet** via `pageStylesheetsByPage`. Do **not** create an island just to attach that CSS. Rationale: [ADR-0014](./adr/0014-forms-sibling-stylesheet.md).
@@ -44,7 +58,7 @@ flowchart TD
 
 ## Shell vs sibling vs island module
 
-| Put in the shell (`styles/shell.scss`)                  | Put in a page sibling sheet (`styles/forms.scss`, …)         | Put in island `*.module.scss`                               |
+| Put in the shell (`ui/styles/shell.scss`)               | Put in a page sibling sheet (`ui/styles/forms.scss`, …)      | Put in island `*.module.scss`                               |
 | ------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- |
 | Handpicked Bootstrap: reset, type, colors, images, grid | Shared BS form (or similar) partials for opted-in pages only | Hover/focus after _custom_ interaction, spinner, open state |
 | First-paint page chrome that would CLS without it       | Today: labels, form-control, form-text, validation           | Island-only decoration tied to behavior                     |
@@ -54,30 +68,30 @@ flowchart TD
 
 ## Steps: SSR page
 
-Pages are the Nest ↔ view boundary. Nest builds plain props by page name and must **not** import page `.tsx` (that would pull React into the Nest compile — [ADR-0017](./adr/0017-dual-typescript-build.md)). Put the public props contract in a sibling `.props.ts` file so the controller can type-check without importing React. Why: [architecture.md — Web pages](./architecture.md#web-pages).
+Pages are the Nest ↔ view boundary. Nest builds SSR embed props by page name and must **not** import page `.tsx` ([ADR-0017](./adr/0017-dual-typescript-build.md), [ADR-0023](./adr/0023-web-host-ui-protocol.md)).
 
-1. Add `src/web/pages/<name>-page.props.ts` with a JSON-serializable props interface (e.g. `HomePageProps`). Keep it plain `.ts` — no React imports.
-2. Add `src/web/pages/<name>-page.tsx` that imports that props type and renders the page body (shell classes only; no CSS module). Compose `server-components/` and/or `<Island>` as needed.
-3. Register the page in `src/web/pages/page-props.ts`: add the props type to `PagePropsMap` (that also extends `WebPageName`).
-4. Map the page in `runtime/ssr/entry-server.tsx` (`pages` object) so the SSR entry can resolve the name to a component.
-5. Add a `WebController` method that builds the props object (typed from the `.props.ts` file only) and calls `webViewService.render('<name>', props, …)`. Do **not** import the page `.tsx` from Nest.
-6. If the page needs forms (or another opt-in sibling), list the sheet id under that page in `pageStylesheetsByPage` (see next section).
+1. Add `src/web/protocol/page-props/<name>-page.ssr-props.ts` with a JSON-serializable `*PageSsrProps` interface. Keep it plain `.ts` — no React imports.
+2. Add `src/web/ui/pages/<name>-page.tsx` that imports that type from protocol and renders the page body (shell classes only; no CSS module).
+3. Register the page in `src/web/protocol/page-props/page-props.ts`: add the type to `SsrPagePropsMap` (that also defines `WebPageName`).
+4. Map the page in `ui/runtime/ssr/entry-server.tsx` (`pages` object).
+5. Add a `WebController` method that builds the props object (typed from `protocol/page-props/` only) and calls `webViewService.render('<name>', props, …)`. Do **not** import the page `.tsx` from Nest.
+6. If the page needs forms (or another opt-in sibling), list the sheet id under that page in `pageStylesheetsByPage` (host asset-delivery).
 
-Scaffold: `pnpm scaffold:web-ui --name about --mode page` (writes the props + component stubs; you still wire `page-props`, entry-server, and the controller). Agents: use `.agents/skills/create-web-ui/SKILL.md`.
+Scaffold: `pnpm scaffold:web-ui --name about --mode page` (writes protocol SSR props + UI page stub; you still wire `SsrPagePropsMap`, entry-server, and the controller). Agents: use `.agents/skills/create-web-ui/SKILL.md`.
 
 ## Steps: opt-in page sibling stylesheet
 
-1. Prefer growing an existing sibling (e.g. add a Bootstrap forms partial to `styles/forms.scss`) over a new Vite input.
+1. Prefer growing an existing sibling (e.g. add a Bootstrap forms partial to `ui/styles/forms.scss`) over a new Vite input.
 2. Register the sheet in `pageStylesheetRegistry` / Vite `build.rollupOptions.input` only when introducing a **new** sibling entry.
 3. List the sheet under the page in `pageStylesheetsByPage`. Home and other non-users must stay empty for that sheet.
 4. Use global Bootstrap class names in markup (`form-control`, …). Do not wrap the sibling in an island CSS module.
 
 ## Steps: interactive island
 
-1. Component under `src/web/islands/` with a default export and JSON-serializable props.
-2. Optional: `import styles from './name.module.scss'` and `styles/_tokens.scss` for Sass API only — never re-import the shell sheet or Bootstrap CSS-emitting partials (including forms/validation).
-3. Register in `runtime/island/registry.ts` (`islandRegistry` / `islandLoaders`) with `cssModulePath` when you have a module (dev SSR inlining).
-4. Render `<Island name="…" component={…} props={…} />` from a page (import `Island` from `runtime/island/island`). Do **not** wire CSS context yourself — the framework fills it after the name-collection pass and emits a sibling `<style data-css-island>` for used islands (deduped by name).
+1. Component under `src/web/ui/islands/` with a default export and JSON-serializable props.
+2. Optional: `import styles from './name.module.scss'` and `ui/styles/_tokens.scss` for Sass API only — never re-import the shell sheet or Bootstrap CSS-emitting partials (including forms/validation).
+3. Register loaders in `ui/runtime/island/registry.ts`. Add the optional CSS module path to `protocol/island-css-catalog.ts` (dev SSR inlining).
+4. Render `<Island name="…" component={…} props={…} />` from a page (import `Island` from `ui/runtime/island/island`). Do **not** wire CSS context yourself — the framework fills it after the name-collection pass and emits a sibling `<style data-css-island>` for used islands (deduped by name).
 5. Hydrate still loads **JS only** for that island; CSS was already inlined in the HTML.
 
 Scaffold: `pnpm scaffold:web-ui --name my-widget --mode island --with-styles` (or omit `--with-styles`). Agents: use `.agents/skills/create-web-ui/SKILL.md`.
@@ -86,11 +100,11 @@ Scaffold: `pnpm scaffold:web-ui --name my-widget --mode island --with-styles` (o
 
 Icons are **handpicked Bootstrap Icons** SVGs, same download-only-what-you-need rule as the shell Sass stack. There is no `bootstrap-icons` font/CSS package and no icon CDN.
 
-Canonical helper: [`src/web/shared-components/icon.tsx`](../src/web/shared-components/icon.tsx).
+Canonical helper: [`src/web/ui/shared-components/icon.tsx`](../src/web/ui/shared-components/icon.tsx).
 
 1. Find the icon on [Bootstrap Icons](https://icons.getbootstrap.com/).
 2. Copy its inline SVG into a small function in `icon.tsx` and register it on the `icons` map (use the Bootstrap name, e.g. `list`, `x-lg`).
-3. Render with `<Icon name="list" />` from **server components** (`src/web/server-components/`) or **islands** (`src/web/islands/`). Both may import the shared helper.
+3. Render with `<Icon name="list" />` from **server components** (`src/web/ui/server-components/`) or **islands** (`src/web/ui/islands/`). Both may import the shared helper.
 4. Prefer `fill="currentColor"` so shell / module `color` styles the glyph. In React, use camelCase SVG attributes (`fillRule`, not `fill-rule`).
 
 Do **not** add icons ad hoc inside a single island or page when others will need them — extend `icon.tsx` so the registry stays the one source of available glyphs.
@@ -100,7 +114,7 @@ Do **not** add icons ad hoc inside a single island or page when others will need
 Login/register use react-hook-form + Zod and `useApiMutation`:
 
 - Prefer `formState.isSubmitting` for form pending UI; use the mutation hook’s `isPending` only for non-form islands (e.g. logout).
-- Spread `apiRequestDefaults` and `...getCsrfTokenHeader()` into native `fetch` (helpers in `src/web/api-fetch/`; hook in `src/web/hooks/`).
+- Spread `apiRequestDefaults` and `...getCsrfTokenHeader()` into native `fetch` (helpers in `src/web/ui/api-fetch/`; hook in `src/web/ui/hooks/`).
 - Import shared schemas from `src/shared/schemas/` and API DTOs under `src/api/.../dto` rather than duplicating password/username rules.
 - Form-level API errors: plain colored text (`.form-api-error`), not Bootstrap alerts.
 - See [architecture.md — Frontend contract](./architecture.md#frontend-contract-islands--api) for status codes and redirects.
@@ -113,4 +127,5 @@ Login/register use react-hook-form + Zod and `useApiMutation`:
 - Re-importing shell / Bootstrap **component** SCSS into an island module (forms/validation included — those belong on the forms sibling).
 - Growing a utility layer or mini-Bootstrap inside island modules.
 - Putting optional component CSS into the shell “just in case” (forms stay opt-in).
-- Shipping the full Bootstrap Icons webfont / CSS sprite, or pasting one-off SVGs into islands instead of registering them in `shared-components/icon.tsx`.
+- Shipping the full Bootstrap Icons webfont / CSS sprite, or pasting one-off SVGs into islands instead of registering them in `ui/shared-components/icon.tsx`.
+- Putting Nest SSR props beside `ui/pages/` components, or Nest importing page `.tsx`.

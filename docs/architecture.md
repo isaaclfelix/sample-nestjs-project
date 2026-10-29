@@ -20,12 +20,12 @@ flowchart TD
   ssr --> html[HTML document]
 ```
 
-| Surface     | Owner           | Examples                                               | Response                                               |
-| ----------- | --------------- | ------------------------------------------------------ | ------------------------------------------------------ |
-| JSON API    | `src/api`       | `GET /api`, `POST /api/user`, `GET /api/docs`          | JSON, or the hello string                              |
-| HTML pages  | `src/web`       | `GET /`                                                | `text/html`                                            |
-| Dev assets  | Vite middleware | `/@vite/client`, `/src/web/runtime/island/hydrate.tsx` | Modules, only when `NODE_ENV` is not `production`      |
-| Prod assets | `dist/client`   | `/assets/...`                                          | Built client files, `index: false` so `/` stays a page |
+| Surface     | Owner           | Examples                                                  | Response                                               |
+| ----------- | --------------- | --------------------------------------------------------- | ------------------------------------------------------ |
+| JSON API    | `src/api`       | `GET /api`, `POST /api/user`, `GET /api/docs`             | JSON, or the hello string                              |
+| HTML pages  | `src/web`       | `GET /`                                                   | `text/html`                                            |
+| Dev assets  | Vite middleware | `/@vite/client`, `/src/web/ui/runtime/island/hydrate.tsx` | Modules, only when `NODE_ENV` is not `production`      |
+| Prod assets | `dist/client`   | `/assets/...`                                             | Built client files, `index: false` so `/` stays a page |
 
 `GET /user` and `GET /docs` are not aliases. They 404. Swagger UI is `/api/docs`. The raw spec is `/api/docs-json`.
 
@@ -50,27 +50,28 @@ src/
     user/                 users (controller, service, repository port/adapter)
   persistence/            PrismaModule / PrismaService / PrismaPg helper
   generated/prisma/       Prisma Client output (`prisma generate`; gitignored)
-  web/                    HTML and React
+  web/                    HTML host + embedded Vite UI ([ADR-0023](./adr/0023-web-host-ui-protocol.md))
     web.module.ts         Nest module (controller + view service)
     web.controller.ts     page routes
     web-view.service.ts
-    vite-plugins/         shell budget + island CSS Vite plugins
-    runtime/
-      island/             Island marker, registry, props codec, hydrate
-      ssr/                entry-server + page-loader
-      asset-delivery/     head tags, page assets, stylesheet registry
-    pages/                server-only page components and their prop types
-    server-components/    document + server-only presentational pieces
-    shared-components/    React shared by server-components and islands
-    islands/              product island components (+ optional *.module.scss)
-    api-fetch/            browser fetch helpers (CSRF, apiRequestDefaults)
-    hooks/                island React hooks (e.g. use-api-mutation)
-    styles/               shell.scss + forms.scss + _*.scss partials
+    host/                 Nest-executed SSR host (page-loader, asset-delivery)
+    protocol/             Wire types: SSR page props, PageAssets, island CSS catalog
+    ui/                   Embedded Vite/React app
+      pages/              SSR page components (no Nest prop files)
+      islands/            Product islands (+ optional *.module.scss)
+      server-components/  document + server-only presentational pieces
+      shared-components/  React shared by server-components and islands
+      runtime/island/     Island marker, loaders registry, props codec, hydrate
+      runtime/ssr/        entry-server only
+      api-fetch/          browser CSRF + fetch defaults
+      hooks/              island React hooks
+      styles/             shell.scss + forms.scss + _*.scss partials
+      vite-plugins/       shell budget + island CSS Vite plugins
 ```
 
-`tsconfig.build.json` excludes `src/web/**/*.tsx`, so `nest build` never compiles React. The views use `src/web/tsconfig.json` (extends root `tsconfig.web.json`) so the editor’s nearest-config walk finds Vite/`vite/client` types for `*.css` and DOM. The repo-root `tsconfig.json` stays on Nest/API `.ts` sources and excludes `src/web/api-fetch/**`. `pnpm build` still runs `tsc -p tsconfig.web.json --noEmit`. Vite emits the bundles that actually run. See [ADR-0017](./adr/0017-dual-typescript-build.md).
+`tsconfig.build.json` excludes `src/web/ui/**`, so `nest build` never emits the React app. `tsconfig.web.json` typechecks `ui/**` + `protocol/**`. Repo-root `tsconfig.json` excludes `src/web/ui/**`. `pnpm build` still runs `tsc -p tsconfig.web.json --noEmit`. Vite emits the bundles that actually run. See [ADR-0017](./adr/0017-dual-typescript-build.md) and [ADR-0023](./adr/0023-web-host-ui-protocol.md).
 
-Prefer `.tsx` where the file is mostly a React tree (pages, islands, document, hydrate entry). Prefer plain `.ts` for Nest controllers, services, props types, registries, and tests. Specs stay `.ts` and use `createElement` when they need elements; a test may pass an explicit type argument (for example `Island<{ start: number }>`) so `component` and `props` still typecheck.
+Prefer `.tsx` where the file is mostly a React tree (pages, islands, document, hydrate entry). Prefer plain `.ts` for Nest controllers, services, protocol props, registries, and tests. Specs stay `.ts` and use `createElement` when they need elements; a test may pass an explicit type argument (for example `Island<{ start: number }>`) so `component` and `props` still typecheck.
 
 ## JSON API
 
@@ -157,7 +158,7 @@ sequenceDiagram
 
 Login/register islands submit via `useApiMutation` (react-hook-form + Zod on the forms). Keep client and server aligned:
 
-1. Read `<meta name="csrf-token">` via `getCsrfToken` / `getCsrfTokenHeader` under `src/web/api-fetch/`.
+1. Read `<meta name="csrf-token">` via `getCsrfToken` / `getCsrfTokenHeader` under `src/web/ui/api-fetch/`.
 2. Call `/api/...` with native `fetch`, spreading `apiRequestDefaults` (`credentials: 'same-origin'`, JSON content type) and `...getCsrfTokenHeader()`.
 3. Reuse shared Zod pieces from `src/shared/schemas/` (e.g. `passwordSchema`, `emailSchema`) and compose with API DTOs (`createUserSchema`, `loginSchema`) for RHF resolvers — do not re-state field rules in the island.
 4. Map HTTP outcomes to UI: client Zod / **400** field errors, **409** uniqueness on register, **401** generic login failure (“Invalid credentials”), **403** missing/invalid CSRF, **429** throttle. Form-level API errors use plain colored text (`.form-api-error`), not Bootstrap alerts.
@@ -245,11 +246,11 @@ sequenceDiagram
 | `Island`                       | Server-renders the component and writes the hydration marker.     |
 | `runtime/island/hydrate.tsx`   | Browser entry. Hydrates markers and nothing else.                 |
 
-Props types live in `.ts` files (`home-page.props.ts`). The controller imports those types, not the component.
+SSR embed props live in `protocol/page-props/*-page.ssr-props.ts` (`*PageSsrProps`). The controller imports those types, not the component ([ADR-0023](./adr/0023-web-host-ui-protocol.md)).
 
 `loadServerEntry` builds the module specifier at runtime:
 
-- Development: `vite.ssrLoadModule('/src/web/runtime/ssr/entry-server.tsx')`.
+- Development: `vite.ssrLoadModule('/src/web/ui/runtime/ssr/entry-server.tsx')`.
 - Tests: a dynamic import of `runtime/ssr/entry-server.tsx` next to the loader, so Vitest transforms it.
 - Production: `dist/web-server/entry-server.js`.
 
@@ -314,7 +315,7 @@ export const islandLoaders = {
 } as const;
 
 function loadMobileNavigationIsland() {
-  return import('../islands/mobile-navigation.js');
+  return import('../../islands/mobile-navigation.js');
 }
 ```
 
@@ -322,7 +323,7 @@ Vite emits a separate chunk per dynamic `import()`. `assetTagsFromManifest` emit
 
 The registry's `isIslandName` check uses `hasOwnProperty`. An unknown name throws before hydration.
 
-Product islands live under `islands/`; marker, registry, props codec, and hydrate live under `runtime/island/` ([ADR-0018](./adr/0018-island-runtime-folder.md); [TD-019](./known-tech-debt.md) closed). Nest stays at the `src/web/` root; engines live under `runtime/{island,ssr,asset-delivery}`; `document.tsx` is in `server-components/`; shell CSS is `styles/shell.scss`; Vite plugins stay under `vite-plugins/` ([ADR-0020](./adr/0020-web-runtime-folder.md); [TD-020](./known-tech-debt.md) closed).
+Product islands live under `ui/islands/`; marker, loaders registry, props codec, and hydrate live under `ui/runtime/island/` ([ADR-0018](./adr/0018-island-runtime-folder.md); [TD-019](./known-tech-debt.md) closed). Nest stays at the `src/web/` root; Nest engines under `host/`; wire types under `protocol/`; React under `ui/` ([ADR-0023](./adr/0023-web-host-ui-protocol.md); earlier folder ADRs 0018/0020 retain history).
 
 ### Styles
 
@@ -336,9 +337,9 @@ CSS ships in **three lanes**:
 | **Page sibling sheet** | Only pages that opt in (`pageStylesheetsByPage`) | Shared Bootstrap component CSS that must not tax every page (today: forms) |
 | **Island module**      | Only when that island is rendered                | Small non-Bootstrap interaction decoration; tokens-only Sass API           |
 
-**Shell** (`src/web/styles/shell.scss`): handpicked Bootstrap Option B — config (including the utilities Sass map), `root`, `reboot`, `type`, `images`, `containers`, and `grid`, plus handpicked `_buttons.scss`. No Bootstrap forms in the shell. Own Vite client input. Compilation: Sass → PostCSS (media-query sort + doiuse warn) → Lightning CSS minify at **Baseline Widely Available**. Build **reports** raw + gzip vs `SHELL_CSS_BUDGET_BYTES` (default 50 KiB). **Production** inlines the shell as `<style data-css="shell">` when **raw** size ≤ that budget; otherwise keeps a `<link>`. **Development** always `<link href="/src/web/styles/shell.scss">` plus `/@vite/client` for HMR. Fixture tests cover both shell modes.
+**Shell** (`src/web/ui/styles/shell.scss`): handpicked Bootstrap Option B — config (including the utilities Sass map), `root`, `reboot`, `type`, `images`, `containers`, and `grid`, plus handpicked `_buttons.scss`. No Bootstrap forms in the shell. Own Vite client input. Compilation: Sass → PostCSS (media-query sort + doiuse warn) → Lightning CSS minify at **Baseline Widely Available**. Build **reports** raw + gzip vs `SHELL_CSS_BUDGET_BYTES` (default 50 KiB). **Production** inlines the shell as `<style data-css="shell">` when **raw** size ≤ that budget; otherwise keeps a `<link>`. **Development** always `<link href="/src/web/ui/styles/shell.scss">` plus `/@vite/client` for HMR. Fixture tests cover both shell modes.
 
-**Forms sibling:** [`src/web/styles/forms.scss`](../src/web/styles/forms.scss) (Vite input `forms`). Pages list `'forms'` in [`pageStylesheetsByPage`](../src/web/runtime/asset-delivery/page-stylesheets.ts). Selective Bootstrap partials: `forms/labels`, `forms/form-control`, `forms/form-text`, `forms/validation`. Measured size ~11 KiB raw / ~2 KiB gzip. Revisit triggers: [TD-021](./known-tech-debt.md).
+**Forms sibling:** [`src/web/ui/styles/forms.scss`](../src/web/ui/styles/forms.scss) (Vite input `forms`). Pages list `'forms'` in [`pageStylesheetsByPage`](../src/web/host/asset-delivery/page-stylesheets.ts). Selective Bootstrap partials: `forms/labels`, `forms/form-control`, `forms/form-text`, `forms/validation`. Measured size ~11 KiB raw / ~2 KiB gzip. Revisit triggers: [TD-021](./known-tech-debt.md).
 
 **Island CSS:** Import `*.module.scss` beside the component; use `styles/_tokens.scss` for Sass API only. Do not re-import shell or Bootstrap CSS-emitting partials ([TD-016](./known-tech-debt.md)). After SSR pass 1, `createPageAssets` loads CSS text; `Island` emits a sibling `<style data-css-island="{name}">` above the marker. Hydrate loads JS only (mapDeps CSS filtered in prod; `updateStyle` rewritten in dev).
 
@@ -349,19 +350,19 @@ CSS ships in **three lanes**:
 <div data-island="mobile-navigation" data-props="…">…</div>
 ```
 
-**Icons:** Handpicked Bootstrap Icons SVGs in [`src/web/shared-components/icon.tsx`](../src/web/shared-components/icon.tsx) ([ADR-0016](./adr/0016-handpicked-bootstrap-icons.md)). Authoring: [how-to-web-ui.md](./how-to-web-ui.md#icons).
+**Icons:** Handpicked Bootstrap Icons SVGs in [`src/web/ui/shared-components/icon.tsx`](../src/web/ui/shared-components/icon.tsx) ([ADR-0016](./adr/0016-handpicked-bootstrap-icons.md)). Authoring: [how-to-web-ui.md](./how-to-web-ui.md#icons).
 
 Hydrating every island as soon as the entry loads (including below the fold) is still [TD-010](./known-tech-debt.md) for **JS**; CSS for used islands is already in the HTML.
 
 ### Development and production
 
-|                                          | Development                                                                                                                                                                                                                                                                           | Production                                                                                                                                                |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| How it starts                            | `pnpm start` / `start:dev`                                                                                                                                                                                                                                                            | `NODE_ENV=production` via `pnpm start:prod`                                                                                                               |
-| SSR                                      | Vite middleware mode, `ssrLoadModule`                                                                                                                                                                                                                                                 | `dist/web-server/entry-server.js`                                                                                                                         |
-| Client scripts when an island is present | `/@id/@vitejs/plugin-react/preamble`, `/@vite/client`, `/src/web/runtime/island/hydrate.tsx`                                                                                                                                                                                          | Manifest entry and its static imports, under `/`                                                                                                          |
-| Styles                                   | Shell `<link href="/src/web/styles/shell.scss">` plus `/@vite/client`. Opt-in siblings (e.g. forms) as extra `<link>`s when the page opts in. Island CSS inlined as sibling `<style>`; Vite client inject is rewritten to update that sibling (no `data-vite-dev-id` head duplicate). | Shell `<style>` or `<link>` by raw-size budget. Opt-in siblings as `<link>`s. Island CSS inlined as sibling `<style>`; hydrate mapDeps has no island CSS. |
-| Static files                             | Vite serves source                                                                                                                                                                                                                                                                    | `express.static` on `dist/client`, with `index: false`                                                                                                    |
+|                                          | Development                                                                                                                                                                                                                                                                              | Production                                                                                                                                                |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| How it starts                            | `pnpm start` / `start:dev`                                                                                                                                                                                                                                                               | `NODE_ENV=production` via `pnpm start:prod`                                                                                                               |
+| SSR                                      | Vite middleware mode, `ssrLoadModule`                                                                                                                                                                                                                                                    | `dist/web-server/entry-server.js`                                                                                                                         |
+| Client scripts when an island is present | `/@id/@vitejs/plugin-react/preamble`, `/@vite/client`, `/src/web/ui/runtime/island/hydrate.tsx`                                                                                                                                                                                          | Manifest entry and its static imports, under `/`                                                                                                          |
+| Styles                                   | Shell `<link href="/src/web/ui/styles/shell.scss">` plus `/@vite/client`. Opt-in siblings (e.g. forms) as extra `<link>`s when the page opts in. Island CSS inlined as sibling `<style>`; Vite client inject is rewritten to update that sibling (no `data-vite-dev-id` head duplicate). | Shell `<style>` or `<link>` by raw-size budget. Opt-in siblings as `<link>`s. Island CSS inlined as sibling `<style>`; hydrate mapDeps has no island CSS. |
+| Static files                             | Vite serves source                                                                                                                                                                                                                                                                       | `express.static` on `dist/client`, with `index: false`                                                                                                    |
 
 The React refresh preamble is required in development because this app writes its own HTML. Without `window.$RefreshReg$`, an island module throws before `hydrateRoot` runs. Production builds do not include the refresh runtime.
 
