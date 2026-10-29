@@ -173,7 +173,8 @@ import type { ${propsName} } from './${plan.name}-page.props.js';
  * Server-only: this component is not part of the client bundle.
  * Style with shell classes from \`styles/shell.scss\` only — do not import a CSS module.
  *
- * Wire into \`ssr/entry-server.tsx\` pages map and a \`WebController\` method next.
+ * Wire into \`page-props.ts\`, \`runtime/ssr/entry-server.tsx\`, and a \`WebController\` method next
+ * (controller imports this props type only — never the page \`.tsx\`).
  *
  * @param {${propsName}} props - Props from the controller.
  * @returns {ReactElement} The page body, without the document shell.

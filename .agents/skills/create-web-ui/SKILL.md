@@ -49,7 +49,7 @@ Map answers to the CLI:
 
 ## After scaffolding
 
-**Page:** wire `WebPageName` / `runtime/ssr/entry-server` pages map + `WebController` method. Style with shell classes only.
+**Page:** scaffolder writes `<name>-page.props.ts` + `<name>-page.tsx`. Then register in `page-props.ts` (`PagePropsMap` / `WebPageName`), `runtime/ssr/entry-server` pages map, and a `WebController` method that imports **props types only** (never the page `.tsx`). Style with shell classes only.
 
 **Island:** render `<Island name="…" component={…} props={…} />` from a page (import `Island` from `src/web/runtime/island/island`). Register in `runtime/island/registry.ts`. Framework inlines CSS as a sibling `<style data-css-island>` when `cssModulePath` is set; hydrate loads JS only.
 

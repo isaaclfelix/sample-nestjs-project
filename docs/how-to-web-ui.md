@@ -52,12 +52,18 @@ flowchart TD
 
 **Target shell:** layout and content language (`root` / `reboot` / `type` / `images` / `containers` / `grid`) plus handpicked buttons — not Bootstrap forms or other heavy component stacks ([ADR-0013](./adr/0013-css-three-lanes.md)). Build interactive chrome as islands with small modules when needed. **Forms (including validation CSS)** live on the opt-in sibling ([ADR-0014](./adr/0014-forms-sibling-stylesheet.md)).
 
-## Steps: SSR-only page piece
+## Steps: SSR page
 
-1. Add or extend a page under `src/web/pages/`.
-2. Use shell classes (grid/type/images). Do **not** import a CSS module.
-3. If the page needs forms (or another opt-in sibling), add the sheet id to `pageStylesheetsByPage` for that page name.
-4. Wire the controller / `runtime/ssr/entry-server` page map as in architecture.md.
+Pages are the Nest ↔ view boundary. Nest builds plain props by page name and must **not** import page `.tsx` (that would pull React into the Nest compile — [ADR-0017](./adr/0017-dual-typescript-build.md)). Put the public props contract in a sibling `.props.ts` file so the controller can type-check without importing React. Why: [architecture.md — Web pages](./architecture.md#web-pages).
+
+1. Add `src/web/pages/<name>-page.props.ts` with a JSON-serializable props interface (e.g. `HomePageProps`). Keep it plain `.ts` — no React imports.
+2. Add `src/web/pages/<name>-page.tsx` that imports that props type and renders the page body (shell classes only; no CSS module). Compose `server-components/` and/or `<Island>` as needed.
+3. Register the page in `src/web/pages/page-props.ts`: add the props type to `PagePropsMap` (that also extends `WebPageName`).
+4. Map the page in `runtime/ssr/entry-server.tsx` (`pages` object) so the SSR entry can resolve the name to a component.
+5. Add a `WebController` method that builds the props object (typed from the `.props.ts` file only) and calls `webViewService.render('<name>', props, …)`. Do **not** import the page `.tsx` from Nest.
+6. If the page needs forms (or another opt-in sibling), list the sheet id under that page in `pageStylesheetsByPage` (see next section).
+
+Scaffold: `pnpm scaffold:web-ui --name about --mode page` (writes the props + component stubs; you still wire `page-props`, entry-server, and the controller). Agents: use `.agents/skills/create-web-ui/SKILL.md`.
 
 ## Steps: opt-in page sibling stylesheet
 
