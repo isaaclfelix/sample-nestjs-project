@@ -18,7 +18,7 @@ Nest/`tsc` must not pull React into the API compile. Vite must own client and SS
 
 - Controllers never statically import page TSX ([ADR-0002](./0002-islands-ssr-ui.md)); `loadServerEntry` resolves the entry at runtime per environment.
 - Two typecheck surfaces; contributors must know which tsconfig applies.
-- `src/web/` root layout cleanup when navigation gets hard is deferred ([TD-020](../known-tech-debt.md)).
+- `src/web/` root layout grouping is [ADR-0019](./0019-web-folder-grouping.md) ([TD-020](../known-tech-debt.md) closed).
 
 ## Alternatives considered
 

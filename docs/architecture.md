@@ -51,16 +51,21 @@ src/
   persistence/            PrismaModule / PrismaService / PrismaPg helper
   generated/prisma/       Prisma Client output (`prisma generate`; gitignored)
   web/                    HTML and React
+    web.module.ts         Nest module (controller + view service)
     web.controller.ts     page routes
     web-view.service.ts
-    page-loader.ts        loads the SSR entry without a static TSX import
-    entry-server.tsx      page map and renderToString
-    document.tsx
+    styles.scss           shell design-system entry (Vite input)
+    ssr/                  document, entry-server, page-loader
+    assets/               asset-tags, page-assets, page-stylesheets, shell delivery
+    vite-plugins/         shell budget + island CSS Vite plugins
     pages/                server-only page components and their prop types
-    server-components/       server-only presentational pieces
+    server-components/    server-only presentational pieces
+    shared-components/    React shared by server-components and islands
     islands/              product island components (+ optional *.module.scss)
     island-runtime/       Island marker, lazy registry, props codec, hydrate entry
     api-fetch/            browser fetch helpers (CSRF, apiRequestDefaults)
+    hooks/                island React hooks (e.g. use-api-mutation)
+    styles/               shell partials + opt-in siblings (forms.scss)
 ```
 
 `tsconfig.build.json` excludes `src/web/**/*.tsx`, so `nest build` never compiles React. The views use `src/web/tsconfig.json` (extends root `tsconfig.web.json`) so the editor’s nearest-config walk finds Vite/`vite/client` types for `*.css` and DOM. The repo-root `tsconfig.json` stays on Nest/API `.ts` sources and excludes `src/web/api-fetch/**`. `pnpm build` still runs `tsc -p tsconfig.web.json --noEmit`. Vite emits the bundles that actually run. See [ADR-0017](./adr/0017-dual-typescript-build.md).
@@ -235,7 +240,7 @@ sequenceDiagram
 | ---------------------------- | ----------------------------------------------------------------- |
 | `WebController`              | Chooses the page name and builds JSON props. Sets `text/html`.    |
 | `WebViewService`             | Loads the server entry and asks it to render.                     |
-| `entry-server.tsx`           | Maps the page name to a React component and renders the document. |
+| `ssr/entry-server.tsx`       | Maps the page name to a React component and renders the document. |
 | Page component               | Server-only body. May place islands in the tree.                  |
 | `Island`                     | Server-renders the component and writes the hydration marker.     |
 | `island-runtime/hydrate.tsx` | Browser entry. Hydrates markers and nothing else.                 |
@@ -244,11 +249,11 @@ Props types live in `.ts` files (`home-page.props.ts`). The controller imports t
 
 `loadServerEntry` builds the module specifier at runtime:
 
-- Development: `vite.ssrLoadModule('/src/web/entry-server.tsx')`.
-- Tests: a dynamic import of `entry-server.tsx` next to the loader, so Vitest transforms it.
+- Development: `vite.ssrLoadModule('/src/web/ssr/entry-server.tsx')`.
+- Tests: a dynamic import of `ssr/entry-server.tsx` next to the loader, so Vitest transforms it.
 - Production: `dist/web-server/entry-server.js`.
 
-A static `import './entry-server.tsx'` would pull React into the Nest compile ([ADR-0017](./adr/0017-dual-typescript-build.md)).
+A static `import './ssr/entry-server.tsx'` from Nest would pull React into the Nest compile ([ADR-0017](./adr/0017-dual-typescript-build.md)).
 
 ### Server render
 
@@ -317,7 +322,7 @@ Vite emits a separate chunk per dynamic `import()`. `assetTagsFromManifest` emit
 
 The registry's `isIslandName` check uses `hasOwnProperty`. An unknown name throws before hydration.
 
-Product islands live under `islands/`; marker, registry, props codec, and hydrate live under `island-runtime/` ([ADR-0018](./adr/0018-island-runtime-folder.md); [TD-019](./known-tech-debt.md) closed). Broader `src/web/` root grouping remains [TD-020](./known-tech-debt.md).
+Product islands live under `islands/`; marker, registry, props codec, and hydrate live under `island-runtime/` ([ADR-0018](./adr/0018-island-runtime-folder.md); [TD-019](./known-tech-debt.md) closed). Nest stays at the `src/web/` root; SSR entry, assets, and Vite plugins live under `ssr/`, `assets/`, and `vite-plugins/`; UI folders are `server-components/`, `shared-components/`, and `api-fetch/` ([ADR-0019](./adr/0019-web-folder-grouping.md); [TD-020](./known-tech-debt.md) closed).
 
 ### Styles
 
@@ -333,7 +338,7 @@ CSS ships in **three lanes**:
 
 **Shell** (`src/web/styles.scss`): handpicked Bootstrap Option B — config (including the utilities Sass map), `root`, `reboot`, `type`, `images`, `containers`, and `grid`, plus handpicked `_buttons.scss`. No Bootstrap forms in the shell. Own Vite client input. Compilation: Sass → PostCSS (media-query sort + doiuse warn) → Lightning CSS minify at **Baseline Widely Available**. Build **reports** raw + gzip vs `SHELL_CSS_BUDGET_BYTES` (default 50 KiB). **Production** inlines the shell as `<style data-css="shell">` when **raw** size ≤ that budget; otherwise keeps a `<link>`. **Development** always `<link href="/src/web/styles.scss">` plus `/@vite/client` for HMR. Fixture tests cover both shell modes.
 
-**Forms sibling:** [`src/web/styles/forms.scss`](../src/web/styles/forms.scss) (Vite input `forms`). Pages list `'forms'` in [`pageStylesheetsByPage`](../src/web/page-stylesheets.ts). Selective Bootstrap partials: `forms/labels`, `forms/form-control`, `forms/form-text`, `forms/validation`. Measured size ~11 KiB raw / ~2 KiB gzip. Revisit triggers: [TD-021](./known-tech-debt.md).
+**Forms sibling:** [`src/web/styles/forms.scss`](../src/web/styles/forms.scss) (Vite input `forms`). Pages list `'forms'` in [`pageStylesheetsByPage`](../src/web/assets/page-stylesheets.ts). Selective Bootstrap partials: `forms/labels`, `forms/form-control`, `forms/form-text`, `forms/validation`. Measured size ~11 KiB raw / ~2 KiB gzip. Revisit triggers: [TD-021](./known-tech-debt.md).
 
 **Island CSS:** Import `*.module.scss` beside the component; use `styles/_tokens.scss` for Sass API only. Do not re-import shell or Bootstrap CSS-emitting partials ([TD-016](./known-tech-debt.md)). After SSR pass 1, `createPageAssets` loads CSS text; `Island` emits a sibling `<style data-css-island="{name}">` above the marker. Hydrate loads JS only (mapDeps CSS filtered in prod; `updateStyle` rewritten in dev).
 

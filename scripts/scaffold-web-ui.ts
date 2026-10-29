@@ -173,7 +173,7 @@ import type { ${propsName} } from './${plan.name}-page.props.js';
  * Server-only: this component is not part of the client bundle.
  * Style with shell classes from \`styles.scss\` only — do not import a CSS module.
  *
- * Wire into \`entry-server.tsx\` pages map and a \`WebController\` method next.
+ * Wire into \`ssr/entry-server.tsx\` pages map and a \`WebController\` method next.
  *
  * @param {${propsName}} props - Props from the controller.
  * @returns {ReactElement} The page body, without the document shell.
@@ -479,7 +479,7 @@ async function main(): Promise<void> {
   if (plan.mode === 'page') {
     output.write(`
 Next steps:
-  1. Add "${plan.name}" to WebPageName and the pages map in src/web/entry-server.tsx
+  1. Add "${plan.name}" to WebPageName and the pages map in src/web/ssr/entry-server.tsx
   2. Add a WebController method that calls webViewService.render('${plan.name}', props)
   3. Style with shell classes only — see docs/how-to-web-ui.md
 `);

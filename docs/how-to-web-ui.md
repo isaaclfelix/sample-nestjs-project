@@ -38,7 +38,7 @@ flowchart TD
 1. Add or extend a page under `src/web/pages/`.
 2. Use shell classes (grid/type/images). Do **not** import a CSS module.
 3. If the page needs forms (or another opt-in sibling), add the sheet id to `pageStylesheetsByPage` for that page name.
-4. Wire the controller / `entry-server` page map as in architecture.md.
+4. Wire the controller / `ssr/entry-server` page map as in architecture.md.
 
 ## Steps: opt-in page sibling stylesheet
 

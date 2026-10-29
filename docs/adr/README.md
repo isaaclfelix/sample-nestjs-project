@@ -41,3 +41,4 @@ Current wiring and behavior live in [architecture.md](../architecture.md). That 
 | ADR-0016 | Handpicked Bootstrap Icons SVGs                                | Accepted | [0016-handpicked-bootstrap-icons.md](./0016-handpicked-bootstrap-icons.md)             |
 | ADR-0017 | Dual TypeScript and build ownership (Nest vs Vite)             | Accepted | [0017-dual-typescript-build.md](./0017-dual-typescript-build.md)                       |
 | ADR-0018 | Island product modules vs `island-runtime/`                    | Accepted | [0018-island-runtime-folder.md](./0018-island-runtime-folder.md)                       |
+| ADR-0019 | `src/web/` folder grouping after islands                       | Accepted | [0019-web-folder-grouping.md](./0019-web-folder-grouping.md)                           |

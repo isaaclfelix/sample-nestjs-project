@@ -20,7 +20,7 @@ We also wanted a clear home for island **runtime** (marker, registry, props code
 - Authors look in `islands/` for interactive UI and in `island-runtime/` for framework wiring; scaffold and docs match that split.
 - Hydrate entry path is `/src/web/island-runtime/hydrate.tsx` (dev) / Vite `hydrate` input (prod).
 - Registry loaders dynamic-import `../islands/<name>.js`; `cssModulePath` stays under `/src/web/islands/…`.
-- [TD-019](../known-tech-debt.md) is closed. Broader flat-root grouping of Nest wiring, Vite plugins, and asset helpers remains [TD-020](../known-tech-debt.md).
+- [TD-019](../known-tech-debt.md) is closed. Broader `src/web/` root grouping is [ADR-0019](./0019-web-folder-grouping.md) ([TD-020](../known-tech-debt.md) closed).
 
 ## Alternatives considered
 
