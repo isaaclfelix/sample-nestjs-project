@@ -15,3 +15,5 @@
 @import 'bootstrap/scss/forms/form-control';
 @import 'bootstrap/scss/forms/form-text';
 @import 'bootstrap/scss/forms/validation';
+// Form-level API errors (401/409/403/429) on login/register islands.
+@import 'bootstrap/scss/alert';
