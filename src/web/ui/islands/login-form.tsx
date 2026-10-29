@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, type ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
-import { loginSchema, type LoginDto } from '../../../api/auth/dto/login.dto.js';
-import type { UserResponseDto } from '../../../api/user/dto/user-response.dto.js';
-import { assignLocation } from '../api-fetch/assign-location.js';
-import { useApiMutation } from '../hooks/use-api-mutation.js';
+import { loginSchema, type LoginDto } from '../../../api/auth/dto/login.dto';
+import type { UserResponseDto } from '../../../api/user/dto/user-response.dto';
+import { assignLocation } from '../api-fetch/assign-location';
+import { useApiMutation } from '../hooks/use-api-mutation';
 
 /**
  * Maps a failed login HTTP status to a user-visible form error message.

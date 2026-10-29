@@ -1,4 +1,4 @@
-import { apiRequestDefaults } from './api-request-defaults.js';
+import { apiRequestDefaults } from './api-request-defaults';
 
 describe('apiRequestDefaults', () => {
   it('uses same-origin credentials and JSON content type', () => {

@@ -9,7 +9,7 @@ description: >-
 
 # Create Web UI
 
-Bootstrap HTML UI in this Nest + Vite islands app **without inventing a parallel CSS or island pattern**. Source of truth for the decision tree: [docs/how-to-web-ui.md](../../../docs/how-to-web-ui.md). Delivery mechanics: [docs/architecture.md](../../../docs/architecture.md) (Styles). Layout: [ADR-0023](../../../docs/adr/0023-web-host-ui-protocol.md) (host / ui / protocol).
+Bootstrap HTML UI in this Nest + Vite islands app **without inventing a parallel CSS or island pattern**. Source of truth for the decision tree: [docs/how-to-web-ui.md](../../../docs/how-to-web-ui.md). Delivery mechanics: [docs/architecture.md](../../../docs/architecture.md) (Styles). Layout: [ADR-0023](../../../docs/adr/0023-web-host-ui-protocol.md) (host / ui / protocol). Relative imports under `src/web/ui/` are **extensionless** ([ADR-0024](../../../docs/adr/0024-dual-import-resolution.md)); do not emit Nest-style `.js` suffixes into UI stubs.
 
 Prefer the shared scaffolder so humans and agents stay aligned:
 

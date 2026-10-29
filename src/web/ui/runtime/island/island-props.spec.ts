@@ -1,4 +1,4 @@
-import { decodeIslandProps, encodeIslandProps } from './island-props.js';
+import { decodeIslandProps, encodeIslandProps } from './island-props';
 
 describe('island props', () => {
   it('round-trips a props object', () => {

@@ -5,8 +5,8 @@ import {
   type Context,
   type ReactElement,
 } from 'react';
-import { encodeIslandProps } from './island-props.js';
-import type { IslandName } from './registry.js';
+import { encodeIslandProps } from './island-props';
+import type { IslandName } from './registry';
 
 /**
  * Collects island names during the first server render pass.

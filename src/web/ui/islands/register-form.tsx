@@ -4,10 +4,10 @@ import { useForm } from 'react-hook-form';
 import {
   createUserSchema,
   type CreateUserDto,
-} from '../../../api/user/dto/create-user.dto.js';
-import type { UserResponseDto } from '../../../api/user/dto/user-response.dto.js';
-import { assignLocation } from '../api-fetch/assign-location.js';
-import { useApiMutation } from '../hooks/use-api-mutation.js';
+} from '../../../api/user/dto/create-user.dto';
+import type { UserResponseDto } from '../../../api/user/dto/user-response.dto';
+import { assignLocation } from '../api-fetch/assign-location';
+import { useApiMutation } from '../hooks/use-api-mutation';
 
 /**
  * Maps a failed register HTTP status to a user-visible form error message.

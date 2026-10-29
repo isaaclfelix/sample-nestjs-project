@@ -106,7 +106,7 @@ describe('parseScaffoldArgs', () => {
 
 describe('patchIslandRegistry', () => {
   const sample = `function loadMobileNavigationIsland(): Promise<IslandModule> {
-  return import('../islands/mobile-navigation.js') as Promise<IslandModule>;
+  return import('../../islands/mobile-navigation') as Promise<IslandModule>;
 }
 
 /**
@@ -180,7 +180,7 @@ describe('applyScaffoldPlan', () => {
     await writeFile(
       join(root, 'src/web/ui/runtime/island/registry.ts'),
       `function loadMobileNavigationIsland(): Promise<IslandModule> {
-  return import('../../islands/mobile-navigation.js') as Promise<IslandModule>;
+  return import('../../islands/mobile-navigation') as Promise<IslandModule>;
 }
 
 /**

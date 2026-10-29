@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
-import { Island } from '../runtime/island/island.js';
-import RegisterForm from '../islands/register-form.js';
-import Layout from '../server-components/layout.js';
-import type { RegisterPageSsrProps } from '../../protocol/page-props/register-page.ssr-props.js';
+import { Island } from '../runtime/island/island';
+import RegisterForm from '../islands/register-form';
+import Layout from '../server-components/layout';
+import type { RegisterPageSsrProps } from '../../protocol/page-props/register-page.ssr-props';
 
 /**
  * Renders the register page body.

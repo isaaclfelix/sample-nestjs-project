@@ -1,5 +1,5 @@
-import { CSRF_META_NAME } from '../../../api/auth/session.constants.js';
-import { getCsrfToken, getCsrfTokenHeader } from './csrf.js';
+import { CSRF_META_NAME } from '../../../api/auth/session.constants';
+import { getCsrfToken, getCsrfTokenHeader } from './csrf';
 
 describe('csrf helpers', () => {
   afterEach(() => {

@@ -1,16 +1,16 @@
 import type { ReactElement } from 'react';
 import { renderToString } from 'react-dom/server';
-import type { PageAssets } from '../../../protocol/page-assets.js';
+import type { PageAssets } from '../../../protocol/page-assets';
 import type {
   SsrPagePropsMap,
   WebPageName,
-} from '../../../protocol/page-props/page-props.js';
-import type { IslandName } from '../../../protocol/island-css-catalog.js';
-import { HomePage } from '../../pages/home-page.js';
-import { LoginPage } from '../../pages/login-page.js';
-import { RegisterPage } from '../../pages/register-page.js';
-import { Document } from '../../server-components/document.js';
-import { IslandCssContext, IslandNamesContext } from '../island/island.js';
+} from '../../../protocol/page-props/page-props';
+import type { IslandName } from '../../../protocol/island-css-catalog';
+import { HomePage } from '../../pages/home-page';
+import { LoginPage } from '../../pages/login-page';
+import { RegisterPage } from '../../pages/register-page';
+import { Document } from '../../server-components/document';
+import { IslandCssContext, IslandNamesContext } from '../island/island';
 
 const pages = {
   home: HomePage,
