@@ -30,7 +30,7 @@ describe('extractCssFromViteModule', () => {
 
 describe('shellStyleTags', () => {
   const manifest: ClientManifest = {
-    'src/web/styles.scss': { file: 'assets/shell.css', isEntry: true },
+    'src/web/styles/shell.scss': { file: 'assets/shell.css', isEntry: true },
   };
 
   it('inlines when under budget', () => {
@@ -56,7 +56,10 @@ describe('loadShellCssText', () => {
     writeFileSync(join(dir, 'shell-load.css'), 'body{color:red}');
 
     const manifest: ClientManifest = {
-      'src/web/styles.scss': { file: 'assets/shell-load.css', isEntry: true },
+      'src/web/styles/shell.scss': {
+        file: 'assets/shell-load.css',
+        isEntry: true,
+      },
     };
 
     expect(loadShellCssText(manifest)).toBe('body{color:red}');
@@ -171,7 +174,10 @@ describe('createPageAssets island CSS', () => {
         file: 'assets/hydrate.js',
         isEntry: true,
       },
-      'src/web/styles.scss': { file: 'assets/shell-small.css', isEntry: true },
+      'src/web/styles/shell.scss': {
+        file: 'assets/shell-small.css',
+        isEntry: true,
+      },
       'src/web/islands/mobile-navigation.tsx': {
         file: 'assets/mobile-navigation.js',
         css: ['assets/island-small.css'],
@@ -201,7 +207,7 @@ describe('createPageAssets island CSS', () => {
     writeFileSync(join(dir, 'shell-forms-opt.css'), '.ok{}');
 
     const manifest: ClientManifest = {
-      'src/web/styles.scss': {
+      'src/web/styles/shell.scss': {
         file: 'assets/shell-forms-opt.css',
         isEntry: true,
       },

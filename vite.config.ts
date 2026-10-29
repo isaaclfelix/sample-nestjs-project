@@ -46,7 +46,7 @@ export default defineConfig(({ isSsrBuild }) => ({
           rollupOptions: {
             input: {
               hydrate: 'src/web/island-runtime/hydrate.tsx',
-              shell: 'src/web/styles.scss',
+              shell: 'src/web/styles/shell.scss',
               // Opt-in sibling; only pages that declare it get a head link.
               forms: 'src/web/styles/forms.scss',
             },

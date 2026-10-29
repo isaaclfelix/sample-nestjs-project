@@ -19,7 +19,7 @@ describe('islandNameFromCssModuleId', () => {
 
   it('ignores non-island stylesheets', () => {
     expect(
-      islandNameFromCssModuleId('/home/app/src/web/styles.scss'),
+      islandNameFromCssModuleId('/home/app/src/web/styles/shell.scss'),
     ).toBeUndefined();
   });
 });

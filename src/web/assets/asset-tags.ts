@@ -42,10 +42,10 @@ export const emptyAssetTags: AssetTags = {
 };
 
 /** Dev URL for the shared sheet. Vite serves it as CSS for a stylesheet link. */
-export const shellStylesheetDev = '/src/web/styles.scss';
+export const shellStylesheetDev = '/src/web/styles/shell.scss';
 
 /** Manifest key for the shared sheet, which is its own client build input. */
-const shellStylesheetSource = 'src/web/styles.scss';
+const shellStylesheetSource = 'src/web/styles/shell.scss';
 
 /** Vite client runtime: HMR / full-reload for shell SCSS even without islands. */
 const viteClientDev = '/@vite/client';
@@ -199,7 +199,7 @@ export function assetTagsFromManifest(manifest: ClientManifest): AssetTags {
  * script stores it on `css`. The script is not linked.
  *
  * @param {ClientManifest} manifest - Vite client manifest.
- * @param {string} source - Manifest key (e.g. `src/web/styles.scss`).
+ * @param {string} source - Manifest key (e.g. `src/web/styles/shell.scss`).
  * @param {string} label - Name used in the missing-chunk error.
  * @returns {string} Root-relative stylesheet URL.
  * @throws {Error} When the chunk is missing.

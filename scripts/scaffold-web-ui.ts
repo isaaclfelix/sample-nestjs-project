@@ -171,7 +171,7 @@ import type { ${propsName} } from './${plan.name}-page.props.js';
  * Renders the ${plan.name} page body.
  *
  * Server-only: this component is not part of the client bundle.
- * Style with shell classes from \`styles.scss\` only — do not import a CSS module.
+ * Style with shell classes from \`styles/shell.scss\` only — do not import a CSS module.
  *
  * Wire into \`ssr/entry-server.tsx\` pages map and a \`WebController\` method next.
  *

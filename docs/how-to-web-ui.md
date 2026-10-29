@@ -25,7 +25,7 @@ flowchart TD
 
 ## Shell vs sibling vs island module
 
-| Put in the shell (`styles.scss`)                        | Put in a page sibling sheet (`styles/forms.scss`, …)         | Put in island `*.module.scss`                               |
+| Put in the shell (`styles/shell.scss`)                  | Put in a page sibling sheet (`styles/forms.scss`, …)         | Put in island `*.module.scss`                               |
 | ------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- |
 | Handpicked Bootstrap: reset, type, colors, images, grid | Shared BS form (or similar) partials for opted-in pages only | Hover/focus after _custom_ interaction, spinner, open state |
 | First-paint page chrome that would CLS without it       | Today: labels, form-control, form-text, validation           | Island-only decoration tied to behavior                     |

@@ -39,7 +39,7 @@ const manifest: ClientManifest = {
     file: 'assets/mobile-navigation.js',
   },
   'src/web/islands/chart.tsx': { file: 'assets/chart.js' },
-  'src/web/styles.scss': { file: 'assets/shell.css', isEntry: true },
+  'src/web/styles/shell.scss': { file: 'assets/shell.css', isEntry: true },
   'src/web/styles/forms.scss': { file: 'assets/forms.css', isEntry: true },
 };
 

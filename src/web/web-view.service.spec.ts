@@ -44,7 +44,7 @@ describe('WebViewService', () => {
       'Rendered on the server at 2026-10-22T12:00:00.000Z.',
     );
     expect(html).toContain('data-island="mobile-navigation"');
-    expect(html).toContain('/src/web/styles.scss');
+    expect(html).toContain('/src/web/styles/shell.scss');
     expect(html).toContain('/src/web/island-runtime/hydrate.tsx');
     expect(html).not.toContain('assets/mobile-navigation.js');
   });
@@ -127,7 +127,7 @@ describe('WebViewService', () => {
       'src/web/islands/mobile-navigation.tsx': {
         file: 'assets/mobile-navigation.js',
       },
-      'src/web/styles.scss': { file: 'assets/shell.css', isEntry: true },
+      'src/web/styles/shell.scss': { file: 'assets/shell.css', isEntry: true },
     }));
     const render: ServerEntry['render'] = async (
       _page,
