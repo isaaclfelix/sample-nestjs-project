@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import { assignLocation } from '../api-fetch/assign-location.js';
 import { useApiMutation } from '../hooks/use-api-mutation.js';
 
 /**
@@ -24,7 +25,7 @@ export default function LogoutButton(): ReactElement {
     } catch {
       // Network errors still clear chrome via navigation.
     }
-    window.location.assign('/login');
+    assignLocation('/login');
   };
 
   return (

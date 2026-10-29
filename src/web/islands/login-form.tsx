@@ -3,6 +3,7 @@ import { useState, type ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
 import { loginSchema, type LoginDto } from '../../api/auth/dto/login.dto.js';
 import type { UserResponseDto } from '../../api/user/dto/user-response.dto.js';
+import { assignLocation } from '../api-fetch/assign-location.js';
 import { useApiMutation } from '../hooks/use-api-mutation.js';
 
 /**
@@ -58,7 +59,7 @@ export default function LoginForm(): ReactElement {
     setFormError(null);
     const result = await mutate(values);
     if (result.ok) {
-      window.location.assign('/');
+      assignLocation('/');
       return;
     }
     setFormError(loginFormErrorMessage(result.status));
