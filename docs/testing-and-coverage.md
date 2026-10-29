@@ -40,7 +40,7 @@ CI installs with `pnpm install --frozen-lockfile`. Dependency build scripts are 
 
 ## E2E and the database
 
-E2E boots `AppModule`, which requires a real Postgres. **Testcontainers** starts `postgres:16-alpine` once per `pnpm test:e2e` run (`test/e2e-global-setup.ts`), applies `prisma migrate deploy`, and shares `DATABASE_URL` with workers. Each test truncates tables via `createE2eApp` / `truncateDatabase` so suites stay isolated.
+E2E boots `AppModule`, which requires a real Postgres. **Testcontainers** starts `postgres:16-alpine` once per `pnpm test:e2e` run (`test/e2e-global-setup.ts`), applies `prisma migrate deploy`, and shares `DATABASE_URL` with workers. Each test truncates tables via `createE2eApp` / `truncateDatabase` so suites stay isolated. Why Testcontainers (not Compose) for e2e: [ADR-0010](./adr/0010-e2e-testcontainers.md).
 
 - **Docker** must be available locally and on the CI runner (GitHub-hosted Ubuntu images include it).
 - Compose (`make db-up`) is for human `start:dev` only. E2E does **not** use Compose.

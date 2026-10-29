@@ -30,6 +30,17 @@
 - Resolved: TD-00X (docs/tests cleaned up)
 -->
 
+## Architecture decisions
+
+<!-- Always fill. Link ADR-IDs from docs/adr/. Use "None" if this PR does not add or supersede an ADR. -->
+
+- **None**
+
+<!-- Or:
+- New: ADR-00NN ([docs/adr/](../docs/adr/README.md)) — …
+- Superseded: ADR-00NN → ADR-00MM
+-->
+
 ## Spotcheck
 
 <!-- Sign off that minimum testing and review for this PR is done. -->
@@ -42,5 +53,5 @@
 - [ ] E2E tests pass or updated (`pnpm test:e2e`) when HTTP/controllers change
 - [ ] Coverage thresholds pass (`pnpm test:cov`)
 - [ ] Manual / API spotchecks for behavior changed in this PR (list below or N/A)
-- [ ] Docs updated if needed (`CONTRIBUTING.md`, README, `docs/known-tech-debt.md`, `docs/testing-and-coverage.md`)
+- [ ] Docs updated if needed (`CONTRIBUTING.md`, README, `docs/architecture.md`, `docs/adr/`, `docs/known-tech-debt.md`, `docs/testing-and-coverage.md`)
 - [ ] Ready for review

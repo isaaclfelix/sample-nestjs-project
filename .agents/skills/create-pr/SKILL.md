@@ -34,7 +34,7 @@ Prefer Conventional Commit style for the **whole PR** (not necessarily the tip c
 
 ## Body template
 
-Section order is fixed. Omit **Changes** only when **Summary** already covers the PR. Always include **Tech debt** and **Spotcheck**.
+Section order is fixed. Omit **Changes** only when **Summary** already covers the PR. Always include **Tech debt**, **Architecture decisions**, and **Spotcheck**.
 
 ```markdown
 ## Summary
@@ -54,6 +54,10 @@ Section order is fixed. Omit **Changes** only when **Summary** already covers th
 - …
 
 ## Tech debt
+
+- …
+
+## Architecture decisions
 
 - …
 
@@ -81,6 +85,9 @@ Section order is fixed. Omit **Changes** only when **Summary** already covers th
   - If nothing applies: one bullet `- **None**`
   - Else list each item with ID when known, e.g. `- **TD-001** ([docs/known-tech-debt.md](../docs/known-tech-debt.md)): …`
   - Call out **new** debt this PR introduces (and that docs/`it.fails` were updated) or **resolved** debt (ID + cleanup).
+- **Architecture decisions:** Always present and explicit. Cross-check [docs/adr/](../../../docs/adr/README.md).
+  - If nothing applies: one bullet `- **None**`
+  - Else list new or superseded ADR-IDs (and that architecture current-state links were updated).
 - **Spotcheck:** Single bottom sign-off (no separate Checklist). Check boxes only for steps actually verified in this session. Nest defaults: `pnpm lint`, `pnpm build`, `pnpm test`, `pnpm test:e2e`, `pnpm test:cov`, plus HTTP/API checks when endpoints change. Do **not** check **Ready for review** unless the user asked to assert that. Add PR-specific bullets under the manual/API line when useful. See [docs/testing-and-coverage.md](../../../docs/testing-and-coverage.md).
 
 ## Agent shell (required for `gh`)
@@ -209,8 +216,9 @@ gh pr view --json url,title,baseRefName,state
 - [ ] User explicitly requested the PR
 - [ ] All `gh` / `git push` Shell calls used `required_permissions: ["all"]` (or equivalent)
 - [ ] Base is `main` or the user-specified branch
-- [ ] Body includes Summary, Motivation, Risks / notes, Tech debt, Spotcheck
+- [ ] Body includes Summary, Motivation, Risks / notes, Tech debt, Architecture decisions, Spotcheck
 - [ ] Tech debt is explicit (`None` or TD-IDs / new / resolved)
+- [ ] Architecture decisions is explicit (`None` or ADR-IDs / new / superseded)
 - [ ] Spotcheck boxes reflect only verified steps
 - [ ] Branch pushed to `origin`
 - [ ] PR created or updated via REST (`gh api` POST/PATCH …/pulls), not `gh pr create`/`edit`

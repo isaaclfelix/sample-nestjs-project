@@ -51,7 +51,7 @@ make db-migrate-deploy
 make db-seed
 ```
 
-Other Make targets: `db-down`, `db-logs`, `db-migrate` (dev), `db-reset`, `db-studio`. Persistence design: [docs/architecture.md](./docs/architecture.md).
+Other Make targets: `db-down`, `db-logs`, `db-migrate` (dev), `db-reset`, `db-studio`. Persistence: [docs/architecture.md](./docs/architecture.md#persistence), [ADR-0005](./docs/adr/0005-persistence-postgres-prisma.md).
 
 E2E does **not** use Compose. `pnpm test:e2e` starts Postgres with Testcontainers (Docker required).
 
@@ -126,7 +126,9 @@ cp .env.example .env
 ## Documentation
 
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — branch names, commit messages, hooks, formatting, and lint.
-- [docs/architecture.md](./docs/architecture.md) — how the JSON API and the React page layer share this process.
+- [docs/architecture.md](./docs/architecture.md) — current-state map of the JSON API and React page layer.
+- [docs/adr/](./docs/adr/README.md) — Architecture Decision Records (durable tradeoffs).
+- [docs/how-to-web-ui.md](./docs/how-to-web-ui.md) — how to add pages, islands, styles, and icons.
 - [docs/testing-and-coverage.md](./docs/testing-and-coverage.md) — unit tests, e2e, coverage thresholds, and CI.
 - [docs/known-tech-debt.md](./docs/known-tech-debt.md) — behavior we have not built yet, and how that debt is tracked.
 
