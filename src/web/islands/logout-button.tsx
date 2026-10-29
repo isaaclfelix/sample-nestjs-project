@@ -2,11 +2,11 @@ import type { ReactElement } from 'react';
 import { useApiMutation } from '../hooks/use-api-mutation.js';
 
 /**
- * Logout control that clears the session then navigates home.
+ * Logout control that clears the session then navigates to login.
  *
- * Best-effort: always redirects to `/` after the attempt, including when the
- * session already expired (**403** CSRF / **401**). Uses the mutation hook's
- * `isPending` because this island has no react-hook-form.
+ * Best-effort: always redirects to `/login` after the attempt, including when
+ * the session already expired (**403** CSRF / **401**). Uses the mutation
+ * hook's `isPending` because this island has no react-hook-form.
  *
  * @returns {ReactElement} Interactive logout button.
  */
@@ -14,7 +14,7 @@ export default function LogoutButton(): ReactElement {
   const { mutate, isPending } = useApiMutation('/api/auth/logout');
 
   /**
-   * Posts logout and always navigates home afterward.
+   * Posts logout and always navigates to `/login` afterward.
    *
    * @returns {Promise<void>}
    */
@@ -24,7 +24,7 @@ export default function LogoutButton(): ReactElement {
     } catch {
       // Network errors still clear chrome via navigation.
     }
-    window.location.assign('/');
+    window.location.assign('/login');
   };
 
   return (
