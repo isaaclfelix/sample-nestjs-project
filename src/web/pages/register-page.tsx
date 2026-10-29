@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { Island } from '../island-runtime/island.js';
 import RegisterForm from '../islands/register-form.js';
-import Layout from '../ssr-components/layout.js';
+import Layout from '../server-components/layout.js';
 import type { RegisterPageProps } from './register-page.props.js';
 
 /**

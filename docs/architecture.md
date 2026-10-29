@@ -57,7 +57,7 @@ src/
     entry-server.tsx      page map and renderToString
     document.tsx
     pages/                server-only page components and their prop types
-    ssr-components/       server-only presentational pieces
+    server-components/       server-only presentational pieces
     islands/              product island components (+ optional *.module.scss)
     island-runtime/       Island marker, lazy registry, props codec, hydrate entry
     client/               browser fetch helpers (CSRF, apiRequestDefaults)

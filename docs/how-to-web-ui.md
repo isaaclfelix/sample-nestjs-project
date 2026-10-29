@@ -65,7 +65,7 @@ Canonical helper: [`src/web/shared-components/icon.tsx`](../src/web/shared-compo
 
 1. Find the icon on [Bootstrap Icons](https://icons.getbootstrap.com/).
 2. Copy its inline SVG into a small function in `icon.tsx` and register it on the `icons` map (use the Bootstrap name, e.g. `list`, `x-lg`).
-3. Render with `<Icon name="list" />` from **SSR components** (`src/web/ssr-components/`) or **islands** (`src/web/islands/`). Both may import the shared helper.
+3. Render with `<Icon name="list" />` from **server components** (`src/web/server-components/`) or **islands** (`src/web/islands/`). Both may import the shared helper.
 4. Prefer `fill="currentColor"` so shell / module `color` styles the glyph. In React, use camelCase SVG attributes (`fillRule`, not `fill-rule`).
 
 Do **not** add icons ad hoc inside a single island or page when others will need them — extend `icon.tsx` so the registry stays the one source of available glyphs.
