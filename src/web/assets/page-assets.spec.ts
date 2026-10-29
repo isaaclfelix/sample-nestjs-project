@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ClientManifest } from './asset-tags.js';
-import * as registry from './island-runtime/registry.js';
+import * as registry from '../island-runtime/registry.js';
 import {
   createPageAssets,
   extractCssFromViteModule,

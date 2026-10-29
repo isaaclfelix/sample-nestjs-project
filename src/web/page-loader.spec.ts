@@ -1,4 +1,4 @@
-import { emptyAssetTags } from './asset-tags.js';
+import { emptyAssetTags } from './assets/asset-tags.js';
 import {
   getViteDevServer,
   loadServerEntry,
@@ -6,7 +6,7 @@ import {
   type ServerEntry,
   type ServerEntryLoader,
 } from './page-loader.js';
-import type { PageAssets } from './page-assets.js';
+import type { PageAssets } from './assets/page-assets.js';
 
 describe('page loader', () => {
   afterEach(() => {

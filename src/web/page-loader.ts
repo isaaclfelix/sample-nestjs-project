@@ -1,6 +1,6 @@
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
-import type { PageAssets } from './page-assets.js';
+import type { PageAssets } from './assets/page-assets.js';
 import type { PagePropsMap, WebPageName } from './pages/page-props.js';
 
 /**

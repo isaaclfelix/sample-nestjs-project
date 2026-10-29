@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { setClientManifestReader } from './asset-tags.js';
+import { setClientManifestReader } from './assets/asset-tags.js';
 import {
   loadServerEntry,
   setViteDevServer,
