@@ -7,12 +7,12 @@ describe('islandNameFromCssModuleId', () => {
   it('parses island module paths', () => {
     expect(
       islandNameFromCssModuleId(
-        '/home/app/src/web/ui/islands/mobile-navigation.module.scss',
+        '/home/app/src/web/ui/islands/mobile-navigation/mobile-navigation.module.scss',
       ),
     ).toBe('mobile-navigation');
     expect(
       islandNameFromCssModuleId(
-        '/home/app/src/web/ui/islands/my-widget.module.css?used',
+        '/home/app/src/web/ui/islands/my-widget/my-widget.module.css?used',
       ),
     ).toBe('my-widget');
   });
@@ -26,7 +26,7 @@ describe('islandNameFromCssModuleId', () => {
 
 describe('rewriteIslandCssClientInject', () => {
   const sample = `import { updateStyle as __vite__updateStyle, removeStyle as __vite__removeStyle } from "/@vite/client"
-const __vite__id = "/src/web/ui/islands/mobile-navigation.module.scss"
+const __vite__id = "/src/web/ui/islands/mobile-navigation/mobile-navigation.module.scss"
 const __vite__css = "._count{font-weight:700}"
 __vite__updateStyle(__vite__id, __vite__css)
 export default { count: "_count" };

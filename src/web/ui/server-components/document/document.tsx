@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import type { AssetTags } from '../../protocol/page-assets';
+import type { AssetTags } from '../../../protocol/page-assets';
 
 /**
  * Renders the HTML document around a page.

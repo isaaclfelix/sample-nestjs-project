@@ -28,17 +28,17 @@ const manifest: ClientManifest = {
     isEntry: true,
     imports: ['_react.js', 'missing.js', 'plain.js'],
     dynamicImports: [
-      'src/web/ui/islands/mobile-navigation.tsx',
-      'src/web/ui/islands/chart.tsx',
+      'src/web/ui/islands/mobile-navigation/mobile-navigation.tsx',
+      'src/web/ui/islands/chart/chart.tsx',
     ],
     css: ['assets/app.css'],
   },
   '_react.js': { file: 'assets/react.js', css: ['assets/react.css'] },
   'plain.js': { file: 'assets/plain.js' },
-  'src/web/ui/islands/mobile-navigation.tsx': {
+  'src/web/ui/islands/mobile-navigation/mobile-navigation.tsx': {
     file: 'assets/mobile-navigation.js',
   },
-  'src/web/ui/islands/chart.tsx': { file: 'assets/chart.js' },
+  'src/web/ui/islands/chart/chart.tsx': { file: 'assets/chart.js' },
   'src/web/ui/styles/shell.scss': { file: 'assets/shell.css', isEntry: true },
   'src/web/ui/styles/forms.scss': { file: 'assets/forms.css', isEntry: true },
 };

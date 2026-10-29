@@ -1,5 +1,5 @@
 /**
- * SSR embed props for the register page component (`ui/pages/register-page.tsx`).
+ * SSR embed props for the register page component (`ui/pages/register-page/`).
  *
  * Built by Nest (`WebController`), passed through `WebViewService.render`,
  * consumed by the Vite SSR page. JSON-serializable only. Not colocated with

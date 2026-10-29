@@ -73,7 +73,7 @@ describe('islandCssFromManifest', () => {
     writeFileSync(join(dir, 'mobile-navigation-test.css'), '._c{opacity:1}');
 
     const manifest: ClientManifest = {
-      'src/web/ui/islands/mobile-navigation.tsx': {
+      'src/web/ui/islands/mobile-navigation/mobile-navigation.tsx': {
         file: 'assets/mobile-navigation.js',
         css: ['assets/mobile-navigation-test.css'],
       },
@@ -86,7 +86,7 @@ describe('islandCssFromManifest', () => {
 
   it('skips unknown names and chunks without css', () => {
     const manifest: ClientManifest = {
-      'src/web/ui/islands/mobile-navigation.tsx': {
+      'src/web/ui/islands/mobile-navigation/mobile-navigation.tsx': {
         file: 'assets/mobile-navigation.js',
       },
     };
@@ -114,7 +114,7 @@ describe('islandCssFromVite', () => {
       'mobile-navigation': '._c{font-weight:700}',
     });
     expect(vite.transformRequest).toHaveBeenCalledWith(
-      '/src/web/ui/islands/mobile-navigation.module.scss',
+      '/src/web/ui/islands/mobile-navigation/mobile-navigation.module.scss',
     );
   });
 
@@ -178,7 +178,7 @@ describe('createPageAssets island CSS', () => {
         file: 'assets/shell-small.css',
         isEntry: true,
       },
-      'src/web/ui/islands/mobile-navigation.tsx': {
+      'src/web/ui/islands/mobile-navigation/mobile-navigation.tsx': {
         file: 'assets/mobile-navigation.js',
         css: ['assets/island-small.css'],
       },

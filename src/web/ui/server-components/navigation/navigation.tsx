@@ -1,6 +1,6 @@
-import { Island } from '../runtime/island/island';
-import LogoutButton from '../islands/logout-button';
-import MobileNavigation from '../islands/mobile-navigation';
+import { Island } from '../../runtime/island/island';
+import LogoutButton from '../../islands/logout-button';
+import MobileNavigation from '../../islands/mobile-navigation';
 
 /**
  * Navigation component for the application.

@@ -1,5 +1,5 @@
 /**
- * SSR embed props for the home page component (`ui/pages/home-page.tsx`).
+ * SSR embed props for the home page component (`ui/pages/home-page/`).
  *
  * Built by Nest (`WebController`), passed through `WebViewService.render`,
  * consumed by the Vite SSR page. JSON-serializable only. Not colocated with

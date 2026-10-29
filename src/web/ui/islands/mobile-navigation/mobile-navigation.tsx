@@ -1,7 +1,7 @@
 import { useState, type AnimationEvent, type ReactElement } from 'react';
-import LogoutButton from './logout-button';
+import LogoutButton from '../logout-button';
 import styles from './mobile-navigation.module.scss';
-import Icon from '../shared-components/icon';
+import Icon from '../../shared-components/icon';
 
 /**
  * Interactive mobile-navigation island.

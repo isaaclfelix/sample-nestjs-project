@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createElement } from 'react';
-import { CSRF_META_NAME } from '../../../api/auth/session.constants';
+import { CSRF_META_NAME } from '../../../../api/auth/session.constants';
 import MobileNavigation from './mobile-navigation';
 
 describe('MobileNavigation', () => {

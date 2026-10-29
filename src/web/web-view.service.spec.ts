@@ -120,11 +120,13 @@ describe('WebViewService', () => {
         file: 'assets/hydrate.js',
         isEntry: true,
         imports: ['_react.js'],
-        dynamicImports: ['src/web/ui/islands/mobile-navigation.tsx'],
+        dynamicImports: [
+          'src/web/ui/islands/mobile-navigation/mobile-navigation.tsx',
+        ],
         css: ['assets/app.css'],
       },
       '_react.js': { file: 'assets/react.js' },
-      'src/web/ui/islands/mobile-navigation.tsx': {
+      'src/web/ui/islands/mobile-navigation/mobile-navigation.tsx': {
         file: 'assets/mobile-navigation.js',
       },
       'src/web/ui/styles/shell.scss': {

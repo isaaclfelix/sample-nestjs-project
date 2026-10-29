@@ -1,7 +1,8 @@
 import type { Plugin } from 'vite';
 
 /**
- * Island name from a Vite module id for `src/web/ui/islands/*.module.{css,scss}`.
+ * Island name from a Vite module id for
+ * `src/web/ui/islands/<name>/<name>.module.{css,scss}`.
  *
  * @param {string} id - Vite transform id (may include query string).
  * @returns {string | undefined} Kebab island name, or undefined when not an island module.
@@ -9,7 +10,7 @@ import type { Plugin } from 'vite';
 export function islandNameFromCssModuleId(id: string): string | undefined {
   const path = id.split('?')[0] ?? id;
   const match =
-    /\/islands\/([a-z][a-z0-9]*(?:-[a-z0-9]+)*)\.module\.s?css$/i.exec(
+    /\/islands\/([a-z][a-z0-9]*(?:-[a-z0-9]+)*)\/\1\.module\.s?css$/i.exec(
       path.replace(/\\/g, '/'),
     );
   return match?.[1];
