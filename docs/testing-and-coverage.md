@@ -58,7 +58,7 @@ pnpm exec playwright install --with-deps chromium
 
 **Humans:** run the command once locally (may prompt for `sudo` on Linux/WSL). Browsers land in Playwright’s default durable cache (on Linux, `~/.cache/ms-playwright`).
 
-**`pnpm test` / `test:cov` / `test:e2e` (and watch/debug):** these scripts run under `env -u PLAYWRIGHT_BROWSERS_PATH` so Playwright uses that default cache. Cursor’s agent Shell often injects `PLAYWRIGHT_BROWSERS_PATH` under `/tmp/cursor-sandbox-cache/<hash>/playwright`; that hash can change when the IDE restarts, which would otherwise force a fresh Chromium download every session. Unsetting uses `env -u` (Unix shell); that is intentional for the current supported environment.
+**`pnpm test` / `test:cov` / `test:e2e` (and watch/debug):** these scripts run under `env -u PLAYWRIGHT_BROWSERS_PATH` so Playwright uses that default cache. Cursor’s agent Shell often injects `PLAYWRIGHT_BROWSERS_PATH` under `/tmp/cursor-sandbox-cache/<hash>/playwright`; that hash can change when the IDE restarts, which would otherwise force a fresh Chromium download every session. Unsetting uses `env -u` (Unix shell); that is intentional for the current supported environment (**TD-027**).
 
 **Cursor agents:** the agent Shell often cannot complete `sudo` interactively. Prefer asking the user to run `pnpm exec playwright install --with-deps chromium` in their IDE terminal. After that one-time install, agents should reuse the durable cache via the scripts above — do **not** re-install into the sandbox `/tmp` path. Do **not** invent long-lived `LD_LIBRARY_PATH` workarounds as project docs — those are emergency session hacks only. See also [AGENTS.md](../AGENTS.md) §9 for related agent-shell constraints.
 
