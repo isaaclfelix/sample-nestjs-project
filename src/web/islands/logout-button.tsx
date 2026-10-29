@@ -30,7 +30,7 @@ export default function LogoutButton(): ReactElement {
   return (
     <button
       type="button"
-      className="btn btn-light btn-sm navigation-link"
+      className="btn btn-link navigation-link"
       disabled={isPending}
       onClick={() => {
         void handleClick();

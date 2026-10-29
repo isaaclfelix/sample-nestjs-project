@@ -56,4 +56,11 @@
   &:hover {
     color: var(--bs-primary);
   }
+
+  // Logout is a button (needs CSRF POST) but should match Login/Register links.
+  &.btn {
+    border: 0;
+    padding: 0;
+    vertical-align: baseline;
+  }
 }
