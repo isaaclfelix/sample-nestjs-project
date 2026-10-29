@@ -61,7 +61,7 @@ Scaffold: `pnpm scaffold:web-ui --name my-widget --mode island --with-styles` (o
 
 Icons are **handpicked Bootstrap Icons** SVGs, same download-only-what-you-need rule as the shell Sass stack. There is no `bootstrap-icons` font/CSS package and no icon CDN.
 
-Canonical helper: [`src/web/shared/icon.tsx`](../src/web/shared/icon.tsx).
+Canonical helper: [`src/web/shared-components/icon.tsx`](../src/web/shared-components/icon.tsx).
 
 1. Find the icon on [Bootstrap Icons](https://icons.getbootstrap.com/).
 2. Copy its inline SVG into a small function in `icon.tsx` and register it on the `icons` map (use the Bootstrap name, e.g. `list`, `x-lg`).
@@ -87,4 +87,4 @@ Login/register use react-hook-form + Zod and `useApiMutation`:
 - Re-importing shell / Bootstrap **component** SCSS into an island module (forms/validation included — those belong on the forms sibling).
 - Growing a utility layer or mini-Bootstrap inside island modules.
 - Putting optional component CSS into the shell “just in case” (forms stay opt-in).
-- Shipping the full Bootstrap Icons webfont / CSS sprite, or pasting one-off SVGs into islands instead of registering them in `shared/icon.tsx`.
+- Shipping the full Bootstrap Icons webfont / CSS sprite, or pasting one-off SVGs into islands instead of registering them in `shared-components/icon.tsx`.

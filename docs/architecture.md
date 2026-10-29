@@ -344,7 +344,7 @@ CSS ships in **three lanes**:
 <div data-island="mobile-navigation" data-props="…">…</div>
 ```
 
-**Icons:** Handpicked Bootstrap Icons SVGs in [`src/web/shared/icon.tsx`](../src/web/shared/icon.tsx) ([ADR-0016](./adr/0016-handpicked-bootstrap-icons.md)). Authoring: [how-to-web-ui.md](./how-to-web-ui.md#icons).
+**Icons:** Handpicked Bootstrap Icons SVGs in [`src/web/shared-components/icon.tsx`](../src/web/shared-components/icon.tsx) ([ADR-0016](./adr/0016-handpicked-bootstrap-icons.md)). Authoring: [how-to-web-ui.md](./how-to-web-ui.md#icons).
 
 Hydrating every island as soon as the entry loads (including below the fold) is still [TD-010](./known-tech-debt.md) for **JS**; CSS for used islands is already in the HTML.
 
