@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
-    "build": "prisma generate && nest build && tsc -p tsconfig.web.json --noEmit && vite build && vite build --ssr src/web/runtime/ssr/entry-server.tsx --outDir dist/web-server",
+    "build": "prisma generate && nest build && tsc -p tsconfig.web.json --noEmit && vite build && vite build --ssr src/web/ui/runtime/ssr/entry-server.tsx --outDir dist/web-server",
     "deploy": "nest deploy",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.tsx\" \"test/**/*.ts\" \"test/**/*.tsx\" \"*.json\" \"*.md\" \"docs/**/*.md\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"src/**/*.tsx\" \"test/**/*.ts\" \"test/**/*.tsx\" \"*.json\" \"*.md\" \"docs/**/*.md\"",

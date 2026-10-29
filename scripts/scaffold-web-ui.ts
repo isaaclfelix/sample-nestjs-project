@@ -88,14 +88,14 @@ export function resolveScaffoldPlan(answers: ScaffoldAnswers): ScaffoldPlan {
     mode: answers.mode,
     withStyles,
     pascalName,
-    pageComponentPath: `src/web/pages/${name}-page.tsx`,
-    pagePropsPath: `src/web/pages/${name}-page.props.ts`,
-    islandComponentPath: `src/web/islands/${name}.tsx`,
+    pageComponentPath: `src/web/ui/pages/${name}-page.tsx`,
+    pagePropsPath: `src/web/protocol/page-props/${name}-page.ssr-props.ts`,
+    islandComponentPath: `src/web/ui/islands/${name}.tsx`,
     islandModulePath: withStyles
-      ? `src/web/islands/${name}.module.scss`
+      ? `src/web/ui/islands/${name}.module.scss`
       : undefined,
     cssModulePath: withStyles
-      ? `/src/web/islands/${name}.module.scss`
+      ? `/src/web/ui/islands/${name}.module.scss`
       : undefined,
   };
 }
@@ -149,14 +149,15 @@ export function parseScaffoldArgs(
  * @returns {{ props: string; component: string }} File contents.
  */
 function pageSources(plan: ScaffoldPlan): { props: string; component: string } {
-  const propsName = `${plan.pascalName}PageProps`;
+  const propsName = `${plan.pascalName}PageSsrProps`;
   const componentName = `${plan.pascalName}Page`;
 
   const props = `/**
- * Props for the server-rendered ${plan.name} page.
+ * SSR embed props for the ${plan.name} page component (\`ui/pages/${plan.name}-page.tsx\`).
  *
- * Kept in a TypeScript file so the Nest controller can type the object
- * without importing a TSX component.
+ * Built by Nest (\`WebController\`), passed through \`WebViewService.render\`,
+ * consumed by the Vite SSR page. JSON-serializable only. Not colocated with
+ * the page on purpose — see ADR-0023 / how-to-web-ui (SSR page props quirk).
  */
 export interface ${propsName} {
   /** Replace with real request-derived fields. */
@@ -165,18 +166,19 @@ export interface ${propsName} {
 `;
 
   const component = `import type { ReactElement } from 'react';
-import type { ${propsName} } from './${plan.name}-page.props.js';
+import type { ${propsName} } from '../../protocol/page-props/${plan.name}-page.ssr-props.js';
 
 /**
  * Renders the ${plan.name} page body.
  *
  * Server-only: this component is not part of the client bundle.
- * Style with shell classes from \`styles/shell.scss\` only — do not import a CSS module.
+ * Style with shell classes from \`ui/styles/shell.scss\` only — do not import a CSS module.
  *
- * Wire into \`page-props.ts\`, \`runtime/ssr/entry-server.tsx\`, and a \`WebController\` method next
- * (controller imports this props type only — never the page \`.tsx\`).
+ * Wire into \`protocol/page-props/page-props.ts\` (\`SsrPagePropsMap\`),
+ * \`ui/runtime/ssr/entry-server.tsx\`, and a \`WebController\` method next
+ * (controller imports this SSR props type only — never the page \`.tsx\`).
  *
- * @param {${propsName}} props - Props from the controller.
+ * @param {${propsName}} props - SSR embed props from the controller.
  * @returns {ReactElement} The page body, without the document shell.
  */
 export function ${componentName}({ title }: ${propsName}): ReactElement {
@@ -284,7 +286,7 @@ export function patchIslandRegistry(
  * @returns {Promise<IslandModule>} The ${plan.name} module.
  */
 function load${plan.pascalName}Island(): Promise<IslandModule> {
-  return import('../islands/${plan.name}.js') as Promise<IslandModule>;
+  return import('../../islands/${plan.name}.js') as Promise<IslandModule>;
 }
 `;
 
@@ -343,11 +345,12 @@ export async function applyScaffoldPlan(
 
     if (existsSync(propsAbs) || existsSync(componentAbs)) {
       throw new Error(
-        `Page files already exist for "${plan.name}" under src/web/pages/`,
+        `Page files already exist for "${plan.name}" (protocol page-props or ui/pages)`,
       );
     }
 
     await mkdir(dirname(propsAbs), { recursive: true });
+    await mkdir(dirname(componentAbs), { recursive: true });
     await writeFile(propsAbs, props, 'utf8');
     await writeFile(componentAbs, component, 'utf8');
     written.push(propsAbs, componentAbs);
@@ -376,7 +379,7 @@ export async function applyScaffoldPlan(
     written.push(moduleAbs);
   }
 
-  const registryAbs = join(rootDir, 'src/web/runtime/island/registry.ts');
+  const registryAbs = join(rootDir, 'src/web/ui/runtime/island/registry.ts');
   const registryBefore = await readFile(registryAbs, 'utf8');
   const registryAfter = patchIslandRegistry(registryBefore, plan);
   await writeFile(registryAbs, registryAfter, 'utf8');
@@ -480,20 +483,22 @@ async function main(): Promise<void> {
   if (plan.mode === 'page') {
     output.write(`
 Next steps:
-  1. Add "${plan.name}" to WebPageName and the pages map in src/web/runtime/ssr/entry-server.tsx
-  2. Add a WebController method that calls webViewService.render('${plan.name}', props)
-  3. Style with shell classes only — see docs/how-to-web-ui.md
+  1. Add "${plan.name}" to SsrPagePropsMap in src/web/protocol/page-props/page-props.ts
+  2. Map the page in src/web/ui/runtime/ssr/entry-server.tsx
+  3. Add a WebController method that imports SSR props from protocol/page-props/ only
+     and calls webViewService.render('${plan.name}', props)
+  4. Style with shell classes only — see docs/how-to-web-ui.md (SSR page props quirk)
 `);
   } else {
     output.write(`
 Next steps:
   Render on a page:
-    import ${plan.pascalName} from '../islands/${plan.name}.js';
-    import { Island } from '../runtime/island/island.js';
+    import ${plan.pascalName} from '../islands/${plan.name}';
+    import { Island } from '../runtime/island/island';
     <Island name="${plan.name}" component={${plan.pascalName}} props={{}} />
 
-  CSS is inlined as a sibling <style> at SSR when cssModulePath is set.
-  Do not re-import the shell sheet. See docs/how-to-web-ui.md
+  If --with-styles: also add the CSS path to src/web/protocol/island-css-catalog.ts
+  (scaffold patches the UI registry loaders). See docs/how-to-web-ui.md
 `);
   }
 }

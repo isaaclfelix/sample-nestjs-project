@@ -2,9 +2,9 @@ import { Controller, Get, Header, Req, Res } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import type { AppSession } from '../api/auth/session.js';
-import type { HomePageProps } from './pages/home-page.props.js';
-import type { LoginPageProps } from './pages/login-page.props.js';
-import type { RegisterPageProps } from './pages/register-page.props.js';
+import type { HomePageSsrProps } from './protocol/page-props/home-page.ssr-props.js';
+import type { LoginPageSsrProps } from './protocol/page-props/login-page.ssr-props.js';
+import type { RegisterPageSsrProps } from './protocol/page-props/register-page.ssr-props.js';
 import { WebViewService } from './web-view.service.js';
 
 /** Express request after SessionMiddleware may have attached a session. */
@@ -18,7 +18,7 @@ export class WebController {
   /**
    * Renders the home page as HTML.
    *
-   * Passes a page name and plain props so this file does not import React.
+   * Passes a page name and SSR embed props so this file does not import React.
    * The timestamp is generated here because it is request data, not view logic.
    *
    * @param {RequestWithSession} req - Request with session from SessionMiddleware.
@@ -27,7 +27,7 @@ export class WebController {
   @Get()
   @Header('Content-Type', 'text/html; charset=utf-8')
   home(@Req() req: RequestWithSession): Promise<string> {
-    const props: HomePageProps = {
+    const props: HomePageSsrProps = {
       renderedAt: new Date().toISOString(),
       isAuthenticated: Boolean(req.session?.userId),
     };
@@ -58,7 +58,7 @@ export class WebController {
       return;
     }
 
-    const props: LoginPageProps = {
+    const props: LoginPageSsrProps = {
       isAuthenticated: false,
     };
 
@@ -88,7 +88,7 @@ export class WebController {
       return;
     }
 
-    const props: RegisterPageProps = {
+    const props: RegisterPageSsrProps = {
       isAuthenticated: false,
     };
 

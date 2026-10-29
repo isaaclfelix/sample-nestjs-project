@@ -30,7 +30,7 @@ HTML report after `pnpm test:cov`: open `coverage/index.html` (directory is giti
 ## Coverage policy
 
 - **Unit coverage only** (Node + browser UI unit projects). Thresholds via [`vitest.config.ts`](../vitest.config.ts).
-- **Included:** `src/**/*.ts` and product React under `src/web/{pages,islands,server-components,shared-components}/**/*.tsx`.
+- **Included:** `src/**/*.ts` and product React under `src/web/ui/{pages,islands,server-components,shared-components}/**/*.tsx`.
 - **Excluded:** `src/main.ts`, Vite build plugins, `**/*.module.ts`, specs, generated Prisma client, low-signal SSR/document/hydrate plumbing, `node_modules`, `dist`.
 - **E2E is a behavioral gate**, not part of the coverage percentage. Do not merge unit+e2e coverage reports for this project.
 - **Thresholds** (statements / branches / functions / lines) are floors locked a little under the measured baseline after product `.tsx` inclusion (currently **96%** each). Raise them when coverage improves; do not lower them to land a PR without team agreement.

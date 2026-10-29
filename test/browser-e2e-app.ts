@@ -5,7 +5,7 @@ import { Test, type TestingModule } from '@nestjs/testing';
 import type { App } from 'supertest/types.js';
 import type { ViteDevServer } from 'vite';
 import { AppModule } from '../src/app.module.js';
-import { setViteDevServer } from '../src/web/runtime/ssr/page-loader.js';
+import { setViteDevServer } from '../src/web/host/page-loader.js';
 import type { E2eAppOptions } from './e2e-app.js';
 import { truncateDatabase } from './e2e-truncate.js';
 

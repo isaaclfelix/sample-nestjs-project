@@ -8,11 +8,11 @@ import { sharedVitestViteConfig } from './vitest.shared.js';
  * Keep in sync with the node project `exclude` list in {@link ./vitest.config.ts}.
  */
 export const browserUnitSpecGlobs: string[] = [
-  'src/web/islands/**/*.spec.ts',
-  'src/web/pages/**/*.spec.ts',
-  'src/web/hooks/**/*.spec.ts',
-  'src/web/api-fetch/csrf.spec.ts',
-  'src/web/runtime/island/hydrate.spec.ts',
+  'src/web/ui/islands/**/*.spec.ts',
+  'src/web/ui/pages/**/*.spec.ts',
+  'src/web/ui/hooks/**/*.spec.ts',
+  'src/web/ui/api-fetch/csrf.spec.ts',
+  'src/web/ui/runtime/island/hydrate.spec.ts',
 ];
 
 export default defineConfig({

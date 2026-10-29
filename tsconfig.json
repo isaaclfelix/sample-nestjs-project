@@ -29,10 +29,5 @@
     "vitest.config.e2e.ts",
     "vite.config.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "src/web/api-fetch/**",
-    "src/web/**/*.d.ts"
-  ]
+  "exclude": ["node_modules", "dist", "src/web/ui/**", "src/web/**/*.d.ts"]
 }
