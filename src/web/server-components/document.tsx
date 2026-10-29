@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import type { AssetTags } from './asset-tags.js';
+import type { AssetTags } from '../runtime/asset-delivery/asset-tags.js';
 
 /**
  * Renders the HTML document around a page.

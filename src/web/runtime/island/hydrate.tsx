@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import { hydrateRoot } from 'react-dom/client';
-import { decodeIslandProps } from '../island-props.js';
-import { isIslandName, islandLoaders } from '../islands/registry.js';
+import { decodeIslandProps } from './island-props.js';
+import { isIslandName, islandLoaders } from './registry.js';
 
 /**
  * Hydrates each island marker in `root`.

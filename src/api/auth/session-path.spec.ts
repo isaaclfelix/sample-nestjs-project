@@ -10,7 +10,7 @@ describe('shouldAttachSession', () => {
 
   it.each([
     '/@vite/client',
-    '/src/web/styles.scss',
+    '/src/web/styles/shell.scss',
     '/assets/hydrate.js',
     '/favicon.ico',
   ])('returns false for %s', (path) => {

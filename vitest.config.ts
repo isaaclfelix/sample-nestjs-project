@@ -19,9 +19,9 @@ export default defineConfig({
       exclude: [
         'src/main.ts',
         // Vite build-time plugins; not Nest runtime.
-        'src/web/vite-shell-css-budget.ts',
-        'src/web/vite-strip-island-css-preload.ts',
-        'src/web/vite-suppress-island-css-inject.ts',
+        'src/web/vite-plugins/vite-shell-css-budget.ts',
+        'src/web/vite-plugins/vite-strip-island-css-preload.ts',
+        'src/web/vite-plugins/vite-suppress-island-css-inject.ts',
         'src/**/*.module.ts',
         'src/**/*.spec.ts',
         'src/**/*.tsx',

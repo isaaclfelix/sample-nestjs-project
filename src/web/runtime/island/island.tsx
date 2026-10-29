@@ -5,7 +5,7 @@ import {
   type Context,
   type ReactElement,
 } from 'react';
-import { encodeIslandProps } from '../island-props.js';
+import { encodeIslandProps } from './island-props.js';
 import type { IslandName } from './registry.js';
 
 /**

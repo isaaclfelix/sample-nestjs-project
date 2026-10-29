@@ -100,7 +100,7 @@ describe('parseScaffoldArgs', () => {
 
 describe('patchIslandRegistry', () => {
   const sample = `function loadMobileNavigationIsland(): Promise<IslandModule> {
-  return import('./mobile-navigation.js') as Promise<IslandModule>;
+  return import('../islands/mobile-navigation.js') as Promise<IslandModule>;
 }
 
 /**
@@ -170,10 +170,11 @@ describe('applyScaffoldPlan', () => {
     const root = await mkdtemp(join(tmpdir(), 'scaffold-web-ui-'));
     tempDirs.push(root);
     await mkdir(join(root, 'src/web/islands'), { recursive: true });
+    await mkdir(join(root, 'src/web/runtime/island'), { recursive: true });
     await writeFile(
-      join(root, 'src/web/islands/registry.ts'),
+      join(root, 'src/web/runtime/island/registry.ts'),
       `function loadMobileNavigationIsland(): Promise<IslandModule> {
-  return import('./mobile-navigation.js') as Promise<IslandModule>;
+  return import('../islands/mobile-navigation.js') as Promise<IslandModule>;
 }
 
 /**
@@ -216,7 +217,7 @@ export const islandLoaders = {
     );
     expect(moduleCss).toContain('.root');
     const registry = await readFile(
-      join(root, 'src/web/islands/registry.ts'),
+      join(root, 'src/web/runtime/island/registry.ts'),
       'utf8',
     );
     expect(registry).toContain('loadToggleIsland');

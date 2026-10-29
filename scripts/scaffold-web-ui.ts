@@ -171,9 +171,10 @@ import type { ${propsName} } from './${plan.name}-page.props.js';
  * Renders the ${plan.name} page body.
  *
  * Server-only: this component is not part of the client bundle.
- * Style with shell classes from \`styles.scss\` only — do not import a CSS module.
+ * Style with shell classes from \`styles/shell.scss\` only — do not import a CSS module.
  *
- * Wire into \`entry-server.tsx\` pages map and a \`WebController\` method next.
+ * Wire into \`page-props.ts\`, \`runtime/ssr/entry-server.tsx\`, and a \`WebController\` method next
+ * (controller imports this props type only — never the page \`.tsx\`).
  *
  * @param {${propsName}} props - Props from the controller.
  * @returns {ReactElement} The page body, without the document shell.
@@ -283,7 +284,7 @@ export function patchIslandRegistry(
  * @returns {Promise<IslandModule>} The ${plan.name} module.
  */
 function load${plan.pascalName}Island(): Promise<IslandModule> {
-  return import('./${plan.name}.js') as Promise<IslandModule>;
+  return import('../islands/${plan.name}.js') as Promise<IslandModule>;
 }
 `;
 
@@ -375,7 +376,7 @@ export async function applyScaffoldPlan(
     written.push(moduleAbs);
   }
 
-  const registryAbs = join(rootDir, 'src/web/islands/registry.ts');
+  const registryAbs = join(rootDir, 'src/web/runtime/island/registry.ts');
   const registryBefore = await readFile(registryAbs, 'utf8');
   const registryAfter = patchIslandRegistry(registryBefore, plan);
   await writeFile(registryAbs, registryAfter, 'utf8');
@@ -479,7 +480,7 @@ async function main(): Promise<void> {
   if (plan.mode === 'page') {
     output.write(`
 Next steps:
-  1. Add "${plan.name}" to WebPageName and the pages map in src/web/entry-server.tsx
+  1. Add "${plan.name}" to WebPageName and the pages map in src/web/runtime/ssr/entry-server.tsx
   2. Add a WebController method that calls webViewService.render('${plan.name}', props)
   3. Style with shell classes only — see docs/how-to-web-ui.md
 `);
@@ -488,7 +489,7 @@ Next steps:
 Next steps:
   Render on a page:
     import ${plan.pascalName} from '../islands/${plan.name}.js';
-    import { Island } from '../islands/island.js';
+    import { Island } from '../runtime/island/island.js';
     <Island name="${plan.name}" component={${plan.pascalName}} props={{}} />
 
   CSS is inlined as a sibling <style> at SSR when cssModulePath is set.

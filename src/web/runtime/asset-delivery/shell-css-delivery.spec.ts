@@ -1,6 +1,6 @@
 import { renderToString } from 'react-dom/server';
 import { createElement } from 'react';
-import { Document } from './document.js';
+import { Document } from '../../server-components/document.js';
 import { chooseShellDelivery } from './shell-css-delivery.js';
 import type { AssetTags } from './asset-tags.js';
 

@@ -45,12 +45,12 @@ Map answers to the CLI:
 - Re-importing shell / Bootstrap **component** SCSS into an island module (tokens-only via `styles/_tokens.scss`).
 - Growing a utility layer or mini-Bootstrap inside island modules.
 - A second CSS delivery path (head links per island, CSS only after chunk load, skipping sibling `<style>` inlining).
-- Shipping the Bootstrap Icons webfont, or pasting one-off SVGs into an island — register glyphs in `src/web/shared/icon.tsx` instead ([how-to-web-ui.md § Icons](../../../docs/how-to-web-ui.md#icons)).
+- Shipping the Bootstrap Icons webfont, or pasting one-off SVGs into an island — register glyphs in `src/web/shared-components/icon.tsx` instead ([how-to-web-ui.md § Icons](../../../docs/how-to-web-ui.md#icons)).
 
 ## After scaffolding
 
-**Page:** wire `WebPageName` / `entry-server` pages map + `WebController` method. Style with shell classes only.
+**Page:** scaffolder writes `<name>-page.props.ts` + `<name>-page.tsx`. Then register in `page-props.ts` (`PagePropsMap` / `WebPageName`), `runtime/ssr/entry-server` pages map, and a `WebController` method that imports **props types only** (never the page `.tsx`). Style with shell classes only.
 
-**Island:** render `<Island name="…" component={…} props={…} />` from a page. Framework inlines CSS as a sibling `<style data-css-island>` when `cssModulePath` is set; hydrate loads JS only.
+**Island:** render `<Island name="…" component={…} props={…} />` from a page (import `Island` from `src/web/runtime/island/island`). Register in `runtime/island/registry.ts`. Framework inlines CSS as a sibling `<style data-css-island>` when `cssModulePath` is set; hydrate loads JS only.
 
 Run `pnpm lint` (and `pnpm build` if signatures/modules changed) after edits. Commit only when the user asks or AGENTS.md incremental commits applies — use the `create-commit` skill.

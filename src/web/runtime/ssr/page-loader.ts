@@ -1,7 +1,7 @@
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
-import type { PageAssets } from './page-assets.js';
-import type { PagePropsMap, WebPageName } from './pages/page-props.js';
+import type { PageAssets } from '../asset-delivery/page-assets.js';
+import type { PagePropsMap, WebPageName } from '../../pages/page-props.js';
 
 /**
  * Server render function implemented by the Vite SSR bundle.
@@ -71,7 +71,7 @@ export async function loadServerEntry(
   if (env.vite) {
     // Vite types the module as a record. The entry's render export is the contract.
     return env.vite.ssrLoadModule(
-      '/src/web/entry-server.tsx',
+      '/src/web/runtime/ssr/entry-server.tsx',
     ) as Promise<ServerEntry>;
   }
 

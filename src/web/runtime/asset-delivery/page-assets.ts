@@ -13,10 +13,10 @@ import {
   isIslandName,
   type IslandName,
   islandCssModuleUrl,
-} from './islands/registry.js';
+} from '../island/registry.js';
 import type { PageStylesheetName } from './page-stylesheets.js';
 import { chooseShellDelivery } from './shell-css-delivery.js';
-import { shellCssBudgetBytes } from './vite-shell-css-budget.js';
+import { shellCssBudgetBytes } from '../../vite-plugins/vite-shell-css-budget.js';
 
 /**
  * Document tags plus island CSS text for SSR sibling `<style>` tags.

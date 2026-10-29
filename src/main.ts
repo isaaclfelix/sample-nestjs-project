@@ -4,7 +4,7 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule, ObserveInstrument } from './app.module.js';
 import { StandardSchemaValidationPipe } from '@nestjs/common';
 import { setupOpenApi } from './api/openapi.setup.js';
-import { setViteDevServer } from './web/page-loader.js';
+import { setViteDevServer } from './web/runtime/ssr/page-loader.js';
 
 /**
  * Starts the Nest HTTP application.

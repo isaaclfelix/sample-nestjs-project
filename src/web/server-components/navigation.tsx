@@ -1,4 +1,4 @@
-import { Island } from '../islands/island';
+import { Island } from '../runtime/island/island';
 import LogoutButton from '../islands/logout-button';
 import MobileNavigation from '../islands/mobile-navigation';
 

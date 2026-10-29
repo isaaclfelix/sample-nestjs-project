@@ -9,7 +9,7 @@ UI needs a small set of icons without shipping an entire icon webfont or one-off
 
 ## Decision
 
-Handpick [Bootstrap Icons](https://icons.getbootstrap.com/) SVGs into `src/web/shared/icon.tsx` and render `<Icon name="…" />` from SSR components or islands. Add a glyph to that file when a new icon is needed. No icon font package.
+Handpick [Bootstrap Icons](https://icons.getbootstrap.com/) SVGs into `src/web/shared-components/icon.tsx` and render `<Icon name="…" />` from server-components or islands. Add a glyph to that file when a new icon is needed. No icon font package.
 
 Authoring steps: [how-to-web-ui.md](../how-to-web-ui.md#icons).
 

@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { loadClientManifest } from './asset-tags.js';
-import { createPageAssets } from './page-assets.js';
-import { getViteDevServer, loadServerEntry } from './page-loader.js';
-import { pageStylesheetsByPage } from './page-stylesheets.js';
+import { loadClientManifest } from './runtime/asset-delivery/asset-tags.js';
+import { createPageAssets } from './runtime/asset-delivery/page-assets.js';
+import {
+  getViteDevServer,
+  loadServerEntry,
+} from './runtime/ssr/page-loader.js';
+import { pageStylesheetsByPage } from './runtime/asset-delivery/page-stylesheets.js';
 import type { PagePropsMap, WebPageName } from './pages/page-props.js';
 
 @Injectable()

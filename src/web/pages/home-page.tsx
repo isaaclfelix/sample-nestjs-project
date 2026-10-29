@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import type { HomePageProps } from './home-page.props.js';
-import Layout from '../ssr-components/layout.js';
+import Layout from '../server-components/layout.js';
 
 /**
  * Renders the home page body.

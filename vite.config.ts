@@ -2,9 +2,9 @@ import react from '@vitejs/plugin-react';
 import doiuse from 'doiuse';
 import sortMediaQueries from 'postcss-sort-media-queries';
 import { defineConfig } from 'vite';
-import { shellCssBudgetPlugin } from './src/web/vite-shell-css-budget.js';
-import { stripIslandCssFromModulePreload } from './src/web/vite-strip-island-css-preload.js';
-import { suppressIslandCssClientInject } from './src/web/vite-suppress-island-css-inject.js';
+import { shellCssBudgetPlugin } from './src/web/vite-plugins/vite-shell-css-budget.js';
+import { stripIslandCssFromModulePreload } from './src/web/vite-plugins/vite-strip-island-css-preload.js';
+import { suppressIslandCssClientInject } from './src/web/vite-plugins/vite-suppress-island-css-inject.js';
 
 /**
  * Client and server builds for the React page layer.
@@ -36,7 +36,7 @@ export default defineConfig(({ isSsrBuild }) => ({
           emptyOutDir: false,
           ssr: true,
           rollupOptions: {
-            input: 'src/web/entry-server.tsx',
+            input: 'src/web/runtime/ssr/entry-server.tsx',
           },
         }
       : {
@@ -45,8 +45,8 @@ export default defineConfig(({ isSsrBuild }) => ({
           manifest: true,
           rollupOptions: {
             input: {
-              hydrate: 'src/web/client/hydrate.tsx',
-              shell: 'src/web/styles.scss',
+              hydrate: 'src/web/runtime/island/hydrate.tsx',
+              shell: 'src/web/styles/shell.scss',
               // Opt-in sibling; only pages that declare it get a head link.
               forms: 'src/web/styles/forms.scss',
             },

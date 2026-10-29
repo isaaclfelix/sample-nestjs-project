@@ -23,7 +23,7 @@ import {
 import { createPageAssets } from './page-assets.js';
 
 const manifest: ClientManifest = {
-  'src/web/client/hydrate.tsx': {
+  'src/web/runtime/island/hydrate.tsx': {
     file: 'assets/hydrate.js',
     isEntry: true,
     imports: ['_react.js', 'missing.js', 'plain.js'],
@@ -39,7 +39,7 @@ const manifest: ClientManifest = {
     file: 'assets/mobile-navigation.js',
   },
   'src/web/islands/chart.tsx': { file: 'assets/chart.js' },
-  'src/web/styles.scss': { file: 'assets/shell.css', isEntry: true },
+  'src/web/styles/shell.scss': { file: 'assets/shell.css', isEntry: true },
   'src/web/styles/forms.scss': { file: 'assets/forms.css', isEntry: true },
 };
 
@@ -158,7 +158,7 @@ describe('asset tags', () => {
       createPageAssets([], {
         development: false,
         manifest: {
-          'src/web/client/hydrate.tsx': {
+          'src/web/runtime/island/hydrate.tsx': {
             file: 'assets/hydrate.js',
             isEntry: true,
           },

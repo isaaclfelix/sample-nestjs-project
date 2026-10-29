@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
-import { apiRequestDefaults } from '../client/api-request-defaults.js';
-import { getCsrfTokenHeader } from '../client/csrf.js';
+import { apiRequestDefaults } from '../api-fetch/api-request-defaults.js';
+import { getCsrfTokenHeader } from '../api-fetch/csrf.js';
 
 /** Successful mutating API response. */
 export type ApiMutationSuccess<TData> = {

@@ -42,7 +42,7 @@ export function shellCssBudgetBytes(): number {
 /**
  * Returns whether a Rollup asset is the shared shell stylesheet.
  *
- * Matches the `shell` client input (`styles.scss`) by original file name or
+ * Matches the `shell` client input (`styles/shell.scss`) by original file name or
  * by the Vite input key embedded in the output file name.
  *
  * @param {ShellCssAsset} asset - Rollup output asset from `generateBundle`.
@@ -62,7 +62,7 @@ function isShellCssAsset(asset: ShellCssAsset): boolean {
 
   return originals.some(
     (name) =>
-      name.includes('src/web/styles.scss') ||
+      name.includes('src/web/styles/shell.scss') ||
       name.includes('src/web/styles.css'),
   );
 }

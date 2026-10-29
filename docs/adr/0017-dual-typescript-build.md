@@ -11,14 +11,14 @@ Nest/`tsc` must not pull React into the API compile. Vite must own client and SS
 
 - `tsconfig.build.json` **excludes** `src/web/**/*.tsx` so `nest build` never compiles React.
 - Vite emits client (`dist/client`) and SSR (`dist/web-server`) bundles; `pnpm build` runs `nest build`, `tsc -p tsconfig.web.json --noEmit`, `vite build`, and `vite build --ssr`.
-- Web views use `src/web/tsconfig.json` (extends root `tsconfig.web.json`) for Vite/`vite/client` types. Repo-root `tsconfig.json` stays on Nest/API `.ts` and excludes `src/web/client/**`.
+- Web views use `src/web/tsconfig.json` (extends root `tsconfig.web.json`) for Vite/`vite/client` types. Repo-root `tsconfig.json` stays on Nest/API `.ts` and excludes `src/web/api-fetch/**`.
 - Prefer `.tsx` for React trees; plain `.ts` for Nest, props types, registries, and tests.
 
 ## Consequences
 
 - Controllers never statically import page TSX ([ADR-0002](./0002-islands-ssr-ui.md)); `loadServerEntry` resolves the entry at runtime per environment.
 - Two typecheck surfaces; contributors must know which tsconfig applies.
-- `src/web/` root layout cleanup when navigation gets hard is deferred ([TD-020](../known-tech-debt.md)).
+- `src/web/` root layout grouping is [ADR-0020](./0020-web-runtime-folder.md) ([TD-020](../known-tech-debt.md) closed).
 
 ## Alternatives considered
 

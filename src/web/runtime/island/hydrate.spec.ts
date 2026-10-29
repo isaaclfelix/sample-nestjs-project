@@ -2,8 +2,8 @@
 import { act, createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { hydrateIslands } from './hydrate.js';
-import { Island } from '../islands/island.js';
-import MobileNavigation from '../islands/mobile-navigation.js';
+import { Island } from './island.js';
+import MobileNavigation from '../../islands/mobile-navigation.js';
 
 describe('hydrate islands', () => {
   it('opens the mobile navigation drawer when the toggle is clicked', async () => {
