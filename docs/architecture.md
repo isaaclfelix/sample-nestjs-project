@@ -57,10 +57,10 @@ src/
     host/                 Nest-executed SSR host (page-loader, asset-delivery)
     protocol/             Wire types: SSR page props, PageAssets, island CSS catalog
     ui/                   Embedded Vite/React app
-      pages/              SSR page components (no Nest prop files)
-      islands/            Product islands (+ optional *.module.scss)
-      server-components/  document + server-only presentational pieces
-      shared-components/  React shared by server-components and islands
+      pages/              Per-page folders (<name>-page/) + thin index.ts
+      islands/            Per-island folders (+ optional *.module.scss) + thin index.ts
+      server-components/  Per-component folders (incl. document/) + thin index.ts
+      shared-components/  Per-component folders (e.g. icon/) + thin index.ts
       runtime/island/     Island marker, loaders registry, props codec, hydrate
       runtime/ssr/        entry-server only
       api-fetch/          browser CSRF + fetch defaults
@@ -71,7 +71,7 @@ src/
 
 `tsconfig.build.json` excludes `src/web/ui/**`, so `nest build` never emits the React app. `tsconfig.web.json` typechecks `ui/**` + `protocol/**`. Repo-root `tsconfig.json` excludes `src/web/ui/**`. `pnpm build` still runs `tsc -p tsconfig.web.json --noEmit`. Vite emits the bundles that actually run. See [ADR-0017](./adr/0017-dual-typescript-build.md) and [ADR-0023](./adr/0023-web-host-ui-protocol.md).
 
-**Import specifiers:** Nest-emitted graphs (`src/api/`, Nest web root, `host/`, `protocol/`) use relative **`.js`** emit names under `"type": "module"` + `nodenext`. Vite-owned `src/web/ui/**` uses **extensionless** relatives (`bundler` resolution). Style follows the importing file’s zone (UI→protocol is extensionless). See [ADR-0024](./adr/0024-dual-import-resolution.md).
+**Import specifiers:** Nest-emitted graphs (`src/api/`, Nest web root, `host/`, `protocol/`) use relative **`.js`** emit names under `"type": "module"` + `nodenext`. Vite-owned `src/web/ui/**` uses **extensionless** relatives (`bundler` resolution). Style follows the importing file’s zone (UI→protocol is extensionless). See [ADR-0024](./adr/0024-dual-import-resolution.md). Product UI components use **one folder per component** with a thin `index.ts` barrel; island hydrate loaders import the concrete implementation file ([ADR-0025](./adr/0025-per-component-folders.md)).
 
 Prefer `.tsx` where the file is mostly a React tree (pages, islands, document, hydrate entry). Prefer plain `.ts` for Nest controllers, services, protocol props, registries, and tests. Specs stay `.ts` and use `createElement` when they need elements; a test may pass an explicit type argument (for example `Island<{ start: number }>`) so `component` and `props` still typecheck.
 
@@ -317,7 +317,7 @@ export const islandLoaders = {
 } as const;
 
 function loadMobileNavigationIsland() {
-  return import('../../islands/mobile-navigation');
+  return import('../../islands/mobile-navigation/mobile-navigation');
 }
 ```
 
@@ -352,7 +352,7 @@ CSS ships in **three lanes**:
 <div data-island="mobile-navigation" data-props="…">…</div>
 ```
 
-**Icons:** Handpicked Bootstrap Icons SVGs in [`src/web/ui/shared-components/icon.tsx`](../src/web/ui/shared-components/icon.tsx) ([ADR-0016](./adr/0016-handpicked-bootstrap-icons.md)). Authoring: [how-to-web-ui.md](./how-to-web-ui.md#icons).
+**Icons:** Handpicked Bootstrap Icons SVGs in [`src/web/ui/shared-components/icon/`](../src/web/ui/shared-components/icon/) ([ADR-0016](./adr/0016-handpicked-bootstrap-icons.md)). Authoring: [how-to-web-ui.md](./how-to-web-ui.md#icons).
 
 Hydrating every island as soon as the entry loads (including below the fold) is still [TD-010](./known-tech-debt.md) for **JS**; CSS for used islands is already in the HTML.
 

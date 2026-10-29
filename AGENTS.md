@@ -103,9 +103,10 @@ When adding or changing browser-facing pages under `src/web/`:
 
 - Follow [docs/how-to-web-ui.md](docs/how-to-web-ui.md) for the SSR vs island vs CSS-module decision tree and anti-patterns.
 - Prefer `pnpm scaffold:web-ui` or the `create-web-ui` agent skill over hand-wiring registry, loaders, and entry-server maps. Layout: Nest `host/`, Vite `ui/`, wire `protocol/` ([ADR-0023](docs/adr/0023-web-host-ui-protocol.md)).
+- Product UI uses **one folder per component** with a kebab implementation file and thin `index.ts` re-export ([ADR-0025](docs/adr/0025-per-component-folders.md)); no fat barrels or component-as-only-`index.tsx`. Island registry imports the concrete `.tsx` path helpers share with the manifest key.
 - Page SSR embed props go under `src/web/protocol/page-props/*-page.ssr-props.ts` (`*PageSsrProps`) — never beside `ui/pages/` (see how-to SSR page props quirk).
-- Shell CSS lives in `src/web/ui/styles/shell.scss`; island styles use `*.module.scss` beside the island and are inlined as sibling `<style>` tags at SSR — do not invent a parallel delivery path.
-- Icons: handpick Bootstrap Icons SVGs into `src/web/ui/shared-components/icon.tsx` and render `<Icon name="…" />` from server-components or islands — do not ship the icon webfont or paste one-off SVGs (see [docs/how-to-web-ui.md](docs/how-to-web-ui.md#icons)).
+- Shell CSS lives in `src/web/ui/styles/shell.scss`; island styles use colocated `*.module.scss` and are inlined as sibling `<style>` tags at SSR — do not invent a parallel delivery path.
+- Icons: handpick Bootstrap Icons SVGs into `src/web/ui/shared-components/icon/` and render `<Icon name="…" />` from server-components or islands — do not ship the icon webfont or paste one-off SVGs (see [docs/how-to-web-ui.md](docs/how-to-web-ui.md#icons)).
 
 ## 9. GitHub CLI and git remotes (Cursor agent shell)
 
