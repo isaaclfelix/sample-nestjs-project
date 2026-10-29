@@ -1,4 +1,4 @@
-import { stripCssAssetPathsFromCode } from './vite-strip-island-css-preload.js';
+import { stripCssAssetPathsFromCode } from './vite-strip-island-css-preload';
 
 describe('stripCssAssetPathsFromCode', () => {
   const input =

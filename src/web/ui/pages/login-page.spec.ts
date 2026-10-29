@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { createElement } from 'react';
-import { CSRF_META_NAME } from '../../../api/auth/session.constants.js';
-import { LoginPage } from './login-page.js';
+import { CSRF_META_NAME } from '../../../api/auth/session.constants';
+import { LoginPage } from './login-page';
 
 describe('LoginPage', () => {
   beforeEach(() => {

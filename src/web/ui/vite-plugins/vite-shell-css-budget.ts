@@ -3,7 +3,7 @@ import type { Plugin } from 'vite';
 import {
   DEFAULT_SHELL_CSS_BUDGET_BYTES,
   shellCssBudgetBytes,
-} from '../../protocol/shell-css-budget.js';
+} from '../../protocol/shell-css-budget';
 
 export { DEFAULT_SHELL_CSS_BUDGET_BYTES, shellCssBudgetBytes };
 

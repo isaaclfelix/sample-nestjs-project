@@ -4,7 +4,7 @@ import {
   islandCssModuleUrl,
   isIslandName,
   type IslandName,
-} from '../../../protocol/island-css-catalog.js';
+} from '../../../protocol/island-css-catalog';
 
 /**
  * Default export of a client island module.
@@ -21,7 +21,7 @@ export interface IslandModule {
  * @returns {Promise<IslandModule>} The mobile-navigation module.
  */
 function loadMobileNavigationIsland(): Promise<IslandModule> {
-  return import('../../islands/mobile-navigation.js') as Promise<IslandModule>;
+  return import('../../islands/mobile-navigation') as Promise<IslandModule>;
 }
 
 /**
@@ -30,7 +30,7 @@ function loadMobileNavigationIsland(): Promise<IslandModule> {
  * @returns {Promise<IslandModule>} The login-form module.
  */
 function loadLoginFormIsland(): Promise<IslandModule> {
-  return import('../../islands/login-form.js') as Promise<IslandModule>;
+  return import('../../islands/login-form') as Promise<IslandModule>;
 }
 
 /**
@@ -39,7 +39,7 @@ function loadLoginFormIsland(): Promise<IslandModule> {
  * @returns {Promise<IslandModule>} The register-form module.
  */
 function loadRegisterFormIsland(): Promise<IslandModule> {
-  return import('../../islands/register-form.js') as Promise<IslandModule>;
+  return import('../../islands/register-form') as Promise<IslandModule>;
 }
 
 /**
@@ -48,7 +48,7 @@ function loadRegisterFormIsland(): Promise<IslandModule> {
  * @returns {Promise<IslandModule>} The logout-button module.
  */
 function loadLogoutButtonIsland(): Promise<IslandModule> {
-  return import('../../islands/logout-button.js') as Promise<IslandModule>;
+  return import('../../islands/logout-button') as Promise<IslandModule>;
 }
 
 /**

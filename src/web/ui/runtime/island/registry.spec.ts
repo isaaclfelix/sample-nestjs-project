@@ -1,4 +1,4 @@
-import { islandCssModuleUrl, islandLoaders, isIslandName } from './registry.js';
+import { islandCssModuleUrl, islandLoaders, isIslandName } from './registry';
 
 describe('island registry', () => {
   it('recognizes registered island names', () => {

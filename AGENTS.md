@@ -95,6 +95,7 @@ Follow these conventions when adding or refactoring application code so reviews 
 - CLI scripts and seeds that need app crypto **import** shared modules (for example `src/api/common/password.ts`); do not duplicate hashing or verification.
 - Nest wrappers around vendor clients use **composition** (own a `client` / dependency field), not `extends`, unless there is a documented exception. `PrismaService` owns `PrismaClient`.
 - **One interface/type per file is not required.** Port-related types may live next to the port that uses them (for example `CreateUserRecord` beside `UserRepository`).
+- **Relative import extensions** follow the zone ([ADR-0024](docs/adr/0024-dual-import-resolution.md)): Nest-emitted code (`src/api/`, `src/web/host/`, `src/web/protocol/`, Nest web root) keeps **`.js`** emit specifiers; Vite `src/web/ui/**` uses **extensionless** relatives. Do not “normalize” UI imports to Nest style or strip `.js` from `api/`.
 
 ## 8. Web UI (SSR pages and islands)
 

@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
-import { assignLocation } from '../api-fetch/assign-location.js';
-import { useApiMutation } from '../hooks/use-api-mutation.js';
+import { assignLocation } from '../api-fetch/assign-location';
+import { useApiMutation } from '../hooks/use-api-mutation';
 
 /**
  * Logout control that clears the session then navigates to login.

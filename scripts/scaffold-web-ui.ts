@@ -166,7 +166,7 @@ export interface ${propsName} {
 `;
 
   const component = `import type { ReactElement } from 'react';
-import type { ${propsName} } from '../../protocol/page-props/${plan.name}-page.ssr-props.js';
+import type { ${propsName} } from '../../protocol/page-props/${plan.name}-page.ssr-props';
 
 /**
  * Renders the ${plan.name} page body.
@@ -286,7 +286,7 @@ export function patchIslandRegistry(
  * @returns {Promise<IslandModule>} The ${plan.name} module.
  */
 function load${plan.pascalName}Island(): Promise<IslandModule> {
-  return import('../../islands/${plan.name}.js') as Promise<IslandModule>;
+  return import('../../islands/${plan.name}') as Promise<IslandModule>;
 }
 `;
 

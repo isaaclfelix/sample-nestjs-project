@@ -73,7 +73,7 @@ After cloning, run **`pnpm install`** so the `prepare` script installs Husky hoo
 
 ## Formatting and lint
 
-Code style is **[Prettier](https://prettier.io/)** (see [`.prettierrc`](./.prettierrc)). Indent, charset, and line endings are also declared in [`.editorconfig`](./.editorconfig) for editors that do not run Prettier. Lint is **[oxlint](https://oxc.rs/docs/guide/usage/linter)** with the **correctness** category as errors and `--type-aware --deny-warnings` (warnings fail the check). See [AGENTS.md](./AGENTS.md) for agent rules.
+Code style is **[Prettier](https://prettier.io/)** (see [`.prettierrc`](./.prettierrc)). Indent, charset, and line endings are also declared in [`.editorconfig`](./.editorconfig) for editors that do not run Prettier. Lint is **[oxlint](https://oxc.rs/docs/guide/usage/linter)** with the **correctness** category as errors and `--type-aware --deny-warnings` (warnings fail the check). Relative import extensions are dual-style: Nest-emitted code keeps `.js` emit specifiers; Vite `src/web/ui/**` is extensionless ([ADR-0024](./docs/adr/0024-dual-import-resolution.md)). See [AGENTS.md](./AGENTS.md) for agent rules.
 
 ### Editor setup (Cursor / VS Code)
 

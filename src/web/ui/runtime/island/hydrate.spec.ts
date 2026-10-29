@@ -1,9 +1,9 @@
 import { act, createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import userEvent from '@testing-library/user-event';
-import { hydrateIslands } from './hydrate.js';
-import { Island } from './island.js';
-import MobileNavigation from '../../islands/mobile-navigation.js';
+import { hydrateIslands } from './hydrate';
+import { Island } from './island';
+import MobileNavigation from '../../islands/mobile-navigation';
 
 describe('hydrate islands', () => {
   it('opens the mobile navigation drawer when the toggle is clicked', async () => {

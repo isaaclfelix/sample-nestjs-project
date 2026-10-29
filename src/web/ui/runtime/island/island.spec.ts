@@ -1,10 +1,6 @@
 import { createElement, Fragment, type ReactElement } from 'react';
 import { renderToString } from 'react-dom/server';
-import {
-  Island,
-  IslandCssContext,
-  type IslandCssContextValue,
-} from './island.js';
+import { Island, IslandCssContext, type IslandCssContextValue } from './island';
 
 /**
  * Minimal island body for SSR style-tag tests.
