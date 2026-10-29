@@ -13,7 +13,7 @@ We also wanted a clear home for island **runtime** (marker, registry, props code
 
 - Keep **product islands** under `src/web/islands/` (component + optional `*.module.scss`), side by side with `server-components/`.
 - Put island **runtime** under `src/web/island-runtime/`: `Island` + CSS/name contexts, lazy `registry`, `island-props`, and the hydrate browser entry.
-- Keep **browser fetch helpers** under slim `src/web/client/` (`csrf`, `apiRequestDefaults`) for hooks and islands to import; they are not island runtime.
+- Keep **browser fetch helpers** under slim `src/web/api-fetch/` (`csrf`, `apiRequestDefaults`) for hooks and islands to import; they are not island runtime.
 
 ## Consequences
 

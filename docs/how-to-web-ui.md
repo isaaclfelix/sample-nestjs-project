@@ -75,7 +75,7 @@ Do **not** add icons ad hoc inside a single island or page when others will need
 Login/register use react-hook-form + Zod and `useApiMutation`:
 
 - Prefer `formState.isSubmitting` for form pending UI; use the mutation hook’s `isPending` only for non-form islands (e.g. logout).
-- Spread `apiRequestDefaults` and `...getCsrfTokenHeader()` into native `fetch` (helpers in `src/web/client/`; hook in `src/web/hooks/`).
+- Spread `apiRequestDefaults` and `...getCsrfTokenHeader()` into native `fetch` (helpers in `src/web/api-fetch/`; hook in `src/web/hooks/`).
 - Import shared schemas from `src/shared/schemas/` and API DTOs under `src/api/.../dto` rather than duplicating password/username rules.
 - Form-level API errors: plain colored text (`.form-api-error`), not Bootstrap alerts.
 - See [architecture.md — Frontend contract](./architecture.md#frontend-contract-islands--api) for status codes and redirects. Browser UI-state tests are TD-025.
