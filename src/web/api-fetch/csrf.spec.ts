@@ -1,4 +1,3 @@
-// @vitest-environment happy-dom
 import { CSRF_META_NAME } from '../../api/auth/session.constants.js';
 import { getCsrfToken, getCsrfTokenHeader } from './csrf.js';
 

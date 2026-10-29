@@ -1,20 +1,15 @@
-import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
+import { browserUnitSpecGlobs } from './vitest.config.browser.js';
+import { sharedVitestViteConfig } from './vitest.shared.js';
 
 export default defineConfig({
-  plugins: [react()],
-  // Resolves the path aliases declared in tsconfig.json, including the ones
-  // added by `nest g library`. Requires Vite 8, which ships this option.
-  resolve: { tsconfigPaths: true },
   test: {
-    globals: true,
-    root: './',
-    include: ['**/*.spec.ts'],
+    // Run-level coverage applies across node + browser unit projects.
     coverage: {
       provider: 'v8',
       reportsDirectory: './coverage',
       reporter: ['text', 'html', 'lcov', 'json-summary', 'json'],
-      // App source only; Nest wiring and bootstrap are excluded as low-value noise.
+      // App source only; product React (.tsx) joins coverage when island specs land.
       include: ['src/**/*.ts'],
       exclude: [
         'src/main.ts',
@@ -40,5 +35,22 @@ export default defineConfig({
         lines: 96,
       },
     },
+    projects: [
+      {
+        ...sharedVitestViteConfig(),
+        test: {
+          name: 'node',
+          globals: true,
+          root: './',
+          include: ['**/*.spec.ts'],
+          exclude: [
+            '**/node_modules/**',
+            '**/dist/**',
+            ...browserUnitSpecGlobs,
+          ],
+        },
+      },
+      './vitest.config.browser.ts',
+    ],
   },
 });

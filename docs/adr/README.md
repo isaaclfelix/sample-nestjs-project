@@ -43,3 +43,4 @@ Current wiring and behavior live in [architecture.md](../architecture.md). That 
 | ADR-0018 | Island product modules vs `island-runtime/`                    | Accepted               | [0018-island-runtime-folder.md](./0018-island-runtime-folder.md)                       |
 | ADR-0019 | `src/web/` folder grouping after islands                       | Superseded by ADR-0020 | [0019-web-folder-grouping.md](./0019-web-folder-grouping.md)                           |
 | ADR-0020 | `src/web/runtime/` engines and styles shell                    | Accepted               | [0020-web-runtime-folder.md](./0020-web-runtime-folder.md)                             |
+| ADR-0021 | Vitest browser UI testing and in-repo QA ownership             | Accepted               | [0021-vitest-browser-ui-testing.md](./0021-vitest-browser-ui-testing.md)               |

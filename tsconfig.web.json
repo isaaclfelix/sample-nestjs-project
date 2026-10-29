@@ -7,14 +7,20 @@
     "declaration": false,
     "jsx": "react-jsx",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
-    "types": ["vite/client", "vitest/globals", "node"]
+    "types": [
+      "vite/client",
+      "vitest/globals",
+      "node",
+      "@testing-library/jest-dom"
+    ]
   },
   "include": [
     "src/web/**/*.ts",
     "src/web/**/*.tsx",
     "src/web/**/*.d.ts",
     "src/shared/**/*.ts",
-    "src/api/auth/session.ts"
+    "src/api/auth/session.ts",
+    "test/vitest-browser-setup.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }
