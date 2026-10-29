@@ -6,7 +6,7 @@ import type { UserResponseDto } from '../../api/user/dto/user-response.dto.js';
 import { useApiMutation } from '../hooks/use-api-mutation.js';
 
 /**
- * Maps a failed login HTTP status to a user-visible form alert.
+ * Maps a failed login HTTP status to a user-visible form error message.
  *
  * @param {number} status - Response status from the login mutation.
  * @returns {string} Message to show above the fields.
@@ -67,9 +67,9 @@ export default function LoginForm(): ReactElement {
   return (
     <form onSubmit={onSubmit} noValidate>
       {formError !== null ? (
-        <div className="alert alert-danger" role="alert">
+        <p className="form-api-error mb-3" role="alert">
           {formError}
-        </div>
+        </p>
       ) : null}
 
       <div className="mb-3">
