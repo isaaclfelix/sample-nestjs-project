@@ -26,3 +26,7 @@ Islands must hydrate safely from SSR markers. Props cross an HTML attribute boun
 - Eager import of all islands in hydrate — ships unused JS.
 - Shared React context across islands now — real design work without a product need.
 - Non-JSON props in markers — unsafe/fragile across HTML attributes.
+
+## Note
+
+Folder layout for product islands vs registry / marker / hydrate plumbing was decided in [ADR-0018](./0018-island-runtime-folder.md) ([TD-019](../known-tech-debt.md) closed). Broader `src/web/` root grouping remains [TD-020](../known-tech-debt.md).

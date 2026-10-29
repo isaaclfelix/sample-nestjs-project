@@ -1,8 +1,11 @@
 import type { ReactElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { Document } from './document.js';
-import { IslandCssContext, IslandNamesContext } from './islands/island.js';
-import type { IslandName } from './islands/registry.js';
+import {
+  IslandCssContext,
+  IslandNamesContext,
+} from './island-runtime/island.js';
+import type { IslandName } from './island-runtime/registry.js';
 import type { PageAssets } from './page-assets.js';
 import { HomePage } from './pages/home-page.js';
 import { LoginPage } from './pages/login-page.js';

@@ -13,7 +13,7 @@ import {
   isIslandName,
   type IslandName,
   islandCssModuleUrl,
-} from './islands/registry.js';
+} from './island-runtime/registry.js';
 import type { PageStylesheetName } from './page-stylesheets.js';
 import { chooseShellDelivery } from './shell-css-delivery.js';
 import { shellCssBudgetBytes } from './vite-shell-css-budget.js';

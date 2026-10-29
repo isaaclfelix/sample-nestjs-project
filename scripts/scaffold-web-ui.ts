@@ -283,7 +283,7 @@ export function patchIslandRegistry(
  * @returns {Promise<IslandModule>} The ${plan.name} module.
  */
 function load${plan.pascalName}Island(): Promise<IslandModule> {
-  return import('./${plan.name}.js') as Promise<IslandModule>;
+  return import('../islands/${plan.name}.js') as Promise<IslandModule>;
 }
 `;
 
@@ -375,7 +375,7 @@ export async function applyScaffoldPlan(
     written.push(moduleAbs);
   }
 
-  const registryAbs = join(rootDir, 'src/web/islands/registry.ts');
+  const registryAbs = join(rootDir, 'src/web/island-runtime/registry.ts');
   const registryBefore = await readFile(registryAbs, 'utf8');
   const registryAfter = patchIslandRegistry(registryBefore, plan);
   await writeFile(registryAbs, registryAfter, 'utf8');
@@ -488,7 +488,7 @@ Next steps:
 Next steps:
   Render on a page:
     import ${plan.pascalName} from '../islands/${plan.name}.js';
-    import { Island } from '../islands/island.js';
+    import { Island } from '../island-runtime/island.js';
     <Island name="${plan.name}" component={${plan.pascalName}} props={{}} />
 
   CSS is inlined as a sibling <style> at SSR when cssModulePath is set.

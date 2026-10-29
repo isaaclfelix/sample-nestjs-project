@@ -20,12 +20,12 @@ flowchart TD
   ssr --> html[HTML document]
 ```
 
-| Surface     | Owner           | Examples                                       | Response                                               |
-| ----------- | --------------- | ---------------------------------------------- | ------------------------------------------------------ |
-| JSON API    | `src/api`       | `GET /api`, `POST /api/user`, `GET /api/docs`  | JSON, or the hello string                              |
-| HTML pages  | `src/web`       | `GET /`                                        | `text/html`                                            |
-| Dev assets  | Vite middleware | `/@vite/client`, `/src/web/client/hydrate.tsx` | Modules, only when `NODE_ENV` is not `production`      |
-| Prod assets | `dist/client`   | `/assets/...`                                  | Built client files, `index: false` so `/` stays a page |
+| Surface     | Owner           | Examples                                               | Response                                               |
+| ----------- | --------------- | ------------------------------------------------------ | ------------------------------------------------------ |
+| JSON API    | `src/api`       | `GET /api`, `POST /api/user`, `GET /api/docs`          | JSON, or the hello string                              |
+| HTML pages  | `src/web`       | `GET /`                                                | `text/html`                                            |
+| Dev assets  | Vite middleware | `/@vite/client`, `/src/web/island-runtime/hydrate.tsx` | Modules, only when `NODE_ENV` is not `production`      |
+| Prod assets | `dist/client`   | `/assets/...`                                          | Built client files, `index: false` so `/` stays a page |
 
 `GET /user` and `GET /docs` are not aliases. They 404. Swagger UI is `/api/docs`. The raw spec is `/api/docs-json`.
 
@@ -57,8 +57,10 @@ src/
     entry-server.tsx      page map and renderToString
     document.tsx
     pages/                server-only page components and their prop types
-    islands/              island components, marker, lazy registry
-    client/hydrate.tsx    browser entry
+    ssr-components/       server-only presentational pieces
+    islands/              product island components (+ optional *.module.scss)
+    island-runtime/       Island marker, lazy registry, props codec, hydrate entry
+    client/               browser fetch helpers (CSRF, apiRequestDefaults)
 ```
 
 `tsconfig.build.json` excludes `src/web/**/*.tsx`, so `nest build` never compiles React. The views use `src/web/tsconfig.json` (extends root `tsconfig.web.json`) so the editor’s nearest-config walk finds Vite/`vite/client` types for `*.css` and DOM. The repo-root `tsconfig.json` stays on Nest/API `.ts` sources and excludes `src/web/client/**`. `pnpm build` still runs `tsc -p tsconfig.web.json --noEmit`. Vite emits the bundles that actually run. See [ADR-0017](./adr/0017-dual-typescript-build.md).
@@ -229,14 +231,14 @@ sequenceDiagram
 
 ### Roles
 
-| Piece                | Responsibility                                                    |
-| -------------------- | ----------------------------------------------------------------- |
-| `WebController`      | Chooses the page name and builds JSON props. Sets `text/html`.    |
-| `WebViewService`     | Loads the server entry and asks it to render.                     |
-| `entry-server.tsx`   | Maps the page name to a React component and renders the document. |
-| Page component       | Server-only body. May place islands in the tree.                  |
-| `Island`             | Server-renders the component and writes the hydration marker.     |
-| `client/hydrate.tsx` | Browser entry. Hydrates markers and nothing else.                 |
+| Piece                        | Responsibility                                                    |
+| ---------------------------- | ----------------------------------------------------------------- |
+| `WebController`              | Chooses the page name and builds JSON props. Sets `text/html`.    |
+| `WebViewService`             | Loads the server entry and asks it to render.                     |
+| `entry-server.tsx`           | Maps the page name to a React component and renders the document. |
+| Page component               | Server-only body. May place islands in the tree.                  |
+| `Island`                     | Server-renders the component and writes the hydration marker.     |
+| `island-runtime/hydrate.tsx` | Browser entry. Hydrates markers and nothing else.                 |
 
 Props types live in `.ts` files (`home-page.props.ts`). The controller imports those types, not the component.
 
@@ -307,7 +309,7 @@ export const islandLoaders = {
 } as const;
 
 function loadMobileNavigationIsland() {
-  return import('./mobile-navigation.js');
+  return import('../islands/mobile-navigation.js');
 }
 ```
 
@@ -315,7 +317,7 @@ Vite emits a separate chunk per dynamic `import()`. `assetTagsFromManifest` emit
 
 The registry's `isIslandName` check uses `hasOwnProperty`. An unknown name throws before hydration.
 
-The product island today is `mobile-navigation` (drawer + toggle), rendered from SSR Navigation inside Layout. Folder-layout cleanup: [TD-019](./known-tech-debt.md), [TD-020](./known-tech-debt.md).
+Product islands live under `islands/`; marker, registry, props codec, and hydrate live under `island-runtime/` ([ADR-0018](./adr/0018-island-runtime-folder.md); [TD-019](./known-tech-debt.md) closed). Broader `src/web/` root grouping remains [TD-020](./known-tech-debt.md).
 
 ### Styles
 
@@ -352,7 +354,7 @@ Hydrating every island as soon as the entry loads (including below the fold) is 
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | How it starts                            | `pnpm start` / `start:dev`                                                                                                                                                                                                                                                      | `NODE_ENV=production` via `pnpm start:prod`                                                                                                               |
 | SSR                                      | Vite middleware mode, `ssrLoadModule`                                                                                                                                                                                                                                           | `dist/web-server/entry-server.js`                                                                                                                         |
-| Client scripts when an island is present | `/@id/@vitejs/plugin-react/preamble`, `/@vite/client`, `/src/web/client/hydrate.tsx`                                                                                                                                                                                            | Manifest entry and its static imports, under `/`                                                                                                          |
+| Client scripts when an island is present | `/@id/@vitejs/plugin-react/preamble`, `/@vite/client`, `/src/web/island-runtime/hydrate.tsx`                                                                                                                                                                                    | Manifest entry and its static imports, under `/`                                                                                                          |
 | Styles                                   | Shell `<link href="/src/web/styles.scss">` plus `/@vite/client`. Opt-in siblings (e.g. forms) as extra `<link>`s when the page opts in. Island CSS inlined as sibling `<style>`; Vite client inject is rewritten to update that sibling (no `data-vite-dev-id` head duplicate). | Shell `<style>` or `<link>` by raw-size budget. Opt-in siblings as `<link>`s. Island CSS inlined as sibling `<style>`; hydrate mapDeps has no island CSS. |
 | Static files                             | Vite serves source                                                                                                                                                                                                                                                              | `express.static` on `dist/client`, with `index: false`                                                                                                    |
 

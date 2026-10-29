@@ -40,3 +40,4 @@ Current wiring and behavior live in [architecture.md](../architecture.md). That 
 | ADR-0015 | Island CSS as SSR sibling style tags                           | Accepted | [0015-island-css-sibling-style.md](./0015-island-css-sibling-style.md)                 |
 | ADR-0016 | Handpicked Bootstrap Icons SVGs                                | Accepted | [0016-handpicked-bootstrap-icons.md](./0016-handpicked-bootstrap-icons.md)             |
 | ADR-0017 | Dual TypeScript and build ownership (Nest vs Vite)             | Accepted | [0017-dual-typescript-build.md](./0017-dual-typescript-build.md)                       |
+| ADR-0018 | Island product modules vs `island-runtime/`                    | Accepted | [0018-island-runtime-folder.md](./0018-island-runtime-folder.md)                       |
