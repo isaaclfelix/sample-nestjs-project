@@ -1,6 +1,25 @@
 # How to add web UI (pages, islands, styles)
 
-Canonical decision tree for HTML UI in this Nest + islands app. Follow it when scaffolding by hand, via `pnpm scaffold:web-ui`, or with the `create-web-ui` agent skill. Delivery mechanics: [architecture.md](./architecture.md#styles). Why three lanes / forms sibling / island `<style>`: [ADR-0013](./adr/0013-css-three-lanes.md), [ADR-0014](./adr/0014-forms-sibling-stylesheet.md), [ADR-0015](./adr/0015-island-css-sibling-style.md).
+Canonical decision tree for HTML UI in this Nest + islands app. Follow it when scaffolding by hand, via `pnpm scaffold:web-ui`, or with the `create-web-ui` agent skill. Delivery mechanics: [architecture.md](./architecture.md#styles). Why three lanes / forms sibling / island `<style>`: [ADR-0013](./adr/0013-css-three-lanes.md), [ADR-0014](./adr/0014-forms-sibling-stylesheet.md), [ADR-0015](./adr/0015-island-css-sibling-style.md). Folder layout: [ADR-0018](./adr/0018-island-runtime-folder.md), [ADR-0020](./adr/0020-web-runtime-folder.md); tree in [architecture.md](./architecture.md).
+
+## Where things live (`src/web/`)
+
+| Path                      | Put here                                                                         |
+| ------------------------- | -------------------------------------------------------------------------------- |
+| `pages/`                  | Named SSR page components + prop types                                           |
+| `server-components/`      | Server-only presentational React, including editable `document.tsx` (HTML shell) |
+| `shared-components/`      | React used by both server-components and islands (e.g. icons)                    |
+| `islands/`                | Product interactive islands (+ optional `*.module.scss`)                         |
+| `runtime/island/`         | Island engine: marker, registry, props codec, hydrate entry                      |
+| `runtime/ssr/`            | `entry-server` + `page-loader` (not the document template)                       |
+| `runtime/asset-delivery/` | Head tags, page asset orchestration, stylesheet opt-in registry                  |
+| `styles/`                 | `shell.scss`, opt-in siblings (`forms.scss`), `_*.scss` partials                 |
+| `api-fetch/`              | Browser CSRF + `fetch` defaults for `/api`                                       |
+| `hooks/`                  | Island React hooks (e.g. `use-api-mutation`)                                     |
+| `vite-plugins/`           | Vite build plugins (shell budget, island CSS inject/preload)                     |
+| Nest files at root        | `web.module.ts`, `web.controller.ts`, `web-view.service.ts`                      |
+
+Do **not** put product UI under `runtime/`; do **not** put engines under `islands/` or `server-components/`.
 
 ## Decision tree
 
