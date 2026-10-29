@@ -50,8 +50,12 @@ describe('resolveScaffoldPlan', () => {
       mode: 'island',
       withStyles: true,
     });
-    expect(plan.islandModulePath).toBe('src/web/islands/my-widget.module.scss');
-    expect(plan.cssModulePath).toBe('/src/web/islands/my-widget.module.scss');
+    expect(plan.islandModulePath).toBe(
+      'src/web/ui/islands/my-widget.module.scss',
+    );
+    expect(plan.cssModulePath).toBe(
+      '/src/web/ui/islands/my-widget.module.scss',
+    );
     expect(plan.withStyles).toBe(true);
   });
 
@@ -71,8 +75,10 @@ describe('resolveScaffoldPlan', () => {
       mode: 'page',
       withStyles: false,
     });
-    expect(plan.pageComponentPath).toBe('src/web/pages/about-page.tsx');
-    expect(plan.pagePropsPath).toBe('src/web/pages/about-page.props.ts');
+    expect(plan.pageComponentPath).toBe('src/web/ui/pages/about-page.tsx');
+    expect(plan.pagePropsPath).toBe(
+      'src/web/protocol/page-props/about-page.ssr-props.ts',
+    );
   });
 });
 
@@ -115,7 +121,7 @@ export interface IslandRegistration {
 export const islandRegistry = {
   'mobile-navigation': {
     load: loadMobileNavigationIsland,
-    cssModulePath: '/src/web/islands/mobile-navigation.module.scss',
+    cssModulePath: '/src/web/ui/islands/mobile-navigation.module.scss',
   },
 } as const satisfies Record<string, IslandRegistration>;
 
@@ -134,7 +140,7 @@ export const islandLoaders = {
     expect(next).toContain('function loadToggleIsland');
     expect(next).toContain('toggle: {');
     expect(next).toContain(
-      "cssModulePath: '/src/web/islands/toggle.module.scss'",
+      "cssModulePath: '/src/web/ui/islands/toggle.module.scss'",
     );
     expect(next).toContain('toggle: loadToggleIsland');
   });
@@ -163,18 +169,18 @@ describe('applyScaffoldPlan', () => {
     const written = await applyScaffoldPlan(root, plan);
     expect(written).toHaveLength(2);
     const props = await readFile(join(root, plan.pagePropsPath), 'utf8');
-    expect(props).toContain('AboutPageProps');
+    expect(props).toContain('AboutPageSsrProps');
   });
 
   it('writes island files and patches registry', async () => {
     const root = await mkdtemp(join(tmpdir(), 'scaffold-web-ui-'));
     tempDirs.push(root);
-    await mkdir(join(root, 'src/web/islands'), { recursive: true });
-    await mkdir(join(root, 'src/web/runtime/island'), { recursive: true });
+    await mkdir(join(root, 'src/web/ui/islands'), { recursive: true });
+    await mkdir(join(root, 'src/web/ui/runtime/island'), { recursive: true });
     await writeFile(
-      join(root, 'src/web/runtime/island/registry.ts'),
+      join(root, 'src/web/ui/runtime/island/registry.ts'),
       `function loadMobileNavigationIsland(): Promise<IslandModule> {
-  return import('../islands/mobile-navigation.js') as Promise<IslandModule>;
+  return import('../../islands/mobile-navigation.js') as Promise<IslandModule>;
 }
 
 /**
@@ -217,7 +223,7 @@ export const islandLoaders = {
     );
     expect(moduleCss).toContain('.root');
     const registry = await readFile(
-      join(root, 'src/web/runtime/island/registry.ts'),
+      join(root, 'src/web/ui/runtime/island/registry.ts'),
       'utf8',
     );
     expect(registry).toContain('loadToggleIsland');
