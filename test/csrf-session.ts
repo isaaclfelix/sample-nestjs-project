@@ -72,6 +72,37 @@ export function withCsrf(
 }
 
 /**
+ * Reloads an HTML page with an existing `sid` cookie and reads a fresh CSRF meta.
+ *
+ * Defaults to `/` because `/login` and `/register` redirect authenticated users
+ * home (guest-only routes).
+ *
+ * @param {INestApplication<App>} app - Booted Nest e2e application.
+ * @param {string} cookie - Cookie header value (`sid=...`).
+ * @param {string} [pagePath='/'] - HTML path that still renders when authenticated.
+ * @returns {Promise<CsrfSession>} Cookie (unchanged) and CSRF from the page meta.
+ */
+export async function refreshCsrfSession(
+  app: INestApplication<App>,
+  cookie: string,
+  pagePath: string = '/',
+): Promise<CsrfSession> {
+  const page = await request(app.getHttpServer())
+    .get(pagePath)
+    .set('Cookie', cookie)
+    .expect(200);
+
+  const match = /<meta\b[^>]*\bname="csrf-token"[^>]*\bcontent="([^"]+)"/i.exec(
+    page.text,
+  );
+  if (!match?.[1]) {
+    throw new Error(`Expected csrf-token meta on ${pagePath}`);
+  }
+
+  return { cookie, csrfToken: match[1] };
+}
+
+/**
  * Registers and logs in, returning a CSRF session bound to that user.
  *
  * @param {INestApplication<App>} app - Booted Nest e2e application.
@@ -117,20 +148,11 @@ export async function obtainAuthenticatedSession(
   }
   const cookie = sidCookie.split(';')[0];
 
-  // Reload HTML with the new cookie so the meta matches the regenerated CSRF.
-  const page = await request(app.getHttpServer())
-    .get('/login')
-    .set('Cookie', cookie)
-    .expect(200);
-  const match = /<meta\b[^>]*\bname="csrf-token"[^>]*\bcontent="([^"]+)"/i.exec(
-    page.text,
-  );
-  if (!match?.[1]) {
-    throw new Error('Expected csrf-token meta after login');
-  }
+  // Reload home HTML with the new cookie so the meta matches regenerated CSRF.
+  const session = await refreshCsrfSession(app, cookie);
 
   return {
-    session: { cookie, csrfToken: match[1] },
+    session,
     userId: created.body.id as string,
   };
 }

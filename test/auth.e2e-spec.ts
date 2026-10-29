@@ -4,9 +4,11 @@ import { App } from 'supertest/types.js';
 import { createE2eApp } from './e2e-app.js';
 import {
   obtainCsrfSession,
+  refreshCsrfSession,
   withCsrf,
   type CsrfSession,
 } from './csrf-session.js';
+import { SESSION_COOKIE_NAME } from '../src/api/auth/session.constants.js';
 
 const validUser = {
   email: 'ada@example.com',
@@ -109,37 +111,17 @@ describe('AuthController (e2e)', () => {
     });
     expect(login.status).toBe(200);
 
-    // After login the CSRF token rotated; obtain a fresh page session for logout.
-    const afterLogin = await obtainCsrfSession(app, '/login');
-    // Prefer the cookie from login Set-Cookie when present.
     const loginCookies = login.headers['set-cookie'];
     const loginSet = Array.isArray(loginCookies)
       ? loginCookies
       : loginCookies
         ? [loginCookies]
         : [];
-    const sid = loginSet.find((c) => c.startsWith('sid='));
-    const session: CsrfSession = sid
-      ? {
-          cookie: sid.split(';')[0],
-          csrfToken: afterLogin.csrfToken,
-        }
-      : afterLogin;
+    const sid = loginSet.find((c) => c.startsWith(`${SESSION_COOKIE_NAME}=`));
+    expect(sid).toBeDefined();
 
-    // CSRF after regenerate must match the new session — load /login with the new cookie.
-    const page = await request(app.getHttpServer())
-      .get('/login')
-      .set('Cookie', session.cookie)
-      .expect(200);
-    const match =
-      /<meta\b[^>]*\bname="csrf-token"[^>]*\bcontent="([^"]+)"/i.exec(
-        page.text,
-      );
-    expect(match?.[1]).toBeDefined();
-    const authed: CsrfSession = {
-      cookie: session.cookie,
-      csrfToken: match![1],
-    };
+    // CSRF rotated on login; scrape meta from `/` (guest-only /login would 302).
+    const authed = await refreshCsrfSession(app, sid!.split(';')[0]);
 
     const logout = await withCsrf(
       request(app.getHttpServer()).post('/api/auth/logout'),
