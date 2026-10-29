@@ -71,6 +71,8 @@ src/
 
 `tsconfig.build.json` excludes `src/web/ui/**`, so `nest build` never emits the React app. `tsconfig.web.json` typechecks `ui/**` + `protocol/**`. Repo-root `tsconfig.json` excludes `src/web/ui/**`. `pnpm build` still runs `tsc -p tsconfig.web.json --noEmit`. Vite emits the bundles that actually run. See [ADR-0017](./adr/0017-dual-typescript-build.md) and [ADR-0023](./adr/0023-web-host-ui-protocol.md).
 
+**Import specifiers:** Nest-emitted graphs (`src/api/`, Nest web root, `host/`, `protocol/`) use relative **`.js`** emit names under `"type": "module"` + `nodenext`. Vite-owned `src/web/ui/**` uses **extensionless** relatives (`bundler` resolution). Style follows the importing file’s zone (UI→protocol is extensionless). See [ADR-0024](./adr/0024-dual-import-resolution.md).
+
 Prefer `.tsx` where the file is mostly a React tree (pages, islands, document, hydrate entry). Prefer plain `.ts` for Nest controllers, services, protocol props, registries, and tests. Specs stay `.ts` and use `createElement` when they need elements; a test may pass an explicit type argument (for example `Island<{ start: number }>`) so `component` and `props` still typecheck.
 
 ## JSON API
@@ -315,7 +317,7 @@ export const islandLoaders = {
 } as const;
 
 function loadMobileNavigationIsland() {
-  return import('../../islands/mobile-navigation.js');
+  return import('../../islands/mobile-navigation');
 }
 ```
 
