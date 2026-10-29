@@ -76,7 +76,16 @@ When a task has more than one logical slice, finish one slice, run the checks th
 - A slice is one Conventional Commit: one outcome, green checks, no secrets. Split unrelated work. Leave the tree usable after each commit.
 - Do not batch a multi-slice task into a single commit at the end.
 
-## 6. Module and import style
+## 6. Plans and architecture decisions (ADRs)
+
+There is no dedicated create-plan skill. When planning or executing work that locks a **durable architectural tradeoff** (folder layout, auth model, persistence choice, SSR/CSS contract, etc.):
+
+- Record it as an ADR under [`docs/adr/`](docs/adr/) in the **same change set** as the code (or immediately after), following [`docs/adr/README.md`](docs/adr/README.md) (template, index row, supersede rules).
+- Update [`docs/architecture.md`](docs/architecture.md) current-state (and how-to / AGENTS paths when they drift) so “how it works now” stays accurate.
+- Do **not** leave the decision only in a Cursor plan file, chat transcript, or PR description.
+- Skip ADRs for ephemeral implementation detail that is not a lasting tradeoff.
+
+## 7. Module and import style
 
 Follow these conventions when adding or refactoring application code so reviews do not re-litigate structure:
 
@@ -87,7 +96,7 @@ Follow these conventions when adding or refactoring application code so reviews 
 - Nest wrappers around vendor clients use **composition** (own a `client` / dependency field), not `extends`, unless there is a documented exception. `PrismaService` owns `PrismaClient`.
 - **One interface/type per file is not required.** Port-related types may live next to the port that uses them (for example `CreateUserRecord` beside `UserRepository`).
 
-## 7. Web UI (SSR pages and islands)
+## 8. Web UI (SSR pages and islands)
 
 When adding or changing browser-facing pages under `src/web/`:
 
@@ -96,7 +105,7 @@ When adding or changing browser-facing pages under `src/web/`:
 - Shell CSS lives in `src/web/styles/shell.scss`; island styles use `*.module.scss` beside the island and are inlined as sibling `<style>` tags at SSR — do not invent a parallel delivery path.
 - Icons: handpick Bootstrap Icons SVGs into `src/web/shared-components/icon.tsx` and render `<Icon name="…" />` from server-components or islands — do not ship the icon webfont or paste one-off SVGs (see [docs/how-to-web-ui.md](docs/how-to-web-ui.md#icons)).
 
-## 8. GitHub CLI and git remotes (Cursor agent shell)
+## 9. GitHub CLI and git remotes (Cursor agent shell)
 
 The user's IDE terminal can reach GitHub freely. The **agent Shell tool defaults to Cursor's network sandbox**, which injects `HTTP_PROXY` / `HTTPS_PROXY` / `ALL_PROXY` to a local allowlist proxy. That proxy **blocks `api.github.com`** (`CONNECT` 403). Without the proxy, DNS for `api.github.com` fails in the same sandbox.
 

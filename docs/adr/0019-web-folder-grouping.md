@@ -1,6 +1,6 @@
 # ADR-0019: `src/web/` folder grouping after islands
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0020](./0020-web-runtime-folder.md)
 - **Date:** 2026-10-29
 
 ## Context
@@ -12,7 +12,7 @@ Nest owns the HTML routes; the root of `src/web/` should stay the Nest module fa
 ## Decision
 
 - Keep **Nest wiring** at `src/web/` root: `web.module.ts`, `web.controller.ts`, `web-view.service.ts`.
-- Put **SSR React shell + loader** under `src/web/ssr/` (`document`, `entry-server`, `page-loader`). Dev SSR URL is `/src/web/runtime/ssr/entry-server.tsx`.
+- Put **SSR React shell + loader** under `src/web/ssr/` (`document`, `entry-server`, `page-loader`). Dev SSR URL is `/src/web/ssr/entry-server.tsx`.
 - Put **head asset helpers** under `src/web/assets/` (`asset-tags`, `page-assets`, `page-stylesheets`, `shell-css-delivery`).
 - Put **Vite plugins** under `src/web/vite-plugins/` (shell budget, strip island CSS preload, suppress island CSS inject).
 - Name product UI folders explicitly:
@@ -28,6 +28,7 @@ Nest owns the HTML routes; the root of `src/web/` should stay the Nest module fa
 - Cross-lane UI lives in `shared-components/`; server-only chrome in `server-components/`; browser API helpers in `api-fetch/`.
 - [TD-020](../known-tech-debt.md) is closed.
 - Scaffold, how-to, and architecture tree must use the new paths.
+- **Superseded:** second pass moved engines under `runtime/`, `document` into `server-components/`, and shell CSS to `styles/shell.scss` — see [ADR-0020](./0020-web-runtime-folder.md).
 
 ## Alternatives considered
 
