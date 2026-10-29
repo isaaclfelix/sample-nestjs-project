@@ -29,13 +29,15 @@ export default defineConfig({
         '**/node_modules/**',
         '**/dist/**',
       ],
-      // Floors locked ~2pts under measured baseline after include/exclude
+      // Floors locked under measured baseline after include/exclude
       // (logger.middleware + openapi.setup uncovered; see docs/testing-and-coverage.md).
+      // Branches stay at 99: `@Injectable()` decorator emit leaves a cond-expr
+      // branch that V8 attributes to the call site and cannot be hit in unit tests.
       thresholds: {
-        statements: 86,
-        branches: 100,
-        functions: 86,
-        lines: 87,
+        statements: 96,
+        branches: 99,
+        functions: 96,
+        lines: 96,
       },
     },
   },

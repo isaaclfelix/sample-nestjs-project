@@ -110,6 +110,28 @@ describe('AuthService', () => {
         ),
       ).rejects.toThrow('Invalid credentials');
     });
+
+    it('regenerates with a null previous id when the request has no session', async () => {
+      const stored = user();
+      users.findByEmailOrUsername.mockResolvedValue(stored);
+      vi.mocked(verifyPassword).mockResolvedValue(true);
+      sessions.regenerate.mockResolvedValue({
+        id: 'new-sid',
+        userId: stored.id,
+        csrfToken: 'new-csrf',
+        expiresAt: new Date('2030-01-01T00:00:00.000Z'),
+      });
+      const req = { session: undefined } as Request;
+      const res = { append: vi.fn() } as unknown as Response;
+
+      await service.login(
+        { identifier: 'ada@example.com', password: 'correct-horse' },
+        req,
+        res,
+      );
+
+      expect(sessions.regenerate).toHaveBeenCalledWith(null, stored.id);
+    });
   });
 
   describe('logout', () => {
@@ -129,6 +151,18 @@ describe('AuthService', () => {
       await service.logout(req, res);
 
       expect(sessions.destroy).toHaveBeenCalledWith('sid');
+      expect(append).toHaveBeenCalled();
+      expect(req.session).toBeUndefined();
+    });
+
+    it('clears the cookie without destroy when there is no session id', async () => {
+      const req = { session: undefined } as Request;
+      const append = vi.fn();
+      const res = { append } as unknown as Response;
+
+      await service.logout(req, res);
+
+      expect(sessions.destroy).not.toHaveBeenCalled();
       expect(append).toHaveBeenCalled();
       expect(req.session).toBeUndefined();
     });

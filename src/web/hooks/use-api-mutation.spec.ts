@@ -157,4 +157,17 @@ describe('useApiMutation', () => {
 
     expect(result).toEqual({ ok: true, status: 204, data: undefined });
   });
+
+  it('uses null data when the error body is not JSON', async () => {
+    fetchMock.mockResolvedValue(
+      new Response('not-json', {
+        status: 500,
+        headers: { 'Content-Type': 'text/plain' },
+      }),
+    );
+
+    const result = await runMutation({ path: '/api/auth/login', body: {} });
+
+    expect(result).toEqual({ ok: false, status: 500, data: null });
+  });
 });

@@ -40,6 +40,20 @@ describe('CsrfGuard', () => {
     expect(
       guard.canActivate(httpContext({ method: 'GET', path: '/api/user' })),
     ).toBe(true);
+    expect(
+      guard.canActivate(httpContext({ method: 'HEAD', path: '/api/user' })),
+    ).toBe(true);
+    expect(
+      guard.canActivate(httpContext({ method: 'OPTIONS', path: '/api/user' })),
+    ).toBe(true);
+  });
+
+  it('allows non-HTTP execution contexts', () => {
+    const context = {
+      getType: () => 'rpc',
+    } as ExecutionContext;
+
+    expect(guard.canActivate(context)).toBe(true);
   });
 
   it('allows non-API mutating methods without CSRF', () => {
@@ -73,6 +87,18 @@ describe('CsrfGuard', () => {
     ).toThrow(ForbiddenException);
   });
 
+  it('rejects when the session has no csrf token', () => {
+    expect(() =>
+      guard.canActivate(
+        httpContext({
+          method: 'POST',
+          path: '/api/user',
+          header: 'expected-token-value-12',
+        }),
+      ),
+    ).toThrow(ForbiddenException);
+  });
+
   it('allows mutating API calls when the header matches the session', () => {
     const token = 'expected-token-value-12';
     expect(
@@ -85,5 +111,23 @@ describe('CsrfGuard', () => {
         }),
       ),
     ).toBe(true);
+  });
+
+  it('accepts the first value when the CSRF header is an array', () => {
+    const token = 'expected-token-value-12';
+    const req = {
+      method: 'POST',
+      path: '/api/user',
+      session: { csrfToken: token },
+      headers: { [CSRF_HEADER_NAME]: [token, 'other'] },
+    };
+    const context = {
+      getType: () => 'http',
+      switchToHttp: () => ({
+        getRequest: () => req,
+      }),
+    } as ExecutionContext;
+
+    expect(guard.canActivate(context)).toBe(true);
   });
 });
