@@ -51,7 +51,7 @@ const shellStylesheetSource = 'src/web/styles/shell.scss';
 const viteClientDev = '/@vite/client';
 
 /** Manifest key for the browser hydrate entry. */
-const hydrateEntrySource = 'src/web/island-runtime/hydrate.tsx';
+const hydrateEntrySource = 'src/web/runtime/island/hydrate.tsx';
 
 /**
  * Returns the production path of the Vite client manifest.
@@ -129,7 +129,7 @@ export function developmentAssetTags(): AssetTags {
       // Sets window.$RefreshReg$ before any island module evaluates.
       '/@id/@vitejs/plugin-react/preamble',
       viteClientDev,
-      '/src/web/island-runtime/hydrate.tsx',
+      '/src/web/runtime/island/hydrate.tsx',
     ],
   };
 }

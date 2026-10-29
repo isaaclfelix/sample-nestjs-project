@@ -51,8 +51,8 @@ flowchart TD
 
 1. Component under `src/web/islands/` with a default export and JSON-serializable props.
 2. Optional: `import styles from './name.module.scss'` and `styles/_tokens.scss` for Sass API only — never re-import the shell sheet or Bootstrap CSS-emitting partials (including forms/validation).
-3. Register in `island-runtime/registry.ts` (`islandRegistry` / `islandLoaders`) with `cssModulePath` when you have a module (dev SSR inlining).
-4. Render `<Island name="…" component={…} props={…} />` from a page (import `Island` from `island-runtime/island`). Do **not** wire CSS context yourself — the framework fills it after the name-collection pass and emits a sibling `<style data-css-island>` for used islands (deduped by name).
+3. Register in `runtime/island/registry.ts` (`islandRegistry` / `islandLoaders`) with `cssModulePath` when you have a module (dev SSR inlining).
+4. Render `<Island name="…" component={…} props={…} />` from a page (import `Island` from `runtime/island/island`). Do **not** wire CSS context yourself — the framework fills it after the name-collection pass and emits a sibling `<style data-css-island>` for used islands (deduped by name).
 5. Hydrate still loads **JS only** for that island; CSS was already inlined in the HTML.
 
 Scaffold: `pnpm scaffold:web-ui --name my-widget --mode island --with-styles` (or omit `--with-styles`). Agents: use `.agents/skills/create-web-ui/SKILL.md`.

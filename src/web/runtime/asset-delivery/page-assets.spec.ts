@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ClientManifest } from './asset-tags.js';
-import * as registry from '../island-runtime/registry.js';
+import * as registry from '../island/registry.js';
 import {
   createPageAssets,
   extractCssFromViteModule,
@@ -170,7 +170,7 @@ describe('createPageAssets island CSS', () => {
     writeFileSync(join(dir, 'island-small.css'), '._i{}');
 
     const manifest: ClientManifest = {
-      'src/web/island-runtime/hydrate.tsx': {
+      'src/web/runtime/island/hydrate.tsx': {
         file: 'assets/hydrate.js',
         isEntry: true,
       },

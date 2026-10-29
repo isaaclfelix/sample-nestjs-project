@@ -36,7 +36,7 @@ export default defineConfig(({ isSsrBuild }) => ({
           emptyOutDir: false,
           ssr: true,
           rollupOptions: {
-            input: 'src/web/ssr/entry-server.tsx',
+            input: 'src/web/runtime/ssr/entry-server.tsx',
           },
         }
       : {
@@ -45,7 +45,7 @@ export default defineConfig(({ isSsrBuild }) => ({
           manifest: true,
           rollupOptions: {
             input: {
-              hydrate: 'src/web/island-runtime/hydrate.tsx',
+              hydrate: 'src/web/runtime/island/hydrate.tsx',
               shell: 'src/web/styles/shell.scss',
               // Opt-in sibling; only pages that declare it get a head link.
               forms: 'src/web/styles/forms.scss',

@@ -12,13 +12,13 @@ We also wanted a clear home for island **runtime** (marker, registry, props code
 ## Decision
 
 - Keep **product islands** under `src/web/islands/` (component + optional `*.module.scss`), side by side with `server-components/`.
-- Put island **runtime** under `src/web/island-runtime/`: `Island` + CSS/name contexts, lazy `registry`, `island-props`, and the hydrate browser entry.
+- Put island **runtime** under `src/web/runtime/island/`: `Island` + CSS/name contexts, lazy `registry`, `island-props`, and the hydrate browser entry.
 - Keep **browser fetch helpers** under slim `src/web/api-fetch/` (`csrf`, `apiRequestDefaults`) for hooks and islands to import; they are not island runtime.
 
 ## Consequences
 
 - Authors look in `islands/` for interactive UI and in `island-runtime/` for framework wiring; scaffold and docs match that split.
-- Hydrate entry path is `/src/web/island-runtime/hydrate.tsx` (dev) / Vite `hydrate` input (prod).
+- Hydrate entry path is `/src/web/runtime/island/hydrate.tsx` (dev) / Vite `hydrate` input (prod).
 - Registry loaders dynamic-import `../islands/<name>.js`; `cssModulePath` stays under `/src/web/islands/…`.
 - [TD-019](../known-tech-debt.md) is closed. Broader `src/web/` root grouping is [ADR-0019](./0019-web-folder-grouping.md) ([TD-020](../known-tech-debt.md) closed).
 

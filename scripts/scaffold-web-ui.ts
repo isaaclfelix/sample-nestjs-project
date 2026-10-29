@@ -375,7 +375,7 @@ export async function applyScaffoldPlan(
     written.push(moduleAbs);
   }
 
-  const registryAbs = join(rootDir, 'src/web/island-runtime/registry.ts');
+  const registryAbs = join(rootDir, 'src/web/runtime/island/registry.ts');
   const registryBefore = await readFile(registryAbs, 'utf8');
   const registryAfter = patchIslandRegistry(registryBefore, plan);
   await writeFile(registryAbs, registryAfter, 'utf8');
@@ -479,7 +479,7 @@ async function main(): Promise<void> {
   if (plan.mode === 'page') {
     output.write(`
 Next steps:
-  1. Add "${plan.name}" to WebPageName and the pages map in src/web/ssr/entry-server.tsx
+  1. Add "${plan.name}" to WebPageName and the pages map in src/web/runtime/ssr/entry-server.tsx
   2. Add a WebController method that calls webViewService.render('${plan.name}', props)
   3. Style with shell classes only — see docs/how-to-web-ui.md
 `);
@@ -488,7 +488,7 @@ Next steps:
 Next steps:
   Render on a page:
     import ${plan.pascalName} from '../islands/${plan.name}.js';
-    import { Island } from '../island-runtime/island.js';
+    import { Island } from '../runtime/island/island.js';
     <Island name="${plan.name}" component={${plan.pascalName}} props={{}} />
 
   CSS is inlined as a sibling <style> at SSR when cssModulePath is set.

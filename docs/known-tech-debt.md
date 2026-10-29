@@ -22,7 +22,7 @@ DELETE `/api/user/:id` returning **204** whether or not the user existed is an i
 | TD-017 | Web CSS     | Threshold-aware shell inline vs link; island sibling `<style>` SSR; strip island CSS from hydrate mapDeps. Fixture tests cover shell modes. Shell Sass handpicked under the raw inline budget (no component SCSS).                         |
 | TD-009 | Web UI      | Demo counter island removed; `GET /` hydrates via the real `mobile-navigation` island instead.                                                                                                                                             |
 | TD-011 | Docs        | Formal ADRs under [`docs/adr/`](./adr/README.md) (template + index); founding decisions ADR-0001–ADR-0017 extracted; [architecture.md](./architecture.md) is current-state with ADR links.                                                 |
-| TD-019 | Web UI      | Product islands under `src/web/islands/`; marker, registry, props codec, and hydrate under `src/web/island-runtime/`; slim `api-fetch/` keeps CSRF / `apiRequestDefaults` only. Decision: [ADR-0018](./adr/0018-island-runtime-folder.md). |
+| TD-019 | Web UI      | Product islands under `src/web/islands/`; marker, registry, props codec, and hydrate under `src/web/runtime/island/`; slim `api-fetch/` keeps CSRF / `apiRequestDefaults` only. Decision: [ADR-0018](./adr/0018-island-runtime-folder.md). |
 | TD-020 | Web UI      | Nest stays at `src/web/` root; `ssr/`, `assets/`, `vite-plugins/`; `server-components/`, `shared-components/`, `api-fetch/`. Decision: [ADR-0019](./adr/0019-web-folder-grouping.md).                                                      |
 
 ## Open items

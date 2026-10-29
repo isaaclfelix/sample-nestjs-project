@@ -1,17 +1,17 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { setClientManifestReader } from './assets/asset-tags.js';
+import { setClientManifestReader } from './runtime/asset-delivery/asset-tags.js';
 import {
   loadServerEntry,
   setViteDevServer,
   type ServerEntry,
-} from './ssr/page-loader.js';
+} from './runtime/ssr/page-loader.js';
 import { WebViewService } from './web-view.service.js';
 
-vi.mock('./ssr/page-loader.js', async () => {
-  const actual = await vi.importActual<typeof import('./ssr/page-loader.js')>(
-    './ssr/page-loader.js',
-  );
+vi.mock('./runtime/ssr/page-loader.js', async () => {
+  const actual = await vi.importActual<
+    typeof import('./runtime/ssr/page-loader.js')
+  >('./runtime/ssr/page-loader.js');
 
   return {
     ...actual,
@@ -20,9 +20,9 @@ vi.mock('./ssr/page-loader.js', async () => {
 });
 
 async function restoreServerEntry(): Promise<void> {
-  const actual = await vi.importActual<typeof import('./ssr/page-loader.js')>(
-    './ssr/page-loader.js',
-  );
+  const actual = await vi.importActual<
+    typeof import('./runtime/ssr/page-loader.js')
+  >('./runtime/ssr/page-loader.js');
   vi.mocked(loadServerEntry).mockImplementation(actual.loadServerEntry);
 }
 
@@ -45,7 +45,7 @@ describe('WebViewService', () => {
     );
     expect(html).toContain('data-island="mobile-navigation"');
     expect(html).toContain('/src/web/styles/shell.scss');
-    expect(html).toContain('/src/web/island-runtime/hydrate.tsx');
+    expect(html).toContain('/src/web/runtime/island/hydrate.tsx');
     expect(html).not.toContain('assets/mobile-navigation.js');
   });
 
@@ -71,7 +71,7 @@ describe('WebViewService', () => {
       });
 
       expect(html).toBe(
-        '/@vite/client|/@id/@vitejs/plugin-react/preamble,/@vite/client,/src/web/island-runtime/hydrate.tsx',
+        '/@vite/client|/@id/@vitejs/plugin-react/preamble,/@vite/client,/src/web/runtime/island/hydrate.tsx',
       );
     } finally {
       process.env.VITEST = previous;
@@ -116,7 +116,7 @@ describe('WebViewService', () => {
     writeFileSync(shellPath, 'x'.repeat(50 * 1024 + 1));
 
     setClientManifestReader(() => ({
-      'src/web/island-runtime/hydrate.tsx': {
+      'src/web/runtime/island/hydrate.tsx': {
         file: 'assets/hydrate.js',
         isEntry: true,
         imports: ['_react.js'],
