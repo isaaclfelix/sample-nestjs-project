@@ -5,14 +5,13 @@ import {
   loadServerEntry,
   setViteDevServer,
   type ServerEntry,
-} from './page-loader.js';
+} from './ssr/page-loader.js';
 import { WebViewService } from './web-view.service.js';
 
-vi.mock('./page-loader.js', async () => {
-  const actual =
-    await vi.importActual<typeof import('./page-loader.js')>(
-      './page-loader.js',
-    );
+vi.mock('./ssr/page-loader.js', async () => {
+  const actual = await vi.importActual<typeof import('./ssr/page-loader.js')>(
+    './ssr/page-loader.js',
+  );
 
   return {
     ...actual,
@@ -21,10 +20,9 @@ vi.mock('./page-loader.js', async () => {
 });
 
 async function restoreServerEntry(): Promise<void> {
-  const actual =
-    await vi.importActual<typeof import('./page-loader.js')>(
-      './page-loader.js',
-    );
+  const actual = await vi.importActual<typeof import('./ssr/page-loader.js')>(
+    './ssr/page-loader.js',
+  );
   vi.mocked(loadServerEntry).mockImplementation(actual.loadServerEntry);
 }
 

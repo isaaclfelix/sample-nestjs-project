@@ -4,13 +4,13 @@ import { Document } from './document.js';
 import {
   IslandCssContext,
   IslandNamesContext,
-} from './island-runtime/island.js';
-import type { IslandName } from './island-runtime/registry.js';
-import type { PageAssets } from './assets/page-assets.js';
-import { HomePage } from './pages/home-page.js';
-import { LoginPage } from './pages/login-page.js';
-import type { PagePropsMap, WebPageName } from './pages/page-props.js';
-import { RegisterPage } from './pages/register-page.js';
+} from '../island-runtime/island.js';
+import type { IslandName } from '../island-runtime/registry.js';
+import type { PageAssets } from '../assets/page-assets.js';
+import { HomePage } from '../pages/home-page.js';
+import { LoginPage } from '../pages/login-page.js';
+import type { PagePropsMap, WebPageName } from '../pages/page-props.js';
+import { RegisterPage } from '../pages/register-page.js';
 
 const pages = {
   home: HomePage,

@@ -36,7 +36,7 @@ export default defineConfig(({ isSsrBuild }) => ({
           emptyOutDir: false,
           ssr: true,
           rollupOptions: {
-            input: 'src/web/entry-server.tsx',
+            input: 'src/web/ssr/entry-server.tsx',
           },
         }
       : {
