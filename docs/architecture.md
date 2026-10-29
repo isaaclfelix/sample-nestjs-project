@@ -165,14 +165,16 @@ sequenceDiagram
 
 ### Frontend contract (islands → API)
 
-Login/register islands are not wired yet. When they are (likely react-hook-form + Zod), follow this contract so client and server stay aligned:
+Login/register islands submit via `useApiMutation` (react-hook-form + Zod on the forms). Keep client and server aligned:
 
-1. Read `<meta name="csrf-token">` from the document.
-2. Call `/api/...` with `credentials: 'same-origin'` and header `X-CSRF-TOKEN` set to that value.
-3. Reuse shared Zod pieces from `src/shared/` (e.g. `passwordSchema`) and compose with API DTOs (`createUserSchema`, `loginSchema`) for client `safeParse` / RHF resolvers — do not re-state password rules in the island.
-4. Map HTTP outcomes to UI: **400** field errors from Zod, **409** uniqueness on register, **401** generic login failure (“Invalid credentials”), **403** missing/invalid CSRF, **429** throttle.
+1. Read `<meta name="csrf-token">` via `getCsrfToken` / `getCsrfTokenHeader` under `src/web/client/`.
+2. Call `/api/...` with native `fetch`, spreading `apiRequestDefaults` (`credentials: 'same-origin'`, JSON content type) and `...getCsrfTokenHeader()`.
+3. Reuse shared Zod pieces from `src/shared/schemas/` (e.g. `passwordSchema`, `emailSchema`) and compose with API DTOs (`createUserSchema`, `loginSchema`) for RHF resolvers — do not re-state field rules in the island.
+4. Map HTTP outcomes to UI: client Zod / **400** field errors, **409** uniqueness on register, **401** generic login failure (“Invalid credentials”), **403** missing/invalid CSRF, **429** throttle. Form-level API errors use plain colored text (`.form-api-error`), not Bootstrap alerts.
+5. Register succeeds with **201** then navigates to `/login` (no auto-login). Login succeeds with **200** then navigates to `/`. Logout is best-effort (always navigate home after the attempt).
+6. Nav auth chrome is SSR-driven from `req.session.userId` (`isAuthenticated` page prop). `/login` and `/register` redirect authenticated users to `/`.
 
-Browser-driven journey tests (Vitest browser mode / Playwright) are tracked as TD-025; current e2e is HTTP/supertest only.
+Browser-driven form UI-state and journey tests (Vitest browser mode / Playwright) are tracked as TD-025; current e2e is HTTP/supertest only.
 
 ### Persistence
 
