@@ -1,6 +1,6 @@
-// @vitest-environment happy-dom
-import { act, createElement, useState, type ReactElement } from 'react';
-import { createRoot, type Root } from 'react-dom/client';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { createElement, useState, type ReactElement } from 'react';
 import { CSRF_META_NAME } from '../../api/auth/session.constants.js';
 import { useApiMutation, type ApiMutationResult } from './use-api-mutation.js';
 
@@ -37,29 +37,17 @@ function MutateButton(props: {
 }
 
 describe('useApiMutation', () => {
-  let container: HTMLDivElement;
-  let root: Root;
   let fetchMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     document.head.innerHTML = `<meta name="${CSRF_META_NAME}" content="csrf-test" />`;
-    container = document.createElement('div');
-    document.body.appendChild(container);
-    // React 19 act() needs this flag under happy-dom.
-    (
-      globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
-    ).IS_REACT_ACT_ENVIRONMENT = true;
-    root = createRoot(container);
     fetchMock = vi.fn();
     vi.stubGlobal('fetch', fetchMock);
   });
 
   afterEach(() => {
-    act(() => {
-      root.unmount();
-    });
-    container.remove();
     document.head.innerHTML = '';
+    document.body.innerHTML = '';
     vi.unstubAllGlobals();
   });
 
@@ -74,25 +62,19 @@ describe('useApiMutation', () => {
     body?: unknown;
   }): Promise<ApiMutationResult<unknown>> {
     let result: ApiMutationResult<unknown> | undefined;
+    const user = userEvent.setup();
 
-    await act(async () => {
-      root.render(
-        createElement(MutateButton, {
-          path: options.path,
-          body: options.body,
-          onResult: (value) => {
-            result = value;
-          },
-        }),
-      );
-    });
+    render(
+      createElement(MutateButton, {
+        path: options.path,
+        body: options.body,
+        onResult: (value: ApiMutationResult<unknown>) => {
+          result = value;
+        },
+      }),
+    );
 
-    const button = container.querySelector('button');
-    expect(button).not.toBeNull();
-
-    await act(async () => {
-      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    });
+    await user.click(screen.getByRole('button', { name: 'go' }));
 
     expect(result).toBeDefined();
     return result as ApiMutationResult<unknown>;

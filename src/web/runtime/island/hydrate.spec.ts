@@ -1,6 +1,6 @@
-// @vitest-environment happy-dom
 import { act, createElement } from 'react';
 import { renderToString } from 'react-dom/server';
+import userEvent from '@testing-library/user-event';
 import { hydrateIslands } from './hydrate.js';
 import { Island } from './island.js';
 import MobileNavigation from '../../islands/mobile-navigation.js';
@@ -18,13 +18,14 @@ describe('hydrate islands', () => {
     await hydrateIslands(document);
 
     const button = document.querySelector('button');
-    expect(button?.getAttribute('aria-expanded')).toBe('false');
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveAttribute('aria-expanded', 'false');
 
     await act(async () => {
-      button?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await userEvent.click(button!);
     });
 
-    expect(button?.getAttribute('aria-expanded')).toBe('true');
+    expect(button).toHaveAttribute('aria-expanded', 'true');
   });
 
   it('throws when a marker names an unknown island', async () => {

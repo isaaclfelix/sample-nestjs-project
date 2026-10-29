@@ -6,6 +6,7 @@ import {
   type CreateUserDto,
 } from '../../api/user/dto/create-user.dto.js';
 import type { UserResponseDto } from '../../api/user/dto/user-response.dto.js';
+import { assignLocation } from '../api-fetch/assign-location.js';
 import { useApiMutation } from '../hooks/use-api-mutation.js';
 
 /**
@@ -70,7 +71,7 @@ export default function RegisterForm(): ReactElement {
       setFormError(null);
       const result = await mutate(values);
       if (result.ok) {
-        window.location.assign('/login');
+        assignLocation('/login');
         return;
       }
       setFormError(registerFormErrorMessage(result.status, result.data));
