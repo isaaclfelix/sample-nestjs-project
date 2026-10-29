@@ -4,22 +4,22 @@ Canonical decision tree for HTML UI in this Nest + islands app. Follow it when s
 
 ## Where things live (`src/web/`)
 
-| Path                                                  | Put here                                                                         |
-| ----------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Nest root (`web.module.ts`, controller, view service) | Nest wiring only                                                                 |
-| `host/`                                               | Nest-executed SSR host (`page-loader`, `asset-delivery`)                         |
-| `protocol/`                                           | Wire types/data: SSR page props, `ServerEntry`, `PageAssets`, island CSS catalog |
-| `protocol/page-props/`                                | `*-page.ssr-props.ts` + `SsrPagePropsMap` (not next to UI pages)                 |
-| `ui/pages/`                                           | Named SSR page components + specs (no Nest prop files)                           |
-| `ui/server-components/`                               | Server-only presentational React, including `document.tsx`                       |
-| `ui/shared-components/`                               | React shared by server-components and islands (e.g. icons)                       |
-| `ui/islands/`                                         | Product interactive islands (+ optional `*.module.scss`)                         |
-| `ui/runtime/island/`                                  | Island marker, loaders registry, props codec, hydrate entry                      |
-| `ui/runtime/ssr/`                                     | `entry-server` only                                                              |
-| `ui/styles/`                                          | `shell.scss`, opt-in siblings (`forms.scss`), `_*.scss` partials                 |
-| `ui/api-fetch/`                                       | Browser CSRF + `fetch` defaults for `/api`                                       |
-| `ui/hooks/`                                           | Island React hooks (e.g. `use-api-mutation`)                                     |
-| `ui/vite-plugins/`                                    | Vite build plugins                                                               |
+| Path                                                  | Put here                                                                                                            |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Nest root (`web.module.ts`, controller, view service) | Nest wiring only                                                                                                    |
+| `host/`                                               | Nest-executed SSR host (`page-loader`, `asset-delivery`)                                                            |
+| `protocol/`                                           | Wire types/data: SSR page props, `ServerEntry`, `PageAssets`, island CSS catalog                                    |
+| `protocol/page-props/`                                | `*-page.ssr-props.ts` + `SsrPagePropsMap` (not next to UI pages)                                                    |
+| `ui/pages/<name>-page/`                               | One folder per page: kebab `.tsx`, thin `index.ts`, optional spec ([ADR-0025](./adr/0025-per-component-folders.md)) |
+| `ui/server-components/<name>/`                        | One folder per server component (incl. `document/`) + thin `index.ts`                                               |
+| `ui/shared-components/<name>/`                        | One folder per shared component (e.g. `icon/`) + thin `index.ts`                                                    |
+| `ui/islands/<name>/`                                  | One folder per island: `.tsx`, optional `.module.scss` / spec, thin `index.ts`                                      |
+| `ui/runtime/island/`                                  | Island marker, loaders registry, props codec, hydrate entry                                                         |
+| `ui/runtime/ssr/`                                     | `entry-server` only                                                                                                 |
+| `ui/styles/`                                          | `shell.scss`, opt-in siblings (`forms.scss`), `_*.scss` partials                                                    |
+| `ui/api-fetch/`                                       | Browser CSRF + `fetch` defaults for `/api`                                                                          |
+| `ui/hooks/`                                           | Island React hooks (e.g. `use-api-mutation`)                                                                        |
+| `ui/vite-plugins/`                                    | Vite build plugins                                                                                                  |
 
 Do **not** put product UI under `host/`; do **not** put Nest-executed engines under `ui/`. Both may import `protocol/` only.
 
@@ -73,9 +73,9 @@ flowchart TD
 Pages are the Nest ↔ view boundary. Nest builds SSR embed props by page name and must **not** import page `.tsx` ([ADR-0017](./adr/0017-dual-typescript-build.md), [ADR-0023](./adr/0023-web-host-ui-protocol.md)).
 
 1. Add `src/web/protocol/page-props/<name>-page.ssr-props.ts` with a JSON-serializable `*PageSsrProps` interface. Keep it plain `.ts` — no React imports.
-2. Add `src/web/ui/pages/<name>-page.tsx` that imports that type from protocol and renders the page body (shell classes only; no CSS module).
+2. Add `src/web/ui/pages/<name>-page/<name>-page.tsx` plus thin `index.ts` re-export; import the SSR props type from protocol; shell classes only (no CSS module).
 3. Register the page in `src/web/protocol/page-props/page-props.ts`: add the type to `SsrPagePropsMap` (that also defines `WebPageName`).
-4. Map the page in `ui/runtime/ssr/entry-server.tsx` (`pages` object).
+4. Map the page in `ui/runtime/ssr/entry-server.tsx` (`pages` object) via the directory import.
 5. Add a `WebController` method that builds the props object (typed from `protocol/page-props/` only) and calls `webViewService.render('<name>', props, …)`. Do **not** import the page `.tsx` from Nest.
 6. If the page needs forms (or another opt-in sibling), list the sheet id under that page in `pageStylesheetsByPage` (host asset-delivery).
 
@@ -90,10 +90,10 @@ Scaffold: `pnpm scaffold:web-ui --name about --mode page` (writes protocol SSR p
 
 ## Steps: interactive island
 
-1. Component under `src/web/ui/islands/` with a default export and JSON-serializable props.
-2. Optional: `import styles from './name.module.scss'` and `ui/styles/_tokens.scss` for Sass API only — never re-import the shell sheet or Bootstrap CSS-emitting partials (including forms/validation).
-3. Register loaders in `ui/runtime/island/registry.ts`. Add the optional CSS module path to `protocol/island-css-catalog.ts` (dev SSR inlining).
-4. Render `<Island name="…" component={…} props={…} />` from a page (import `Island` from `ui/runtime/island/island`). Do **not** wire CSS context yourself — the framework fills it after the name-collection pass and emits a sibling `<style data-css-island>` for used islands (deduped by name).
+1. Folder under `src/web/ui/islands/<name>/` with `<name>.tsx` (default export), thin `index.ts`, JSON-serializable props.
+2. Optional: colocated `<name>.module.scss` (`@import '../../styles/tokens'`) — never re-import the shell sheet or Bootstrap CSS-emitting partials (including forms/validation).
+3. Register concrete loaders in `ui/runtime/island/registry.ts` (`import('…/islands/<name>/<name>')`). Add the catalog row in `protocol/island-css-catalog.ts` (scaffold does both).
+4. Render `<Island name="…" component={…} props={…} />` from a page (directory-import the island barrel; import `Island` from `ui/runtime/island/island`). Do **not** wire CSS context yourself — the framework fills it after the name-collection pass and emits a sibling `<style data-css-island>` for used islands (deduped by name).
 5. Hydrate still loads **JS only** for that island; CSS was already inlined in the HTML.
 
 Scaffold: `pnpm scaffold:web-ui --name my-widget --mode island --with-styles` (or omit `--with-styles`). Agents: use `.agents/skills/create-web-ui/SKILL.md`.
@@ -102,7 +102,7 @@ Scaffold: `pnpm scaffold:web-ui --name my-widget --mode island --with-styles` (o
 
 Icons are **handpicked Bootstrap Icons** SVGs, same download-only-what-you-need rule as the shell Sass stack. There is no `bootstrap-icons` font/CSS package and no icon CDN.
 
-Canonical helper: [`src/web/ui/shared-components/icon.tsx`](../src/web/ui/shared-components/icon.tsx).
+Canonical helper: [`src/web/ui/shared-components/icon/`](../src/web/ui/shared-components/icon/).
 
 1. Find the icon on [Bootstrap Icons](https://icons.getbootstrap.com/).
 2. Copy its inline SVG into a small function in `icon.tsx` and register it on the `icons` map (use the Bootstrap name, e.g. `list`, `x-lg`).
@@ -129,5 +129,6 @@ Login/register use react-hook-form + Zod and `useApiMutation`:
 - Re-importing shell / Bootstrap **component** SCSS into an island module (forms/validation included — those belong on the forms sibling).
 - Growing a utility layer or mini-Bootstrap inside island modules.
 - Putting optional component CSS into the shell “just in case” (forms stay opt-in).
-- Shipping the full Bootstrap Icons webfont / CSS sprite, or pasting one-off SVGs into islands instead of registering them in `ui/shared-components/icon.tsx`.
+- Shipping the full Bootstrap Icons webfont / CSS sprite, or pasting one-off SVGs into islands instead of registering them in `ui/shared-components/icon/`.
+- Fat composition barrels or component-as-only-`index.tsx` (use kebab implementation + thin `index.ts` — [ADR-0025](./adr/0025-per-component-folders.md)).
 - Putting Nest SSR props beside `ui/pages/` components, or Nest importing page `.tsx`.

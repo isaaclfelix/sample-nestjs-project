@@ -9,7 +9,7 @@ description: >-
 
 # Create Web UI
 
-Bootstrap HTML UI in this Nest + Vite islands app **without inventing a parallel CSS or island pattern**. Source of truth for the decision tree: [docs/how-to-web-ui.md](../../../docs/how-to-web-ui.md). Delivery mechanics: [docs/architecture.md](../../../docs/architecture.md) (Styles). Layout: [ADR-0023](../../../docs/adr/0023-web-host-ui-protocol.md) (host / ui / protocol). Relative imports under `src/web/ui/` are **extensionless** ([ADR-0024](../../../docs/adr/0024-dual-import-resolution.md)); do not emit Nest-style `.js` suffixes into UI stubs.
+Bootstrap HTML UI in this Nest + Vite islands app **without inventing a parallel CSS or island pattern**. Source of truth for the decision tree: [docs/how-to-web-ui.md](../../../docs/how-to-web-ui.md). Delivery mechanics: [docs/architecture.md](../../../docs/architecture.md) (Styles). Layout: [ADR-0023](../../../docs/adr/0023-web-host-ui-protocol.md) (host / ui / protocol). Relative imports under `src/web/ui/` are **extensionless** ([ADR-0024](../../../docs/adr/0024-dual-import-resolution.md)); do not emit Nest-style `.js` suffixes into UI stubs. Components live in **per-component folders** with thin `index.ts` barrels ([ADR-0025](../../../docs/adr/0025-per-component-folders.md)).
 
 Prefer the shared scaffolder so humans and agents stay aligned:
 
@@ -24,11 +24,11 @@ Implementation: [scripts/scaffold-web-ui.ts](../../../scripts/scaffold-web-ui.ts
 Unless the user already answered, ask these in order:
 
 1. **Does this need client interactivity** (state, events, browser APIs)?
-   - **No** → SSR-only page under `src/web/ui/pages/` + SSR props under `src/web/protocol/page-props/`. Shell classes only. **Refuse** `*.module.scss` and `<Island>` “for styling.”
-   - **Yes** → island under `src/web/ui/islands/`; then ask (2).
+   - **No** → SSR-only page folder under `src/web/ui/pages/<name>-page/` + SSR props under `src/web/protocol/page-props/`. Shell classes only. **Refuse** `*.module.scss` and `<Island>` “for styling.”
+   - **Yes** → island folder under `src/web/ui/islands/<name>/`; then ask (2).
 2. **Does it need interaction-specific styles** beyond the shell (hover, spinner, open state)?
-   - **No** → island + registry; style with shell classes only (`--mode island` without `--with-styles`).
-   - **Yes** → also add a small `*.module.scss`, registry loader, and `protocol/island-css-catalog` entry (`--with-styles`).
+   - **No** → island + registry + catalog row (`undefined` CSS); style with shell classes only (`--mode island` without `--with-styles`).
+   - **Yes** → also add colocated `*.module.scss`; scaffold patches registry **and** `protocol/island-css-catalog` (`--with-styles`).
 
 Map answers to the CLI:
 
@@ -45,14 +45,15 @@ Map answers to the CLI:
 - Re-importing shell / Bootstrap **component** SCSS into an island module (tokens-only via `ui/styles/_tokens.scss`).
 - Growing a utility layer or mini-Bootstrap inside island modules.
 - A second CSS delivery path (head links per island, CSS only after chunk load, skipping sibling `<style>` inlining).
-- Shipping the Bootstrap Icons webfont, or pasting one-off SVGs into an island — register glyphs in `src/web/ui/shared-components/icon.tsx` instead ([how-to-web-ui.md § Icons](../../../docs/how-to-web-ui.md#icons)).
+- Shipping the Bootstrap Icons webfont, or pasting one-off SVGs into an island — register glyphs in `src/web/ui/shared-components/icon/` instead ([how-to-web-ui.md § Icons](../../../docs/how-to-web-ui.md#icons)).
 - Putting Nest SSR props beside the page under `ui/pages/` (use `protocol/page-props/*-page.ssr-props.ts`).
+- Fat composition barrels or component-as-only-`index.tsx`.
 
 ## After scaffolding
 
-**Page:** scaffolder writes `protocol/page-props/<name>-page.ssr-props.ts` (`*PageSsrProps`) + `ui/pages/<name>-page.tsx`. Then register in `protocol/page-props/page-props.ts` (`SsrPagePropsMap` / `WebPageName`), `ui/runtime/ssr/entry-server` pages map, and a `WebController` method that imports **SSR props types only** from protocol (never the page `.tsx`). Style with shell classes only. Read the [SSR page props quirk](../../../docs/how-to-web-ui.md#ssr-page-props-quirk).
+**Page:** scaffolder writes `protocol/page-props/<name>-page.ssr-props.ts` (`*PageSsrProps`) + `ui/pages/<name>-page/<name>-page.tsx` + thin `index.ts`. Then register in `protocol/page-props/page-props.ts` (`SsrPagePropsMap` / `WebPageName`), `ui/runtime/ssr/entry-server` pages map, and a `WebController` method that imports **SSR props types only** from protocol (never the page `.tsx`). Style with shell classes only. Read the [SSR page props quirk](../../../docs/how-to-web-ui.md#ssr-page-props-quirk).
 
-**Island:** render `<Island name="…" component={…} props={…} />` from a page (import `Island` from `src/web/ui/runtime/island/island`). Register loaders in `ui/runtime/island/registry.ts`. Add CSS path to `protocol/island-css-catalog.ts` when using `--with-styles`. Framework inlines CSS as a sibling `<style data-css-island>`; hydrate loads JS only.
+**Island:** render `<Island name="…" component={…} props={…} />` from a page (directory-import the island barrel; import `Island` from `src/web/ui/runtime/island/island`). Scaffold patches concrete loaders in `ui/runtime/island/registry.ts` and a row in `protocol/island-css-catalog.ts`. Framework inlines CSS as a sibling `<style data-css-island>`; hydrate loads JS only.
 
 **Tests ([ADR-0021](../../../docs/adr/0021-vitest-browser-ui-testing.md)):** interactive islands need a co-located `*.spec.ts` in the Vitest browser project (Testing Library). Pages/islands that navigate or call the API also need browser e2e coverage (`*.browser-e2e-spec.ts`). Do not defer that to out-of-repo QA ([TD-026](../../../docs/known-tech-debt.md)).
 

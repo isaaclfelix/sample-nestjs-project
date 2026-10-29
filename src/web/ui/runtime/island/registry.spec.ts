@@ -12,7 +12,7 @@ describe('island registry', () => {
 
   it('returns the Vite CSS module URL for registered islands', () => {
     expect(islandCssModuleUrl('mobile-navigation')).toBe(
-      '/src/web/ui/islands/mobile-navigation.module.scss',
+      '/src/web/ui/islands/mobile-navigation/mobile-navigation.module.scss',
     );
     expect(islandCssModuleUrl('login-form')).toBeUndefined();
     expect(islandCssModuleUrl('register-form')).toBeUndefined();

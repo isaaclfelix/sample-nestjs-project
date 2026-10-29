@@ -30,8 +30,10 @@ export interface ScaffoldPlan {
   withStyles: boolean;
   pascalName: string;
   pageComponentPath: string;
+  pageIndexPath: string;
   pagePropsPath: string;
   islandComponentPath: string;
+  islandIndexPath: string;
   islandModulePath: string | undefined;
   cssModulePath: string | undefined;
 }
@@ -82,20 +84,23 @@ export function resolveScaffoldPlan(answers: ScaffoldAnswers): ScaffoldPlan {
 
   const pascalName = kebabToPascal(name);
   const withStyles = answers.mode === 'island' && answers.withStyles;
+  const pageFolder = `${name}-page`;
 
   return {
     name,
     mode: answers.mode,
     withStyles,
     pascalName,
-    pageComponentPath: `src/web/ui/pages/${name}-page.tsx`,
-    pagePropsPath: `src/web/protocol/page-props/${name}-page.ssr-props.ts`,
-    islandComponentPath: `src/web/ui/islands/${name}.tsx`,
+    pageComponentPath: `src/web/ui/pages/${pageFolder}/${pageFolder}.tsx`,
+    pageIndexPath: `src/web/ui/pages/${pageFolder}/index.ts`,
+    pagePropsPath: `src/web/protocol/page-props/${pageFolder}.ssr-props.ts`,
+    islandComponentPath: `src/web/ui/islands/${name}/${name}.tsx`,
+    islandIndexPath: `src/web/ui/islands/${name}/index.ts`,
     islandModulePath: withStyles
-      ? `src/web/ui/islands/${name}.module.scss`
+      ? `src/web/ui/islands/${name}/${name}.module.scss`
       : undefined,
     cssModulePath: withStyles
-      ? `/src/web/ui/islands/${name}.module.scss`
+      ? `/src/web/ui/islands/${name}/${name}.module.scss`
       : undefined,
   };
 }
@@ -153,7 +158,7 @@ function pageSources(plan: ScaffoldPlan): { props: string; component: string } {
   const componentName = `${plan.pascalName}Page`;
 
   const props = `/**
- * SSR embed props for the ${plan.name} page component (\`ui/pages/${plan.name}-page.tsx\`).
+ * SSR embed props for the ${plan.name} page component (\`ui/pages/${plan.name}-page/\`).
  *
  * Built by Nest (\`WebController\`), passed through \`WebViewService.render\`,
  * consumed by the Vite SSR page. JSON-serializable only. Not colocated with
@@ -166,7 +171,7 @@ export interface ${propsName} {
 `;
 
   const component = `import type { ReactElement } from 'react';
-import type { ${propsName} } from '../../protocol/page-props/${plan.name}-page.ssr-props';
+import type { ${propsName} } from '../../../protocol/page-props/${plan.name}-page.ssr-props';
 
 /**
  * Renders the ${plan.name} page body.
@@ -245,7 +250,7 @@ export default function ${plan.pascalName}({
     ? `// Island-owned interaction styles. Keep small — not a second design system.
 // Use tokens for Sass API only; never re-import the shell sheet.
 
-@import '../styles/tokens';
+@import '../../styles/tokens';
 
 .root {
   // Interaction-specific rules (hover, open state, spinner, …).
@@ -286,7 +291,7 @@ export function patchIslandRegistry(
  * @returns {Promise<IslandModule>} The ${plan.name} module.
  */
 function load${plan.pascalName}Island(): Promise<IslandModule> {
-  return import('../../islands/${plan.name}') as Promise<IslandModule>;
+  return import('../../islands/${plan.name}/${plan.name}') as Promise<IslandModule>;
 }
 `;
 
@@ -326,6 +331,41 @@ function load${plan.pascalName}Island(): Promise<IslandModule> {
 }
 
 /**
+ * Inserts a catalog row for a new island (CSS path or undefined).
+ *
+ * Keeps host SSR CSS inlining aligned with the UI registry (closes TD-028).
+ *
+ * @param {string} catalogSource - Current `island-css-catalog.ts` text.
+ * @param {ScaffoldPlan} plan - Validated island plan.
+ * @returns {string} Updated catalog source.
+ */
+export function patchIslandCssCatalog(
+  catalogSource: string,
+  plan: ScaffoldPlan,
+): string {
+  if (new RegExp(`^\\s*'${plan.name}':`, 'm').test(catalogSource)) {
+    throw new Error(
+      `Island "${plan.name}" already looks registered in island-css-catalog.ts`,
+    );
+  }
+
+  const entry = plan.cssModulePath
+    ? `  '${plan.name}': islandCssModulePath('${plan.name}'),\n`
+    : `  '${plan.name}': undefined,\n`;
+
+  if (!catalogSource.includes('} as const satisfies Record<string,')) {
+    throw new Error(
+      'Could not find islandCssCatalog closing marker to insert entry',
+    );
+  }
+
+  return catalogSource.replace(
+    '} as const satisfies Record<string,',
+    `${entry}} as const satisfies Record<string,`,
+  );
+}
+
+/**
  * Writes scaffold files under `rootDir` and patches the island registry when needed.
  *
  * @param {string} rootDir - Repository root.
@@ -342,6 +382,7 @@ export async function applyScaffoldPlan(
     const { props, component } = pageSources(plan);
     const propsAbs = join(rootDir, plan.pagePropsPath);
     const componentAbs = join(rootDir, plan.pageComponentPath);
+    const indexAbs = join(rootDir, plan.pageIndexPath);
 
     if (existsSync(propsAbs) || existsSync(componentAbs)) {
       throw new Error(
@@ -349,16 +390,20 @@ export async function applyScaffoldPlan(
       );
     }
 
+    const pageIndex = `export { ${plan.pascalName}Page } from './${plan.name}-page';\n`;
+
     await mkdir(dirname(propsAbs), { recursive: true });
     await mkdir(dirname(componentAbs), { recursive: true });
     await writeFile(propsAbs, props, 'utf8');
     await writeFile(componentAbs, component, 'utf8');
-    written.push(propsAbs, componentAbs);
+    await writeFile(indexAbs, pageIndex, 'utf8');
+    written.push(propsAbs, componentAbs, indexAbs);
     return written;
   }
 
   const { component, moduleCss } = islandSources(plan);
   const componentAbs = join(rootDir, plan.islandComponentPath);
+  const indexAbs = join(rootDir, plan.islandIndexPath);
   if (existsSync(componentAbs)) {
     throw new Error(`Island file already exists: ${plan.islandComponentPath}`);
   }
@@ -369,9 +414,12 @@ export async function applyScaffoldPlan(
     }
   }
 
+  const islandIndex = `export { default } from './${plan.name}';\n`;
+
   await mkdir(dirname(componentAbs), { recursive: true });
   await writeFile(componentAbs, component, 'utf8');
-  written.push(componentAbs);
+  await writeFile(indexAbs, islandIndex, 'utf8');
+  written.push(componentAbs, indexAbs);
 
   if (moduleCss && plan.islandModulePath) {
     const moduleAbs = join(rootDir, plan.islandModulePath);
@@ -384,6 +432,12 @@ export async function applyScaffoldPlan(
   const registryAfter = patchIslandRegistry(registryBefore, plan);
   await writeFile(registryAbs, registryAfter, 'utf8');
   written.push(registryAbs);
+
+  const catalogAbs = join(rootDir, 'src/web/protocol/island-css-catalog.ts');
+  const catalogBefore = await readFile(catalogAbs, 'utf8');
+  const catalogAfter = patchIslandCssCatalog(catalogBefore, plan);
+  await writeFile(catalogAbs, catalogAfter, 'utf8');
+  written.push(catalogAbs);
 
   return written;
 }
@@ -492,13 +546,13 @@ Next steps:
   } else {
     output.write(`
 Next steps:
-  Render on a page:
-    import ${plan.pascalName} from '../islands/${plan.name}';
-    import { Island } from '../runtime/island/island';
+  Render on a page (directory import of the thin barrel):
+    import ${plan.pascalName} from '../../islands/${plan.name}';
+    import { Island } from '../../runtime/island/island';
     <Island name="${plan.name}" component={${plan.pascalName}} props={{}} />
 
-  If --with-styles: also add the CSS path to src/web/protocol/island-css-catalog.ts
-  (scaffold patches the UI registry loaders). See docs/how-to-web-ui.md
+  Scaffold already patched ui/runtime/island/registry.ts and
+  protocol/island-css-catalog.ts. See docs/how-to-web-ui.md
 `);
   }
 }

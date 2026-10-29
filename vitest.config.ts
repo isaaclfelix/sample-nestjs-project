@@ -26,7 +26,7 @@ export default defineConfig({
         'src/**/*.module.ts',
         'src/**/*.spec.ts',
         // Runtime/document plumbing; covered indirectly by SSR and browser e2e.
-        'src/web/ui/server-components/document.tsx',
+        'src/web/ui/server-components/document/document.tsx',
         'src/web/ui/runtime/ssr/entry-server.tsx',
         'src/web/ui/runtime/island/hydrate.tsx',
         'src/web/ui/runtime/island/island.tsx',

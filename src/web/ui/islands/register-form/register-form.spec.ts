@@ -1,12 +1,12 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createElement } from 'react';
-import { CSRF_META_NAME } from '../../../api/auth/session.constants';
+import { CSRF_META_NAME } from '../../../../api/auth/session.constants';
 import RegisterForm from './register-form';
 
 const { assignMock } = vi.hoisted(() => ({ assignMock: vi.fn() }));
 
-vi.mock('../api-fetch/assign-location', () => ({
+vi.mock('../../api-fetch/assign-location', () => ({
   assignLocation: assignMock,
 }));
 
