@@ -5,6 +5,7 @@ describe('island registry', () => {
     expect(isIslandName('mobile-navigation')).toBe(true);
     expect(isIslandName('login-form')).toBe(true);
     expect(isIslandName('register-form')).toBe(true);
+    expect(isIslandName('logout-button')).toBe(true);
     expect(isIslandName('chart')).toBe(false);
     expect(isIslandName('toString')).toBe(false);
   });
@@ -15,6 +16,7 @@ describe('island registry', () => {
     );
     expect(islandCssModuleUrl('login-form')).toBeUndefined();
     expect(islandCssModuleUrl('register-form')).toBeUndefined();
+    expect(islandCssModuleUrl('logout-button')).toBeUndefined();
   });
 
   it('lazy-loads each registered island module', async () => {
@@ -25,6 +27,9 @@ describe('island registry', () => {
       default: expect.any(Function),
     });
     await expect(islandLoaders['register-form']()).resolves.toMatchObject({
+      default: expect.any(Function),
+    });
+    await expect(islandLoaders['logout-button']()).resolves.toMatchObject({
       default: expect.any(Function),
     });
   });

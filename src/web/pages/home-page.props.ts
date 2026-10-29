@@ -6,4 +6,6 @@
  */
 export interface HomePageProps {
   renderedAt: string;
+  /** True when the request session is bound to a user. */
+  isAuthenticated: boolean;
 }

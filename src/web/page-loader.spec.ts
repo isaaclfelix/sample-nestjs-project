@@ -63,7 +63,7 @@ describe('page loader', () => {
     const assets: PageAssets = { tags: emptyAssetTags, islandCss: {} };
     const html = await entry.render(
       'home',
-      { renderedAt: '2026-10-22T12:00:00.000Z' },
+      { renderedAt: '2026-10-22T12:00:00.000Z', isAuthenticated: false },
       () => assets,
     );
 

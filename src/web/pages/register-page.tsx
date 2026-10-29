@@ -8,15 +8,17 @@ import type { RegisterPageProps } from './register-page.props.js';
  * Renders the register page body.
  *
  * Server-only: this component is not part of the client bundle. The form is
- * an island for future interactivity; form CSS comes from the opt-in sibling
- * stylesheet, not an island module.
+ * an island; form CSS comes from the opt-in sibling stylesheet. Guest-only:
+ * the controller redirects authenticated sessions before render.
  *
- * @param {RegisterPageProps} _props - No request props yet.
+ * @param {RegisterPageProps} props - Auth flag (always false for this route).
  * @returns {ReactElement} The page body, without the document shell.
  */
-export function RegisterPage(_props: RegisterPageProps): ReactElement {
+export function RegisterPage({
+  isAuthenticated,
+}: RegisterPageProps): ReactElement {
   return (
-    <Layout>
+    <Layout isAuthenticated={isAuthenticated}>
       <div className="container py-4">
         <div className="row justify-content-center">
           <div className="col-12 col-md-6 col-lg-4">

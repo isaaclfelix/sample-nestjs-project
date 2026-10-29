@@ -38,6 +38,7 @@ describe('WebViewService', () => {
     await restoreServerEntry();
     const html = await new WebViewService().render('home', {
       renderedAt: '2026-10-22T12:00:00.000Z',
+      isAuthenticated: false,
     });
 
     expect(html.startsWith('<!DOCTYPE html>')).toBe(true);
@@ -68,6 +69,7 @@ describe('WebViewService', () => {
     try {
       const html = await new WebViewService().render('home', {
         renderedAt: 't',
+        isAuthenticated: false,
       });
 
       expect(html).toBe(
@@ -98,6 +100,7 @@ describe('WebViewService', () => {
     try {
       const html = await new WebViewService().render('home', {
         renderedAt: 't',
+        isAuthenticated: false,
       });
 
       expect(html).toBe('._c{}');
@@ -142,6 +145,7 @@ describe('WebViewService', () => {
     try {
       const html = await new WebViewService().render('home', {
         renderedAt: 't',
+        isAuthenticated: false,
       });
 
       expect(html).toBe('|/assets/hydrate.js,/assets/react.js');

@@ -8,15 +8,15 @@ import type { LoginPageProps } from './login-page.props.js';
  * Renders the login page body.
  *
  * Server-only: this component is not part of the client bundle. The form is
- * an island for future interactivity; form CSS comes from the opt-in sibling
- * stylesheet, not an island module.
+ * an island; form CSS comes from the opt-in sibling stylesheet. Guest-only:
+ * the controller redirects authenticated sessions before render.
  *
- * @param {LoginPageProps} _props - No request props yet.
+ * @param {LoginPageProps} props - Auth flag (always false for this route).
  * @returns {ReactElement} The page body, without the document shell.
  */
-export function LoginPage(_props: LoginPageProps): ReactElement {
+export function LoginPage({ isAuthenticated }: LoginPageProps): ReactElement {
   return (
-    <Layout>
+    <Layout isAuthenticated={isAuthenticated}>
       <div className="container py-4">
         <div className="row justify-content-center">
           <div className="col-12 col-md-6 col-lg-4">

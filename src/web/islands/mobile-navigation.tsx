@@ -1,4 +1,5 @@
 import { useState, type AnimationEvent, type ReactElement } from 'react';
+import LogoutButton from './logout-button.js';
 import styles from './mobile-navigation.module.scss';
 import Icon from '../shared/icon.js';
 
@@ -7,11 +8,17 @@ import Icon from '../shared/icon.js';
  *
  * Toggles a left offcanvas drawer and backdrop with CSS keyframe enter/exit
  * animations. Close uses a short-lived `closing` class so exit animations are
- * not applied on the initial closed mount.
+ * not applied on the initial closed mount. Auth chrome mirrors desktop nav
+ * (Login/Register vs Logout) from the SSR `isAuthenticated` prop.
  *
+ * @param {{ isAuthenticated?: boolean }} props - Session auth flag from SSR.
  * @returns {ReactElement} Interactive island markup.
  */
-export default function MobileNavigation(): ReactElement {
+export default function MobileNavigation({
+  isAuthenticated = false,
+}: {
+  isAuthenticated?: boolean;
+}): ReactElement {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
 
@@ -118,16 +125,25 @@ export default function MobileNavigation(): ReactElement {
 
         <div className={`${styles.navigationDrawerFooter} p-3`}>
           <ul className="list-unstyled mb-0">
-            <li>
-              <a href="/login" className="p-3">
-                Login
-              </a>
-            </li>
-            <li>
-              <a href="/register" className="p-3">
-                Register
-              </a>
-            </li>
+            {isAuthenticated ? (
+              <li className="p-3">
+                {/* Same control as desktop; composed here (not a nested Island). */}
+                <LogoutButton />
+              </li>
+            ) : (
+              <>
+                <li>
+                  <a href="/login" className="p-3">
+                    Login
+                  </a>
+                </li>
+                <li>
+                  <a href="/register" className="p-3">
+                    Register
+                  </a>
+                </li>
+              </>
+            )}
           </ul>
         </div>
       </div>

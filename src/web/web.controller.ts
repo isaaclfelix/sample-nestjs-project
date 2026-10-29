@@ -1,6 +1,6 @@
-import { Controller, Get, Header, Req } from '@nestjs/common';
+import { Controller, Get, Header, Req, Res } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 import type { AppSession } from '../api/auth/session.js';
 import type { HomePageProps } from './pages/home-page.props.js';
 import type { LoginPageProps } from './pages/login-page.props.js';
@@ -29,6 +29,7 @@ export class WebController {
   home(@Req() req: RequestWithSession): Promise<string> {
     const props: HomePageProps = {
       renderedAt: new Date().toISOString(),
+      isAuthenticated: Boolean(req.session?.userId),
     };
 
     return this.webViewService.render('home', props, {
@@ -37,18 +38,29 @@ export class WebController {
   }
 
   /**
-   * Renders the login page as HTML.
+   * Renders the login page as HTML, or redirects authenticated users home.
    *
    * Form interactivity hydrates via the login-form island. Form CSS comes from
    * the opt-in forms sibling stylesheet for this page.
    *
    * @param {RequestWithSession} req - Request with session from SessionMiddleware.
-   * @returns {Promise<string>} Full HTML document (HTTP 200, text/html).
+   * @param {Response} res - Response used for guest-only redirects.
+   * @returns {Promise<string | void>} Full HTML document, or void after redirect.
    */
   @Get('login')
   @Header('Content-Type', 'text/html; charset=utf-8')
-  login(@Req() req: RequestWithSession): Promise<string> {
-    const props: LoginPageProps = {};
+  login(
+    @Req() req: RequestWithSession,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<string> | void {
+    if (req.session?.userId) {
+      res.redirect('/');
+      return;
+    }
+
+    const props: LoginPageProps = {
+      isAuthenticated: false,
+    };
 
     return this.webViewService.render('login', props, {
       csrfToken: req.session?.csrfToken,
@@ -56,18 +68,29 @@ export class WebController {
   }
 
   /**
-   * Renders the register page as HTML.
+   * Renders the register page as HTML, or redirects authenticated users home.
    *
    * Form interactivity hydrates via the register-form island. Form CSS comes
    * from the opt-in forms sibling stylesheet for this page.
    *
    * @param {RequestWithSession} req - Request with session from SessionMiddleware.
-   * @returns {Promise<string>} Full HTML document (HTTP 200, text/html).
+   * @param {Response} res - Response used for guest-only redirects.
+   * @returns {Promise<string | void>} Full HTML document, or void after redirect.
    */
   @Get('register')
   @Header('Content-Type', 'text/html; charset=utf-8')
-  register(@Req() req: RequestWithSession): Promise<string> {
-    const props: RegisterPageProps = {};
+  register(
+    @Req() req: RequestWithSession,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<string> | void {
+    if (req.session?.userId) {
+      res.redirect('/');
+      return;
+    }
+
+    const props: RegisterPageProps = {
+      isAuthenticated: false,
+    };
 
     return this.webViewService.render('register', props, {
       csrfToken: req.session?.csrfToken,

@@ -37,6 +37,14 @@ function loadRegisterFormIsland(): Promise<IslandModule> {
 }
 
 /**
+ * Loads the logout-button island chunk.
+ *
+ * @returns {Promise<IslandModule>} The logout-button module.
+ */
+function loadLogoutButtonIsland(): Promise<IslandModule> {
+  return import('./logout-button.js') as Promise<IslandModule>;
+}
+/**
  * One registered island: lazy client loader plus optional module CSS path for
  * development SSR inlining.
  */
@@ -67,6 +75,9 @@ export const islandRegistry = {
   'register-form': {
     load: loadRegisterFormIsland,
   },
+  'logout-button': {
+    load: loadLogoutButtonIsland,
+  },
 } as const satisfies Record<string, IslandRegistration>;
 
 /** Lazy loaders only — hydrate entry uses this shape. */
@@ -74,6 +85,7 @@ export const islandLoaders = {
   'mobile-navigation': loadMobileNavigationIsland,
   'login-form': loadLoginFormIsland,
   'register-form': loadRegisterFormIsland,
+  'logout-button': loadLogoutButtonIsland,
 } as const;
 
 /** Names registered in `islandRegistry`. */
