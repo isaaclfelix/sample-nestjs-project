@@ -23,7 +23,7 @@ Canonical decision tree for HTML UI in this Nest + islands app. Follow it when s
 
 Do **not** put product UI under `host/`; do **not** put Nest-executed engines under `ui/`. Both may import `protocol/` only.
 
-**Relative imports in `ui/` are extensionless** (no `.js` suffix). Nest zones (`api/`, `host/`, `protocol/`, Nest web root) keep `.js` emit specifiers. Do not copy the Nest style into islands/pages. See [ADR-0024](./adr/0024-dual-import-resolution.md).
+**Relative imports in `ui/` are extensionless** (no `.js` suffix), except `ui/vite-plugins/**` which use `.js` because they load in Vite’s Node config graph. Nest zones (`api/`, `host/`, `protocol/`, Nest web root) keep `.js` emit specifiers. Do not copy the Nest style into islands/pages. See [ADR-0024](./adr/0024-dual-import-resolution.md).
 
 ## SSR page props quirk
 

@@ -12,8 +12,9 @@ After [ADR-0023](./0023-web-host-ui-protocol.md), the Nest vs Vite ownership lin
 ## Decision
 
 - **Nest / Node ESM (`.js` always on relative imports):** `src/api/**`, Nest root `src/web/web.*.ts`, `src/web/host/**`, `src/web/protocol/**`, and other Nest-emitted trees. Writing `.js` names the **output** module, not a mistaken source extension.
-- **Vite UI (extensionless):** `src/web/ui/**` (pages, islands, server/shared components, hooks, api-fetch, UI runtime, vite-plugins, co-located specs). Style follows the **importing file’s zone**, including UI→protocol and UI→selected `src/api` constants.
-- Enforce with oxlint `import/extensions`: default `js: always` (`ignorePackages`, `checkTypeImports`); override `js: never` for `src/web/ui/**`.
+- **Vite UI (extensionless):** `src/web/ui/**` (pages, islands, server/shared components, hooks, api-fetch, UI runtime, co-located specs). Style follows the **importing file’s zone**, including UI→protocol and UI→selected `src/api` constants.
+- **Exception — `src/web/ui/vite-plugins/**`:** these modules load in Vite’s **Node config** graph (imported from root `vite.config.ts`). Vite’s native `configLoader` requires explicit extensions there, so they use Nest-style **`.js`** relatives (including plugin→protocol). They are not browser UI modules.
+- Enforce with oxlint `import/extensions`: default `js: always`; override `js: never` for `src/web/ui/**` except `vite-plugins/**` (stays `always`).
 
 ## Consequences
 

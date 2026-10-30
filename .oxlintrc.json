@@ -32,6 +32,19 @@
           }
         ]
       }
+    },
+    {
+      "files": ["src/web/ui/vite-plugins/**/*.{ts,tsx}"],
+      "rules": {
+        "import/extensions": [
+          "error",
+          "always",
+          {
+            "ignorePackages": true,
+            "checkTypeImports": true
+          }
+        ]
+      }
     }
   ],
   "env": {
