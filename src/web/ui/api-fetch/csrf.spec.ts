@@ -1,4 +1,4 @@
-import { CSRF_META_NAME } from '../../../api/auth/session.constants';
+import { CSRF_META_NAME } from '@api/auth/session.constants';
 import { getCsrfToken, getCsrfTokenHeader } from './csrf';
 
 describe('csrf helpers', () => {

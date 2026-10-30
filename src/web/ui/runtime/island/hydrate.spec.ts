@@ -3,7 +3,7 @@ import { renderToString } from 'react-dom/server';
 import userEvent from '@testing-library/user-event';
 import { hydrateIslands } from './hydrate';
 import { Island } from './island';
-import MobileNavigation from '../../islands/mobile-navigation';
+import MobileNavigation from '@ui/islands/mobile-navigation';
 
 describe('hydrate islands', () => {
   it('opens the mobile navigation drawer when the toggle is clicked', async () => {

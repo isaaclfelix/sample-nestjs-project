@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
-import { Island } from '../../runtime/island/island';
-import LoginForm from '../../islands/login-form';
-import Layout from '../../server-components/layout';
-import type { LoginPageSsrProps } from '../../../protocol/page-props/login-page.ssr-props';
+import { Island } from '@ui/runtime/island/island';
+import LoginForm from '@ui/islands/login-form';
+import Layout from '@ui/server-components/layout';
+import type { LoginPageSsrProps } from '@protocol/page-props/login-page.ssr-props';
 
 /**
  * Renders the login page body.

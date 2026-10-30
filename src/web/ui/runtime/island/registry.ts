@@ -4,7 +4,7 @@ import {
   islandCssModuleUrl,
   isIslandName,
   type IslandName,
-} from '../../../protocol/island-css-catalog';
+} from '@protocol/island-css-catalog';
 
 /**
  * Default export of a client island module.
@@ -23,7 +23,7 @@ export interface IslandModule {
 function loadMobileNavigationIsland(): Promise<IslandModule> {
   // Concrete implementation file (not the thin barrel) — same path shape as
   // islandManifestSourceKey / islandEntryRelPath in protocol.
-  return import('../../islands/mobile-navigation/mobile-navigation') as Promise<IslandModule>;
+  return import('@ui/islands/mobile-navigation/mobile-navigation') as Promise<IslandModule>;
 }
 
 /**
@@ -32,7 +32,7 @@ function loadMobileNavigationIsland(): Promise<IslandModule> {
  * @returns {Promise<IslandModule>} The login-form module.
  */
 function loadLoginFormIsland(): Promise<IslandModule> {
-  return import('../../islands/login-form/login-form') as Promise<IslandModule>;
+  return import('@ui/islands/login-form/login-form') as Promise<IslandModule>;
 }
 
 /**
@@ -41,7 +41,7 @@ function loadLoginFormIsland(): Promise<IslandModule> {
  * @returns {Promise<IslandModule>} The register-form module.
  */
 function loadRegisterFormIsland(): Promise<IslandModule> {
-  return import('../../islands/register-form/register-form') as Promise<IslandModule>;
+  return import('@ui/islands/register-form/register-form') as Promise<IslandModule>;
 }
 
 /**
@@ -50,7 +50,7 @@ function loadRegisterFormIsland(): Promise<IslandModule> {
  * @returns {Promise<IslandModule>} The logout-button module.
  */
 function loadLogoutButtonIsland(): Promise<IslandModule> {
-  return import('../../islands/logout-button/logout-button') as Promise<IslandModule>;
+  return import('@ui/islands/logout-button/logout-button') as Promise<IslandModule>;
 }
 
 /**

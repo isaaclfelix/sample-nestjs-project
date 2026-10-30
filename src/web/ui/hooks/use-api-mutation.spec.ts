@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createElement, useState, type ReactElement } from 'react';
-import { CSRF_META_NAME } from '../../../api/auth/session.constants';
+import { CSRF_META_NAME } from '@api/auth/session.constants';
 import { useApiMutation, type ApiMutationResult } from './use-api-mutation';
 
 /**

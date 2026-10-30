@@ -1,5 +1,5 @@
-import Header from '../header';
-import Footer from '../footer';
+import Header from '@ui/server-components/header';
+import Footer from '@ui/server-components/footer';
 
 /**
  * Main layout component for the application.

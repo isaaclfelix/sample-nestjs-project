@@ -1,4 +1,4 @@
-import Navigation from '../navigation';
+import Navigation from '@ui/server-components/navigation';
 
 /**
  * Header component for the website.
