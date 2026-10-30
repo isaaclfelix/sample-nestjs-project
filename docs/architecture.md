@@ -309,7 +309,7 @@ Islands do not share React context or state after hydration (see [TD-008](./know
 
 ### Lazy chunks
 
-The client hydrate entry imports the island registry, which builds lazy loaders from a filtered `import.meta.glob` of `ui/islands/*/*.tsx` (dirname===basename only). Host identity / CSS flags come from gitignored `protocol/islands.ts` via `pnpm islands:sync` ([ADR-0028](./adr/0028-island-filesystem-manifest.md)).
+The client hydrate entry imports the island registry, which builds lazy loaders from a filtered `import.meta.glob` of `ui/islands/*/*.tsx` (dirname===basename only). Host identity comes from `protocol/islands.ts` plus gitignored `islands.generated.ts` (`pnpm islands:sync`) ([ADR-0028](./adr/0028-island-filesystem-manifest.md)).
 
 Vite emits a separate chunk per dynamic `import()`. `assetTagsFromManifest` emits the hydrate entry and its static `imports`; it does not walk `dynamicImports`. Vite may still inject runtime `modulepreload` when a dynamic `import()` runs ([ADR-0012](./adr/0012-island-boundaries.md); revisit with [TD-010](./known-tech-debt.md)).
 

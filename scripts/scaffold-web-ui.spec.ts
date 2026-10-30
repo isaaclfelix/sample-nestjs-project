@@ -171,11 +171,11 @@ describe('applyScaffoldPlan', () => {
     );
     expect(moduleCss).toContain('.root');
     expect(moduleCss).toContain('@ui/styles/tokens');
-    expect(written.some((path) => path.endsWith('protocol/islands.ts'))).toBe(
-      true,
-    );
+    expect(
+      written.some((path) => path.endsWith('protocol/islands.generated.ts')),
+    ).toBe(true);
     const manifest = await readFile(
-      join(root, 'src/web/protocol/islands.ts'),
+      join(root, 'src/web/protocol/islands.generated.ts'),
       'utf8',
     );
     expect(manifest).toContain("'toggle': { hasCssModule: true }");

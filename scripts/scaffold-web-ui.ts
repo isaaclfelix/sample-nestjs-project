@@ -386,7 +386,7 @@ export async function applyScaffoldPlan(
     written.push(moduleAbs);
   }
 
-  // Regenerate gitignored protocol/islands.ts from the islands folder tree.
+  // Regenerate gitignored protocol/islands.generated.ts from the folder tree.
   const { path: islandsManifestPath } = await syncIslandManifest(rootDir);
   written.push(islandsManifestPath);
 
@@ -504,8 +504,8 @@ Next steps:
     import { Island } from '@ui/runtime/island/island';
     <Island name="${plan.name}" component={${plan.pascalName}} props={{}} />
 
-  Scaffold ran islands:sync (protocol/islands.ts). Hydrate loaders pick up the
-  new folder via glob — no registry edit. Browse the stub with pnpm storybook.
+  Scaffold ran islands:sync (protocol/islands.generated.ts). Hydrate loaders
+  pick up the new folder via glob — no registry edit. Browse with pnpm storybook.
   See docs/how-to-web-ui.md
 `);
   }
