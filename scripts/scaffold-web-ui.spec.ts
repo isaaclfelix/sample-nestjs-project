@@ -157,7 +157,7 @@ export const islandLoaders = {
       "cssModulePath: '/src/web/ui/islands/toggle/toggle.module.scss'",
     );
     expect(next).toContain(
-      "import('../../islands/toggle/toggle') as Promise<IslandModule>",
+      "import('@ui/islands/toggle/toggle') as Promise<IslandModule>",
     );
     expect(next).toContain('toggle: loadToggleIsland');
   });
@@ -214,6 +214,13 @@ describe('applyScaffoldPlan', () => {
     expect(written).toHaveLength(4);
     const props = await readFile(join(root, plan.pagePropsPath), 'utf8');
     expect(props).toContain('AboutPageSsrProps');
+    const component = await readFile(
+      join(root, plan.pageComponentPath),
+      'utf8',
+    );
+    expect(component).toContain(
+      "from '@protocol/page-props/about-page.ssr-props'",
+    );
     const index = await readFile(join(root, plan.pageIndexPath), 'utf8');
     expect(index).toContain("export { AboutPage } from './about-page'");
     const stories = await readFile(join(root, plan.pageStoriesPath), 'utf8');
@@ -283,7 +290,7 @@ export const islandLoaders = {
       'utf8',
     );
     expect(moduleCss).toContain('.root');
-    expect(moduleCss).toContain('../../styles/tokens');
+    expect(moduleCss).toContain('@ui/styles/tokens');
     const registry = await readFile(
       join(root, 'src/web/ui/runtime/island/registry.ts'),
       'utf8',
