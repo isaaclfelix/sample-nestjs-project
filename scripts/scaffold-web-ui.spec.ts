@@ -1,4 +1,4 @@
-import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -6,8 +6,6 @@ import {
   applyScaffoldPlan,
   kebabToPascal,
   parseScaffoldArgs,
-  patchIslandCssCatalog,
-  patchIslandRegistry,
   resolveScaffoldPlan,
 } from './scaffold-web-ui.js';
 
@@ -118,88 +116,6 @@ describe('parseScaffoldArgs', () => {
   });
 });
 
-describe('patchIslandRegistry', () => {
-  const sample = `function loadMobileNavigationIsland(): Promise<IslandModule> {
-  return import('../../islands/mobile-navigation/mobile-navigation') as Promise<IslandModule>;
-}
-
-/**
- * One registered island: lazy client loader plus optional module CSS path for
- * development SSR inlining.
- */
-export interface IslandRegistration {
-  load: () => Promise<IslandModule>;
-  cssModulePath?: string;
-}
-
-export const islandRegistry = {
-  'mobile-navigation': {
-    load: loadMobileNavigationIsland,
-    cssModulePath: '/src/web/ui/islands/mobile-navigation/mobile-navigation.module.scss',
-  },
-} as const satisfies Record<string, IslandRegistration>;
-
-export const islandLoaders = {
-  'mobile-navigation': loadMobileNavigationIsland,
-} as const;
-`;
-
-  it('inserts loader, registry entry, and cssModulePath', () => {
-    const plan = resolveScaffoldPlan({
-      name: 'toggle',
-      mode: 'island',
-      withStyles: true,
-    });
-    const next = patchIslandRegistry(sample, plan);
-    expect(next).toContain('function loadToggleIsland');
-    expect(next).toContain('toggle: {');
-    expect(next).toContain(
-      "cssModulePath: '/src/web/ui/islands/toggle/toggle.module.scss'",
-    );
-    expect(next).toContain(
-      "import('@ui/islands/toggle/toggle') as Promise<IslandModule>",
-    );
-    expect(next).toContain('toggle: loadToggleIsland');
-  });
-
-  it('rejects duplicate island names', () => {
-    const plan = resolveScaffoldPlan({
-      name: 'mobile-navigation',
-      mode: 'island',
-      withStyles: false,
-    });
-    expect(() => patchIslandRegistry(sample, plan)).toThrow(/already looks/);
-  });
-});
-
-describe('patchIslandCssCatalog', () => {
-  const sample = `export const islandCssCatalog = {
-  'mobile-navigation': islandCssModulePath('mobile-navigation'),
-  'login-form': undefined,
-} as const satisfies Record<string, IslandCssModulePath | undefined>;
-`;
-
-  it('inserts a styled catalog row', () => {
-    const plan = resolveScaffoldPlan({
-      name: 'toggle',
-      mode: 'island',
-      withStyles: true,
-    });
-    const next = patchIslandCssCatalog(sample, plan);
-    expect(next).toContain("'toggle': islandCssModulePath('toggle'),");
-  });
-
-  it('inserts an unstyled catalog row', () => {
-    const plan = resolveScaffoldPlan({
-      name: 'plain',
-      mode: 'island',
-      withStyles: false,
-    });
-    const next = patchIslandCssCatalog(sample, plan);
-    expect(next).toContain("'plain': undefined,");
-  });
-});
-
 describe('applyScaffoldPlan', () => {
   it('writes page files under a temp root', async () => {
     const root = await mkdtemp(join(tmpdir(), 'scaffold-web-ui-'));
@@ -227,54 +143,18 @@ describe('applyScaffoldPlan', () => {
     expect(stories).toContain("title: 'Pages/AboutPage'");
   });
 
-  it('writes island files and patches registry and catalog', async () => {
+  it('writes island files and syncs the protocol islands table', async () => {
     const root = await mkdtemp(join(tmpdir(), 'scaffold-web-ui-'));
     tempDirs.push(root);
     await mkdir(join(root, 'src/web/ui/islands'), { recursive: true });
-    await mkdir(join(root, 'src/web/ui/runtime/island'), { recursive: true });
     await mkdir(join(root, 'src/web/protocol'), { recursive: true });
-    await writeFile(
-      join(root, 'src/web/ui/runtime/island/registry.ts'),
-      `function loadMobileNavigationIsland(): Promise<IslandModule> {
-  return import('../../islands/mobile-navigation/mobile-navigation') as Promise<IslandModule>;
-}
-
-/**
- * One registered island: lazy client loader plus optional module CSS path for
- * development SSR inlining.
- */
-export interface IslandRegistration {
-  load: () => Promise<IslandModule>;
-  cssModulePath?: string;
-}
-
-export const islandRegistry = {
-  'mobile-navigation': {
-    load: loadMobileNavigationIsland,
-  },
-} as const satisfies Record<string, IslandRegistration>;
-
-export const islandLoaders = {
-  'mobile-navigation': loadMobileNavigationIsland,
-} as const;
-`,
-      'utf8',
-    );
-    await writeFile(
-      join(root, 'src/web/protocol/island-css-catalog.ts'),
-      `export const islandCssCatalog = {
-  'mobile-navigation': islandCssModulePath('mobile-navigation'),
-} as const satisfies Record<string, IslandCssModulePath | undefined>;
-`,
-      'utf8',
-    );
 
     const plan = resolveScaffoldPlan({
       name: 'toggle',
       mode: 'island',
       withStyles: true,
     });
-    await applyScaffoldPlan(root, plan);
+    const written = await applyScaffoldPlan(root, plan);
 
     const component = await readFile(
       join(root, plan.islandComponentPath),
@@ -291,15 +171,13 @@ export const islandLoaders = {
     );
     expect(moduleCss).toContain('.root');
     expect(moduleCss).toContain('@ui/styles/tokens');
-    const registry = await readFile(
-      join(root, 'src/web/ui/runtime/island/registry.ts'),
+    expect(written.some((path) => path.endsWith('protocol/islands.ts'))).toBe(
+      true,
+    );
+    const manifest = await readFile(
+      join(root, 'src/web/protocol/islands.ts'),
       'utf8',
     );
-    expect(registry).toContain('loadToggleIsland');
-    const catalog = await readFile(
-      join(root, 'src/web/protocol/island-css-catalog.ts'),
-      'utf8',
-    );
-    expect(catalog).toContain("islandCssModulePath('toggle')");
+    expect(manifest).toContain("'toggle': { hasCssModule: true }");
   });
 });

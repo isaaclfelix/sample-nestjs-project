@@ -2,7 +2,8 @@
  * Scaffolds an SSR page stub or interactive island under `src/web/`.
  *
  * Shared by humans (`pnpm scaffold:web-ui`) and the `create-web-ui` agent skill.
- * Prefer this script over hand-wiring so registry / CSS module paths stay consistent.
+ * Prefer this script over hand-wiring so island folders and
+ * `pnpm islands:sync` stay consistent.
  *
  * Usage:
  *   pnpm scaffold:web-ui --name my-widget --mode island --with-styles
@@ -10,11 +11,12 @@
  *   pnpm scaffold:web-ui   # interactive
  */
 import { existsSync } from 'node:fs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
 import { stdin as input, stdout as output } from 'node:process';
+import { syncIslandManifest } from './sync-island-manifest.js';
 
 /** CLI / interactive answers before validation. */
 export interface ScaffoldAnswers {
@@ -276,7 +278,7 @@ ${importStyles}
  * Interactive ${plan.name} island.
  *
  * Default export required for hydrate. Props must be JSON-serializable.
- * Register in \`islandRegistry\` / \`islandLoaders\` (scaffold does this).
+ * Scaffold runs \`pnpm islands:sync\` so the host catalog picks this folder up.
  * Render with \`<Island name="${plan.name}" component={${plan.pascalName}} props={…} />\`.
  *
  * @param {{ label?: string }} props - Optional label from the server.
@@ -319,108 +321,7 @@ export default function ${plan.pascalName}({
 }
 
 /**
- * Inserts a loader function and registry entries for a new island.
- *
- * @param {string} registrySource - Current `registry.ts` text.
- * @param {ScaffoldPlan} plan - Validated plan.
- * @returns {string} Updated registry source.
- */
-export function patchIslandRegistry(
-  registrySource: string,
-  plan: ScaffoldPlan,
-): string {
-  if (
-    registrySource.includes(`function load${plan.pascalName}Island`) ||
-    new RegExp(`^\\s*${plan.name}:`, 'm').test(registrySource)
-  ) {
-    throw new Error(
-      `Island "${plan.name}" already looks registered in registry.ts`,
-    );
-  }
-
-  const loaderFn = `
-/**
- * Loads the ${plan.name} island chunk.
- *
- * @returns {Promise<IslandModule>} The ${plan.name} module.
- */
-function load${plan.pascalName}Island(): Promise<IslandModule> {
-  return import('@ui/islands/${plan.name}/${plan.name}') as Promise<IslandModule>;
-}
-`;
-
-  const registrationMarker = '/**\n * One registered island:';
-  if (!registrySource.includes(registrationMarker)) {
-    throw new Error(
-      'Could not find IslandRegistration marker in registry.ts to insert loader',
-    );
-  }
-
-  // Insert the new loader immediately before the registration interface block.
-  let next = registrySource.replace(
-    registrationMarker,
-    `${loaderFn}${registrationMarker}`,
-  );
-
-  const cssLine = plan.cssModulePath
-    ? `\n    cssModulePath: '${plan.cssModulePath}',`
-    : '';
-
-  const registryEntry = `  ${plan.name}: {
-    load: load${plan.pascalName}Island,${cssLine}
-  },
-`;
-
-  next = next.replace(
-    /(export const islandRegistry = \{[\s\S]*?)(\} as const satisfies)/,
-    `$1${registryEntry}$2`,
-  );
-
-  next = next.replace(
-    /(export const islandLoaders = \{[\s\S]*?)(\} as const;)/,
-    `$1  ${plan.name}: load${plan.pascalName}Island,\n$2`,
-  );
-
-  return next;
-}
-
-/**
- * Inserts a catalog row for a new island (CSS path or undefined).
- *
- * Keeps host SSR CSS inlining aligned with the UI registry (closes TD-028).
- *
- * @param {string} catalogSource - Current `island-css-catalog.ts` text.
- * @param {ScaffoldPlan} plan - Validated island plan.
- * @returns {string} Updated catalog source.
- */
-export function patchIslandCssCatalog(
-  catalogSource: string,
-  plan: ScaffoldPlan,
-): string {
-  if (new RegExp(`^\\s*'${plan.name}':`, 'm').test(catalogSource)) {
-    throw new Error(
-      `Island "${plan.name}" already looks registered in island-css-catalog.ts`,
-    );
-  }
-
-  const entry = plan.cssModulePath
-    ? `  '${plan.name}': islandCssModulePath('${plan.name}'),\n`
-    : `  '${plan.name}': undefined,\n`;
-
-  if (!catalogSource.includes('} as const satisfies Record<string,')) {
-    throw new Error(
-      'Could not find islandCssCatalog closing marker to insert entry',
-    );
-  }
-
-  return catalogSource.replace(
-    '} as const satisfies Record<string,',
-    `${entry}} as const satisfies Record<string,`,
-  );
-}
-
-/**
- * Writes scaffold files under `rootDir` and patches the island registry when needed.
+ * Writes scaffold files under `rootDir` and syncs the island protocol table.
  *
  * @param {string} rootDir - Repository root.
  * @param {ScaffoldPlan} plan - Validated plan.
@@ -485,17 +386,9 @@ export async function applyScaffoldPlan(
     written.push(moduleAbs);
   }
 
-  const registryAbs = join(rootDir, 'src/web/ui/runtime/island/registry.ts');
-  const registryBefore = await readFile(registryAbs, 'utf8');
-  const registryAfter = patchIslandRegistry(registryBefore, plan);
-  await writeFile(registryAbs, registryAfter, 'utf8');
-  written.push(registryAbs);
-
-  const catalogAbs = join(rootDir, 'src/web/protocol/island-css-catalog.ts');
-  const catalogBefore = await readFile(catalogAbs, 'utf8');
-  const catalogAfter = patchIslandCssCatalog(catalogBefore, plan);
-  await writeFile(catalogAbs, catalogAfter, 'utf8');
-  written.push(catalogAbs);
+  // Regenerate gitignored protocol/islands.ts from the islands folder tree.
+  const { path: islandsManifestPath } = await syncIslandManifest(rootDir);
+  written.push(islandsManifestPath);
 
   return written;
 }
@@ -510,7 +403,8 @@ function printHelp(): void {
   pnpm scaffold:web-ui --name <kebab> --mode page|island [--with-styles]
   pnpm scaffold:web-ui   # interactive
 
---with-styles is allowed only with --mode island (adds *.module.scss + cssModulePath).
+--with-styles is allowed only with --mode island (adds *.module.scss).
+Island mode also runs islands:sync for the host catalog.
 See docs/how-to-web-ui.md for the decision tree.
 `);
 }
@@ -610,8 +504,8 @@ Next steps:
     import { Island } from '@ui/runtime/island/island';
     <Island name="${plan.name}" component={${plan.pascalName}} props={{}} />
 
-  Scaffold already patched ui/runtime/island/registry.ts and
-  protocol/island-css-catalog.ts. Browse the stub with pnpm storybook.
+  Scaffold ran islands:sync (protocol/islands.ts). Hydrate loaders pick up the
+  new folder via glob — no registry edit. Browse the stub with pnpm storybook.
   See docs/how-to-web-ui.md
 `);
   }

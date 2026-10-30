@@ -25,7 +25,7 @@ DELETE `/api/user/:id` returning **204** whether or not the user existed is an i
 | TD-019 | Web UI      | Product islands under `src/web/islands/`; marker, registry, props codec, and hydrate under `src/web/runtime/island/`; slim `api-fetch/` keeps CSRF / `apiRequestDefaults` only. Decision: [ADR-0018](./adr/0018-island-runtime-folder.md).                |
 | TD-020 | Web UI      | Nest at `src/web/` root; engines under `runtime/{island,ssr,asset-delivery}`; `server-components/document.tsx`; `styles/shell.scss`. Decisions: [ADR-0019](./adr/0019-web-folder-grouping.md) (superseded), [ADR-0020](./adr/0020-web-runtime-folder.md). |
 | TD-025 | Testing     | Vitest browser mode (UI units) + Playwright library (browser e2e) + product `.tsx` coverage; happy-dom removed. Decision: [ADR-0021](./adr/0021-vitest-browser-ui-testing.md).                                                                            |
-| TD-028 | Web UI      | `pnpm scaffold:web-ui --mode island` patches `protocol/island-css-catalog.ts` together with the UI registry (styled or `undefined`). Decision: [ADR-0025](./adr/0025-per-component-folders.md).                                                           |
+| TD-028 | Web UI      | Island registration is filesystem + `pnpm islands:sync` (gitignored `protocol/islands.ts`) and glob loaders; superseded hand-patched catalog/registry. Decision: [ADR-0028](./adr/0028-island-filesystem-manifest.md).                                    |
 
 ## Open items
 

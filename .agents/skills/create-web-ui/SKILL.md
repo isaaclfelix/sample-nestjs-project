@@ -17,7 +17,7 @@ Prefer the shared scaffolder so humans and agents stay aligned:
 pnpm scaffold:web-ui --name <kebab> --mode page|island [--with-styles]
 ```
 
-Implementation: [scripts/scaffold-web-ui.ts](../../../scripts/scaffold-web-ui.ts). Run that script (or apply the **same** file edits it would). Do not hand-roll a different registry or CSS delivery path.
+Implementation: [scripts/scaffold-web-ui.ts](../../../scripts/scaffold-web-ui.ts). Run that script (or apply the **same** file edits it would). Do not hand-roll a different CSS delivery path or skip `islands:sync` for new islands.
 
 ## Ask before writing
 
@@ -27,8 +27,8 @@ Unless the user already answered, ask these in order:
    - **No** → SSR-only page folder under `src/web/ui/pages/<name>-page/` + SSR props under `src/web/protocol/page-props/`. Shell classes only. **Refuse** `*.module.scss` and `<Island>` “for styling.”
    - **Yes** → island folder under `src/web/ui/islands/<name>/`; then ask (2).
 2. **Does it need interaction-specific styles** beyond the shell (hover, spinner, open state)?
-   - **No** → island + registry + catalog row (`undefined` CSS); style with shell classes only (`--mode island` without `--with-styles`).
-   - **Yes** → also add colocated `*.module.scss`; scaffold patches registry **and** `protocol/island-css-catalog` (`--with-styles`).
+   - **No** → island folder only; style with shell classes (`--mode island` without `--with-styles`). Scaffold runs `islands:sync`.
+   - **Yes** → also add colocated `*.module.scss`; scaffold writes it and runs `islands:sync` (`--with-styles`).
 
 Map answers to the CLI:
 
@@ -53,7 +53,7 @@ Map answers to the CLI:
 
 **Page:** scaffolder writes `protocol/page-props/<name>-page.ssr-props.ts` (`*PageSsrProps`) + `ui/pages/<name>-page/<name>-page.tsx` + thin `index.ts` + `*.stories.tsx` stub. Then register in `protocol/page-props/page-props.ts` (`SsrPagePropsMap` / `WebPageName`), `ui/runtime/ssr/entry-server` pages map, and a `WebController` method that imports **SSR props types only** from protocol (never the page `.tsx`). Style with shell classes only. Read the [SSR page props quirk](../../../docs/how-to-web-ui.md#ssr-page-props-quirk).
 
-**Island:** render `<Island name="…" component={…} props={…} />` from a page (directory-import the island barrel; import `Island` from `src/web/ui/runtime/island/island`). Scaffold patches concrete loaders in `ui/runtime/island/registry.ts` and a row in `protocol/island-css-catalog.ts`, and writes a `*.stories.tsx` stub. Framework inlines CSS as a sibling `<style data-css-island>`; hydrate loads JS only.
+**Island:** render `<Island name="…" component={…} props={…} />` from a page (directory-import the island barrel; import `Island` from `@ui/runtime/island/island`). Scaffold writes the folder + stories stub and runs `pnpm islands:sync` (gitignored `protocol/islands.ts`). Hydrate loaders come from the registry glob — no map edit. Manual folders: `pnpm islands:sync` or restart `start:dev`. Framework inlines CSS as a sibling `<style data-css-island>`; hydrate loads JS only ([ADR-0028](../../../docs/adr/0028-island-filesystem-manifest.md)).
 
 **Tests ([ADR-0021](../../../docs/adr/0021-vitest-browser-ui-testing.md)):** interactive islands need a co-located `*.spec.ts` in the Vitest browser project (Testing Library). Pages/islands that navigate or call the API also need browser e2e coverage (`*.browser-e2e-spec.ts`). Do not defer that to out-of-repo QA ([TD-026](../../../docs/known-tech-debt.md)).
 
