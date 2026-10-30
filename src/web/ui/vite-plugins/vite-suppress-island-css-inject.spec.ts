@@ -1,7 +1,7 @@
 import {
   islandNameFromCssModuleId,
   rewriteIslandCssClientInject,
-} from './vite-suppress-island-css-inject';
+} from './vite-suppress-island-css-inject.js';
 
 describe('islandNameFromCssModuleId', () => {
   it('parses island module paths', () => {

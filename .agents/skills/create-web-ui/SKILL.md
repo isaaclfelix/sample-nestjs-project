@@ -9,7 +9,7 @@ description: >-
 
 # Create Web UI
 
-Bootstrap HTML UI in this Nest + Vite islands app **without inventing a parallel CSS or island pattern**. Source of truth for the decision tree: [docs/how-to-web-ui.md](../../../docs/how-to-web-ui.md). Delivery mechanics: [docs/architecture.md](../../../docs/architecture.md) (Styles). Layout: [ADR-0023](../../../docs/adr/0023-web-host-ui-protocol.md) (host / ui / protocol). Relative imports under `src/web/ui/` are **extensionless** ([ADR-0024](../../../docs/adr/0024-dual-import-resolution.md)); do not emit Nest-style `.js` suffixes into UI stubs. Components live in **per-component folders** with thin `index.ts` barrels ([ADR-0025](../../../docs/adr/0025-per-component-folders.md)).
+Bootstrap HTML UI in this Nest + Vite islands app **without inventing a parallel CSS or island pattern**. Source of truth for the decision tree: [docs/how-to-web-ui.md](../../../docs/how-to-web-ui.md). Delivery mechanics: [docs/architecture.md](../../../docs/architecture.md) (Styles). Layout: [ADR-0023](../../../docs/adr/0023-web-host-ui-protocol.md) (host / ui / protocol). Relative imports under `src/web/ui/` are **extensionless** ([ADR-0024](../../../docs/adr/0024-dual-import-resolution.md)); do not emit Nest-style `.js` suffixes into UI stubs. Components live in **per-component folders** with thin `index.ts` barrels ([ADR-0025](../../../docs/adr/0025-per-component-folders.md)). Scaffold also emits a colocated Storybook stub ([ADR-0026](../../../docs/adr/0026-storybook-ui-workshop.md)).
 
 Prefer the shared scaffolder so humans and agents stay aligned:
 
@@ -51,10 +51,12 @@ Map answers to the CLI:
 
 ## After scaffolding
 
-**Page:** scaffolder writes `protocol/page-props/<name>-page.ssr-props.ts` (`*PageSsrProps`) + `ui/pages/<name>-page/<name>-page.tsx` + thin `index.ts`. Then register in `protocol/page-props/page-props.ts` (`SsrPagePropsMap` / `WebPageName`), `ui/runtime/ssr/entry-server` pages map, and a `WebController` method that imports **SSR props types only** from protocol (never the page `.tsx`). Style with shell classes only. Read the [SSR page props quirk](../../../docs/how-to-web-ui.md#ssr-page-props-quirk).
+**Page:** scaffolder writes `protocol/page-props/<name>-page.ssr-props.ts` (`*PageSsrProps`) + `ui/pages/<name>-page/<name>-page.tsx` + thin `index.ts` + `*.stories.tsx` stub. Then register in `protocol/page-props/page-props.ts` (`SsrPagePropsMap` / `WebPageName`), `ui/runtime/ssr/entry-server` pages map, and a `WebController` method that imports **SSR props types only** from protocol (never the page `.tsx`). Style with shell classes only. Read the [SSR page props quirk](../../../docs/how-to-web-ui.md#ssr-page-props-quirk).
 
-**Island:** render `<Island name="…" component={…} props={…} />` from a page (directory-import the island barrel; import `Island` from `src/web/ui/runtime/island/island`). Scaffold patches concrete loaders in `ui/runtime/island/registry.ts` and a row in `protocol/island-css-catalog.ts`. Framework inlines CSS as a sibling `<style data-css-island>`; hydrate loads JS only.
+**Island:** render `<Island name="…" component={…} props={…} />` from a page (directory-import the island barrel; import `Island` from `src/web/ui/runtime/island/island`). Scaffold patches concrete loaders in `ui/runtime/island/registry.ts` and a row in `protocol/island-css-catalog.ts`, and writes a `*.stories.tsx` stub. Framework inlines CSS as a sibling `<style data-css-island>`; hydrate loads JS only.
 
 **Tests ([ADR-0021](../../../docs/adr/0021-vitest-browser-ui-testing.md)):** interactive islands need a co-located `*.spec.ts` in the Vitest browser project (Testing Library). Pages/islands that navigate or call the API also need browser e2e coverage (`*.browser-e2e-spec.ts`). Do not defer that to out-of-repo QA ([TD-026](../../../docs/known-tech-debt.md)).
+
+**Storybook ([ADR-0026](../../../docs/adr/0026-storybook-ui-workshop.md)):** browse stubs with `pnpm storybook`. Workshop only — not a Vitest replacement and not Chromatic.
 
 Run `pnpm lint` (and `pnpm build` if signatures/modules changed) after edits. Commit only when the user asks or AGENTS.md incremental commits applies — use the `create-commit` skill.

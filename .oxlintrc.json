@@ -17,7 +17,7 @@
   },
   "overrides": [
     {
-      "files": ["src/web/ui/**/*.{ts,tsx}"],
+      "files": [".storybook/**/*.{ts,tsx}", "src/web/ui/**/*.{ts,tsx}"],
       "rules": {
         "import/extensions": [
           "error",
@@ -29,6 +29,19 @@
               "scss": "always",
               "css": "always"
             }
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/web/ui/vite-plugins/**/*.{ts,tsx}"],
+      "rules": {
+        "import/extensions": [
+          "error",
+          "always",
+          {
+            "ignorePackages": true,
+            "checkTypeImports": true
           }
         ]
       }

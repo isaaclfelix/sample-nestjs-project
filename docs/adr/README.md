@@ -48,3 +48,4 @@ Current wiring and behavior live in [architecture.md](../architecture.md). That 
 | ADR-0023 | Nest host, embedded Vite UI, and typed protocol                | Accepted               | [0023-web-host-ui-protocol.md](./0023-web-host-ui-protocol.md)                           |
 | ADR-0024 | Dual import resolution (Nest `.js` vs Vite extensionless)      | Accepted               | [0024-dual-import-resolution.md](./0024-dual-import-resolution.md)                       |
 | ADR-0025 | Per-component folders with thin barrels                        | Accepted               | [0025-per-component-folders.md](./0025-per-component-folders.md)                         |
+| ADR-0026 | Storybook as a local UI workshop                               | Accepted               | [0026-storybook-ui-workshop.md](./0026-storybook-ui-workshop.md)                         |

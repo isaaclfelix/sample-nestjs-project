@@ -25,6 +25,9 @@ export default defineConfig({
         'src/web/ui/vite-plugins/vite-suppress-island-css-inject.ts',
         'src/**/*.module.ts',
         'src/**/*.spec.ts',
+        // Storybook workshop files; not unit-tested runtime.
+        'src/**/*.stories.ts',
+        'src/**/*.stories.tsx',
         // Runtime/document plumbing; covered indirectly by SSR and browser e2e.
         'src/web/ui/server-components/document/document.tsx',
         'src/web/ui/runtime/ssr/entry-server.tsx',

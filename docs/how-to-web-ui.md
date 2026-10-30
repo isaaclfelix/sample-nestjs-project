@@ -4,26 +4,26 @@ Canonical decision tree for HTML UI in this Nest + islands app. Follow it when s
 
 ## Where things live (`src/web/`)
 
-| Path                                                  | Put here                                                                                                            |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Nest root (`web.module.ts`, controller, view service) | Nest wiring only                                                                                                    |
-| `host/`                                               | Nest-executed SSR host (`page-loader`, `asset-delivery`)                                                            |
-| `protocol/`                                           | Wire types/data: SSR page props, `ServerEntry`, `PageAssets`, island CSS catalog                                    |
-| `protocol/page-props/`                                | `*-page.ssr-props.ts` + `SsrPagePropsMap` (not next to UI pages)                                                    |
-| `ui/pages/<name>-page/`                               | One folder per page: kebab `.tsx`, thin `index.ts`, optional spec ([ADR-0025](./adr/0025-per-component-folders.md)) |
-| `ui/server-components/<name>/`                        | One folder per server component (incl. `document/`) + thin `index.ts`                                               |
-| `ui/shared-components/<name>/`                        | One folder per shared component (e.g. `icon/`) + thin `index.ts`                                                    |
-| `ui/islands/<name>/`                                  | One folder per island: `.tsx`, optional `.module.scss` / spec, thin `index.ts`                                      |
-| `ui/runtime/island/`                                  | Island marker, loaders registry, props codec, hydrate entry                                                         |
-| `ui/runtime/ssr/`                                     | `entry-server` only                                                                                                 |
-| `ui/styles/`                                          | `shell.scss`, opt-in siblings (`forms.scss`), `_*.scss` partials                                                    |
-| `ui/api-fetch/`                                       | Browser CSRF + `fetch` defaults for `/api`                                                                          |
-| `ui/hooks/`                                           | Island React hooks (e.g. `use-api-mutation`)                                                                        |
-| `ui/vite-plugins/`                                    | Vite build plugins                                                                                                  |
+| Path                                                  | Put here                                                                                                                                                                               |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Nest root (`web.module.ts`, controller, view service) | Nest wiring only                                                                                                                                                                       |
+| `host/`                                               | Nest-executed SSR host (`page-loader`, `asset-delivery`)                                                                                                                               |
+| `protocol/`                                           | Wire types/data: SSR page props, `ServerEntry`, `PageAssets`, island CSS catalog                                                                                                       |
+| `protocol/page-props/`                                | `*-page.ssr-props.ts` + `SsrPagePropsMap` (not next to UI pages)                                                                                                                       |
+| `ui/pages/<name>-page/`                               | One folder per page: kebab `.tsx`, thin `index.ts`, optional spec / `*.stories.tsx` ([ADR-0025](./adr/0025-per-component-folders.md), [ADR-0026](./adr/0026-storybook-ui-workshop.md)) |
+| `ui/server-components/<name>/`                        | One folder per server component (incl. `document/`) + thin `index.ts` (stories except `document/`)                                                                                     |
+| `ui/shared-components/<name>/`                        | One folder per shared component (e.g. `icon/`) + thin `index.ts` + stories                                                                                                             |
+| `ui/islands/<name>/`                                  | One folder per island: `.tsx`, optional `.module.scss` / spec / `*.stories.tsx`, thin `index.ts`                                                                                       |
+| `ui/runtime/island/`                                  | Island marker, loaders registry, props codec, hydrate entry                                                                                                                            |
+| `ui/runtime/ssr/`                                     | `entry-server` only                                                                                                                                                                    |
+| `ui/styles/`                                          | `shell.scss`, opt-in siblings (`forms.scss`), `_*.scss` partials                                                                                                                       |
+| `ui/api-fetch/`                                       | Browser CSRF + `fetch` defaults for `/api`                                                                                                                                             |
+| `ui/hooks/`                                           | Island React hooks (e.g. `use-api-mutation`)                                                                                                                                           |
+| `ui/vite-plugins/`                                    | Vite build plugins                                                                                                                                                                     |
 
 Do **not** put product UI under `host/`; do **not** put Nest-executed engines under `ui/`. Both may import `protocol/` only.
 
-**Relative imports in `ui/` are extensionless** (no `.js` suffix). Nest zones (`api/`, `host/`, `protocol/`, Nest web root) keep `.js` emit specifiers. Do not copy the Nest style into islands/pages. See [ADR-0024](./adr/0024-dual-import-resolution.md).
+**Relative imports in `ui/` are extensionless** (no `.js` suffix), except `ui/vite-plugins/**` which use `.js` because they load in Vite’s Node config graph. Nest zones (`api/`, `host/`, `protocol/`, Nest web root) keep `.js` emit specifiers. Do not copy the Nest style into islands/pages. See [ADR-0024](./adr/0024-dual-import-resolution.md).
 
 ## SSR page props quirk
 
@@ -121,6 +121,7 @@ Login/register use react-hook-form + Zod and `useApiMutation`:
 - Form-level API errors: plain colored text (`.form-api-error`), not Bootstrap alerts.
 - See [architecture.md — Frontend contract](./architecture.md#frontend-contract-islands--api) for status codes and redirects.
 - **Tests:** co-locate a browser-mode `*.spec.ts` next to interactive islands (Vitest browser project). When the UI navigates or mutates, add or extend `*.browser-e2e-spec.ts`. See [testing-and-coverage.md](./testing-and-coverage.md) and [ADR-0021](./adr/0021-vitest-browser-ui-testing.md).
+- **Storybook workshop:** co-locate `*.stories.tsx` (scaffold emits a stub). Browse with `pnpm storybook` — visual/dev only, not a second test runner ([ADR-0026](./adr/0026-storybook-ui-workshop.md)). Skip stories for `Document` (nested `html`).
 
 ## Anti-patterns
 

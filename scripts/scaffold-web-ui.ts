@@ -31,9 +31,11 @@ export interface ScaffoldPlan {
   pascalName: string;
   pageComponentPath: string;
   pageIndexPath: string;
+  pageStoriesPath: string;
   pagePropsPath: string;
   islandComponentPath: string;
   islandIndexPath: string;
+  islandStoriesPath: string;
   islandModulePath: string | undefined;
   cssModulePath: string | undefined;
 }
@@ -93,9 +95,11 @@ export function resolveScaffoldPlan(answers: ScaffoldAnswers): ScaffoldPlan {
     pascalName,
     pageComponentPath: `src/web/ui/pages/${pageFolder}/${pageFolder}.tsx`,
     pageIndexPath: `src/web/ui/pages/${pageFolder}/index.ts`,
+    pageStoriesPath: `src/web/ui/pages/${pageFolder}/${pageFolder}.stories.tsx`,
     pagePropsPath: `src/web/protocol/page-props/${pageFolder}.ssr-props.ts`,
     islandComponentPath: `src/web/ui/islands/${name}/${name}.tsx`,
     islandIndexPath: `src/web/ui/islands/${name}/index.ts`,
+    islandStoriesPath: `src/web/ui/islands/${name}/${name}.stories.tsx`,
     islandModulePath: withStyles
       ? `src/web/ui/islands/${name}/${name}.module.scss`
       : undefined,
@@ -197,6 +201,56 @@ export function ${componentName}({ title }: ${propsName}): ReactElement {
 `;
 
   return { props, component };
+}
+
+/**
+ * Builds a minimal CSF3 Storybook stub for a scaffolded page.
+ *
+ * @param {ScaffoldPlan} plan - Validated plan.
+ * @returns {string} Story file contents.
+ */
+function pageStoriesSource(plan: ScaffoldPlan): string {
+  const componentName = `${plan.pascalName}Page`;
+  return `import type { Meta, StoryObj } from '@storybook/react-vite';
+import { ${componentName} } from './${plan.name}-page';
+
+const meta = {
+  title: 'Pages/${componentName}',
+  component: ${componentName},
+  args: {
+    title: '${plan.pascalName}',
+  },
+} satisfies Meta<typeof ${componentName}>;
+
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {};
+`;
+}
+
+/**
+ * Builds a minimal CSF3 Storybook stub for a scaffolded island.
+ *
+ * @param {ScaffoldPlan} plan - Validated plan.
+ * @returns {string} Story file contents.
+ */
+function islandStoriesSource(plan: ScaffoldPlan): string {
+  return `import type { Meta, StoryObj } from '@storybook/react-vite';
+import ${plan.pascalName} from './${plan.name}';
+
+const meta = {
+  title: 'Islands/${plan.pascalName}',
+  component: ${plan.pascalName},
+} satisfies Meta<typeof ${plan.pascalName}>;
+
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {};
+`;
 }
 
 /**
@@ -383,6 +437,7 @@ export async function applyScaffoldPlan(
     const propsAbs = join(rootDir, plan.pagePropsPath);
     const componentAbs = join(rootDir, plan.pageComponentPath);
     const indexAbs = join(rootDir, plan.pageIndexPath);
+    const storiesAbs = join(rootDir, plan.pageStoriesPath);
 
     if (existsSync(propsAbs) || existsSync(componentAbs)) {
       throw new Error(
@@ -397,13 +452,15 @@ export async function applyScaffoldPlan(
     await writeFile(propsAbs, props, 'utf8');
     await writeFile(componentAbs, component, 'utf8');
     await writeFile(indexAbs, pageIndex, 'utf8');
-    written.push(propsAbs, componentAbs, indexAbs);
+    await writeFile(storiesAbs, pageStoriesSource(plan), 'utf8');
+    written.push(propsAbs, componentAbs, indexAbs, storiesAbs);
     return written;
   }
 
   const { component, moduleCss } = islandSources(plan);
   const componentAbs = join(rootDir, plan.islandComponentPath);
   const indexAbs = join(rootDir, plan.islandIndexPath);
+  const storiesAbs = join(rootDir, plan.islandStoriesPath);
   if (existsSync(componentAbs)) {
     throw new Error(`Island file already exists: ${plan.islandComponentPath}`);
   }
@@ -419,7 +476,8 @@ export async function applyScaffoldPlan(
   await mkdir(dirname(componentAbs), { recursive: true });
   await writeFile(componentAbs, component, 'utf8');
   await writeFile(indexAbs, islandIndex, 'utf8');
-  written.push(componentAbs, indexAbs);
+  await writeFile(storiesAbs, islandStoriesSource(plan), 'utf8');
+  written.push(componentAbs, indexAbs, storiesAbs);
 
   if (moduleCss && plan.islandModulePath) {
     const moduleAbs = join(rootDir, plan.islandModulePath);
@@ -542,6 +600,7 @@ Next steps:
   3. Add a WebController method that imports SSR props from protocol/page-props/ only
      and calls webViewService.render('${plan.name}', props)
   4. Style with shell classes only — see docs/how-to-web-ui.md (SSR page props quirk)
+  5. Browse the stub story with pnpm storybook (workshop, not QA)
 `);
   } else {
     output.write(`
@@ -552,7 +611,8 @@ Next steps:
     <Island name="${plan.name}" component={${plan.pascalName}} props={{}} />
 
   Scaffold already patched ui/runtime/island/registry.ts and
-  protocol/island-css-catalog.ts. See docs/how-to-web-ui.md
+  protocol/island-css-catalog.ts. Browse the stub with pnpm storybook.
+  See docs/how-to-web-ui.md
 `);
   }
 }
