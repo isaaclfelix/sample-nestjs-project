@@ -7,25 +7,26 @@ import type { IslandModule } from './island-module';
 
 describe('buildIslandLoaders', () => {
   it('keeps conventional registered keys and drops others', () => {
-    const loadNav = async (): Promise<IslandModule> => ({
+    const loadLogin = async (): Promise<IslandModule> => ({
       default: () => null,
     });
     const loadOther = async (): Promise<IslandModule> => ({
       default: () => null,
     });
 
+    // Use a real IslandName path so the Partial<Record<IslandName, …>> result types cleanly.
     const loaders = buildIslandLoaders(
       {
-        '../../islands/nav/nav.tsx': loadNav,
-        '../../islands/nav/helper.tsx': loadOther,
+        '../../islands/login-form/login-form.tsx': loadLogin,
+        '../../islands/login-form/helper.tsx': loadOther,
         '../../islands/ghost/ghost.tsx': loadOther,
         '../../pages/x/x.tsx': loadOther,
       },
-      (name) => name === 'nav',
+      (name) => name === 'login-form',
     );
 
-    expect(Object.keys(loaders)).toEqual(['nav']);
-    expect(loaders.nav).toBe(loadNav);
+    expect(Object.keys(loaders)).toEqual(['login-form']);
+    expect(loaders['login-form']).toBe(loadLogin);
   });
 });
 
