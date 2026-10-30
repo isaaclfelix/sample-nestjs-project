@@ -49,3 +49,4 @@ Current wiring and behavior live in [architecture.md](../architecture.md). That 
 | ADR-0024 | Dual import resolution (Nest `.js` vs Vite extensionless)      | Accepted               | [0024-dual-import-resolution.md](./0024-dual-import-resolution.md)                       |
 | ADR-0025 | Per-component folders with thin barrels                        | Accepted               | [0025-per-component-folders.md](./0025-per-component-folders.md)                         |
 | ADR-0026 | Storybook as a local UI workshop                               | Accepted               | [0026-storybook-ui-workshop.md](./0026-storybook-ui-workshop.md)                         |
+| ADR-0027 | UI zone path aliases (`@ui` / `@protocol` / `@api`)            | Accepted               | [0027-ui-path-aliases.md](./0027-ui-path-aliases.md)                                     |

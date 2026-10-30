@@ -25,6 +25,8 @@ Do **not** put product UI under `host/`; do **not** put Nest-executed engines un
 
 **Relative imports in `ui/` are extensionless** (no `.js` suffix), except `ui/vite-plugins/**` which use `.js` because they load in Vite’s Node config graph. Nest zones (`api/`, `host/`, `protocol/`, Nest web root) keep `.js` emit specifiers. Do not copy the Nest style into islands/pages. See [ADR-0024](./adr/0024-dual-import-resolution.md).
 
+**Path aliases when leaving a component folder** ([ADR-0027](./adr/0027-ui-path-aliases.md)): use `@ui/…`, `@protocol/…`, or `@api/…` instead of climbing with `../`. Keep `./` for same-folder siblings / thin barrels. Example: `import LoginForm from '@ui/islands/login-form'` and `import type { LoginPageSsrProps } from '@protocol/page-props/login-page.ssr-props'`.
+
 ## SSR page props quirk
 
 SSR embed props look like “the page’s props,” but they are a Nest→Vite **embed contract**:

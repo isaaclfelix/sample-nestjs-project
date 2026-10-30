@@ -3,7 +3,7 @@
 // Enter/exit use keyframe animations. Resting open styles live on `.open`;
 // `.closing` uses animation-fill-mode: forwards until React clears it.
 
-@import '../../styles/tokens';
+@import '@ui/styles/tokens';
 
 @keyframes fade-in {
   from {

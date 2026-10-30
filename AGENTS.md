@@ -96,6 +96,7 @@ Follow these conventions when adding or refactoring application code so reviews 
 - Nest wrappers around vendor clients use **composition** (own a `client` / dependency field), not `extends`, unless there is a documented exception. `PrismaService` owns `PrismaClient`.
 - **One interface/type per file is not required.** Port-related types may live next to the port that uses them (for example `CreateUserRecord` beside `UserRepository`).
 - **Relative import extensions** follow the zone ([ADR-0024](docs/adr/0024-dual-import-resolution.md)): Nest-emitted code (`src/api/`, `src/web/host/`, `src/web/protocol/`, Nest web root) keeps **`.js`** emit specifiers; Vite `src/web/ui/**` uses **extensionless** relatives, except `ui/vite-plugins/**` (Vite Node config graph → `.js`). Do not “normalize” product UI imports to Nest style or strip `.js` from `api/`.
+- **UI path aliases** ([ADR-0027](docs/adr/0027-ui-path-aliases.md)): from a product component folder, imports that leave that folder use `@ui/*`, `@protocol/*`, or `@api/*` (not `../` climbs). Same-folder stays `./`. Nest emit trees do not use these aliases.
 
 ## 8. Web UI (SSR pages and islands)
 

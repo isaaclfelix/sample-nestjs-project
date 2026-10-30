@@ -1,10 +1,14 @@
 import react from '@vitejs/plugin-react';
 import doiuse from 'doiuse';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import sortMediaQueries from 'postcss-sort-media-queries';
 import { defineConfig } from 'vite';
 import { shellCssBudgetPlugin } from './src/web/ui/vite-plugins/vite-shell-css-budget.js';
 import { stripIslandCssFromModulePreload } from './src/web/ui/vite-plugins/vite-strip-island-css-preload.js';
 import { suppressIslandCssClientInject } from './src/web/ui/vite-plugins/vite-suppress-island-css-inject.js';
+
+const repoRoot = dirname(fileURLToPath(import.meta.url));
 
 /**
  * Client and server builds for the React page layer.
@@ -16,6 +20,8 @@ import { suppressIslandCssClientInject } from './src/web/ui/vite-plugins/vite-su
  *
  * CSS: Sass → PostCSS (media-query sort + doiuse warn) → Lightning CSS minify
  * at Baseline Widely Available. The shell sheet is its own client input.
+ *
+ * Path aliases (@ui / @protocol / @api) match tsconfig.web.json (ADR-0027).
  */
 export default defineConfig(({ isSsrBuild }) => ({
   plugins: [
@@ -26,6 +32,14 @@ export default defineConfig(({ isSsrBuild }) => ({
       ? []
       : [shellCssBudgetPlugin(), stripIslandCssFromModulePreload()]),
   ],
+  resolve: {
+    // Prefer explicit aliases; tsconfigPaths alone may miss tsconfig.web.json.
+    alias: {
+      '@ui': resolve(repoRoot, 'src/web/ui'),
+      '@protocol': resolve(repoRoot, 'src/web/protocol'),
+      '@api': resolve(repoRoot, 'src/api'),
+    },
+  },
   build: {
     // Lean modern evergreen targets; older browsers are TD-013 / TD-015.
     target: 'baseline-widely-available',

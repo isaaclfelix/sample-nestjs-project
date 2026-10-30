@@ -175,7 +175,7 @@ export interface ${propsName} {
 `;
 
   const component = `import type { ReactElement } from 'react';
-import type { ${propsName} } from '../../../protocol/page-props/${plan.name}-page.ssr-props';
+import type { ${propsName} } from '@protocol/page-props/${plan.name}-page.ssr-props';
 
 /**
  * Renders the ${plan.name} page body.
@@ -304,7 +304,7 @@ export default function ${plan.pascalName}({
     ? `// Island-owned interaction styles. Keep small — not a second design system.
 // Use tokens for Sass API only; never re-import the shell sheet.
 
-@import '../../styles/tokens';
+@import '@ui/styles/tokens';
 
 .root {
   // Interaction-specific rules (hover, open state, spinner, …).
@@ -345,7 +345,7 @@ export function patchIslandRegistry(
  * @returns {Promise<IslandModule>} The ${plan.name} module.
  */
 function load${plan.pascalName}Island(): Promise<IslandModule> {
-  return import('../../islands/${plan.name}/${plan.name}') as Promise<IslandModule>;
+  return import('@ui/islands/${plan.name}/${plan.name}') as Promise<IslandModule>;
 }
 `;
 
@@ -605,9 +605,9 @@ Next steps:
   } else {
     output.write(`
 Next steps:
-  Render on a page (directory import of the thin barrel):
-    import ${plan.pascalName} from '../../islands/${plan.name}';
-    import { Island } from '../../runtime/island/island';
+  Render on a page (leave the page folder via @ui aliases — ADR-0027):
+    import ${plan.pascalName} from '@ui/islands/${plan.name}';
+    import { Island } from '@ui/runtime/island/island';
     <Island name="${plan.name}" component={${plan.pascalName}} props={{}} />
 
   Scaffold already patched ui/runtime/island/registry.ts and
