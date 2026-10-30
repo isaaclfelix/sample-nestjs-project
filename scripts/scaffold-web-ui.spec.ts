@@ -55,6 +55,9 @@ describe('resolveScaffoldPlan', () => {
       'src/web/ui/islands/my-widget/my-widget.tsx',
     );
     expect(plan.islandIndexPath).toBe('src/web/ui/islands/my-widget/index.ts');
+    expect(plan.islandStoriesPath).toBe(
+      'src/web/ui/islands/my-widget/my-widget.stories.tsx',
+    );
     expect(plan.islandModulePath).toBe(
       'src/web/ui/islands/my-widget/my-widget.module.scss',
     );
@@ -84,6 +87,9 @@ describe('resolveScaffoldPlan', () => {
       'src/web/ui/pages/about-page/about-page.tsx',
     );
     expect(plan.pageIndexPath).toBe('src/web/ui/pages/about-page/index.ts');
+    expect(plan.pageStoriesPath).toBe(
+      'src/web/ui/pages/about-page/about-page.stories.tsx',
+    );
     expect(plan.pagePropsPath).toBe(
       'src/web/protocol/page-props/about-page.ssr-props.ts',
     );
@@ -205,11 +211,13 @@ describe('applyScaffoldPlan', () => {
       withStyles: false,
     });
     const written = await applyScaffoldPlan(root, plan);
-    expect(written).toHaveLength(3);
+    expect(written).toHaveLength(4);
     const props = await readFile(join(root, plan.pagePropsPath), 'utf8');
     expect(props).toContain('AboutPageSsrProps');
     const index = await readFile(join(root, plan.pageIndexPath), 'utf8');
     expect(index).toContain("export { AboutPage } from './about-page'");
+    const stories = await readFile(join(root, plan.pageStoriesPath), 'utf8');
+    expect(stories).toContain("title: 'Pages/AboutPage'");
   });
 
   it('writes island files and patches registry and catalog', async () => {
@@ -268,6 +276,8 @@ export const islandLoaders = {
     expect(component).toContain('import styles from');
     const index = await readFile(join(root, plan.islandIndexPath), 'utf8');
     expect(index).toContain("export { default } from './toggle'");
+    const stories = await readFile(join(root, plan.islandStoriesPath), 'utf8');
+    expect(stories).toContain("title: 'Islands/Toggle'");
     const moduleCss = await readFile(
       join(root, plan.islandModulePath!),
       'utf8',

@@ -117,12 +117,14 @@ Set `DATABASE_URL` from [`.env.example`](./.env.example). Details: [docs/archite
 
 Full policy: [docs/testing-and-coverage.md](./docs/testing-and-coverage.md).
 
-| Command         | Role                                            |
-| --------------- | ----------------------------------------------- |
-| `pnpm test`     | Unit suite (`*.spec.ts`)                        |
-| `pnpm test:e2e` | E2E suite (`*.e2e-spec.ts`); needs Docker       |
-| `pnpm test:cov` | Units + coverage; fails below Vitest thresholds |
+| Command                | Role                                            |
+| ---------------------- | ----------------------------------------------- |
+| `pnpm test`            | Unit suite (`*.spec.ts`)                        |
+| `pnpm test:e2e`        | E2E suite (`*.e2e-spec.ts`); needs Docker       |
+| `pnpm test:cov`        | Units + coverage; fails below Vitest thresholds |
+| `pnpm storybook`       | Local Storybook workshop UI (port 6006)         |
+| `pnpm build-storybook` | Static Storybook compile (CI)                   |
 
-- Coverage is **unit-only** (see Vitest config). E2E is a separate behavioral gate.
+- Coverage is **unit-only** (see Vitest config). E2E is a separate behavioral gate. Storybook is a **workshop**, not a test runner ([ADR-0026](./docs/adr/0026-storybook-ui-workshop.md)).
 - When you change **controllers or HTTP contracts**, update or add e2e specs in the same PR.
-- GitHub Actions workflow **CI** (`.github/workflows/ci.yml`) runs parallel jobs: `lint`, `build`, `unit`, `e2e`, `coverage`. All must be green; an admin should require those checks on `main` (steps in the docs above). The `e2e` job needs Docker (available on GitHub-hosted runners).
+- GitHub Actions workflow **CI** (`.github/workflows/ci.yml`) runs parallel jobs: `lint`, `build`, `unit`, `e2e`, `coverage`, `storybook`. All must be green; an admin should require those checks on `main` (steps in the docs above). The `e2e` job needs Docker (available on GitHub-hosted runners).

@@ -24,8 +24,8 @@
     "test:debug": "env -u PLAYWRIGHT_BROWSERS_PATH vitest --inspect-brk --no-file-parallelism",
     "test:e2e": "env -u PLAYWRIGHT_BROWSERS_PATH vitest run --config ./vitest.config.e2e.ts",
     "scaffold:web-ui": "tsx scripts/scaffold-web-ui.ts",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "storybook": "STORYBOOK_DISABLE_TELEMETRY=1 storybook dev -p 6006",
+    "build-storybook": "STORYBOOK_DISABLE_TELEMETRY=1 storybook build"
   },
   "dependencies": {
     "@hookform/resolvers": "^6.0.1",
