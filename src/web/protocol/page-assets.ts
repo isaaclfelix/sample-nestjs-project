@@ -1,4 +1,4 @@
-import type { IslandName } from './island-css-catalog.js';
+import type { IslandName } from './islands.js';
 
 /** One `<style>` block to emit in the document head (e.g. inlined shell). */
 export interface InlineStyleTag {

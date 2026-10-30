@@ -32,9 +32,9 @@ They **are** the page component’s props type, but:
 
 Scaffold (`pnpm scaffold:web-ui --mode page`) writes SSR props under `protocol/page-props/` and the page under `ui/pages/`.
 
-### Island CSS catalog
+### Island registration
 
-Dev CSS module URLs live in `protocol/island-css-catalog.ts` (data only). UI `registry.ts` owns dynamic `import()` loaders and reads the catalog for `cssModulePath`.
+Host-readable island identity lives in committed `protocol/islands.ts`; the `islands` map is **gitignored** `protocol/islands.generated.ts` from `pnpm islands:sync`. UI `registry.ts` derives lazy loaders via `import.meta.glob` ([ADR-0028](./0028-island-filesystem-manifest.md)).
 
 ## Consequences
 

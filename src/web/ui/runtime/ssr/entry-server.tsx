@@ -5,7 +5,7 @@ import type {
   SsrPagePropsMap,
   WebPageName,
 } from '@protocol/page-props/page-props';
-import type { IslandName } from '@protocol/island-css-catalog';
+import type { IslandName } from '@protocol/islands';
 import { HomePage } from '@ui/pages/home-page';
 import { LoginPage } from '@ui/pages/login-page';
 import { RegisterPage } from '@ui/pages/register-page';

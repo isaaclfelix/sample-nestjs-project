@@ -50,3 +50,4 @@ Current wiring and behavior live in [architecture.md](../architecture.md). That 
 | ADR-0025 | Per-component folders with thin barrels                        | Accepted               | [0025-per-component-folders.md](./0025-per-component-folders.md)                         |
 | ADR-0026 | Storybook as a local UI workshop                               | Accepted               | [0026-storybook-ui-workshop.md](./0026-storybook-ui-workshop.md)                         |
 | ADR-0027 | UI zone path aliases (`@ui` / `@protocol` / `@api`)            | Accepted               | [0027-ui-path-aliases.md](./0027-ui-path-aliases.md)                                     |
+| ADR-0028 | Island filesystem manifest and glob loaders                    | Accepted               | [0028-island-filesystem-manifest.md](./0028-island-filesystem-manifest.md)               |

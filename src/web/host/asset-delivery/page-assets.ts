@@ -5,7 +5,7 @@ import {
   islandCssModuleUrl,
   islandManifestSourceKey,
   type IslandName,
-} from '../../protocol/island-css-catalog.js';
+} from '../../protocol/islands.js';
 import type { PageAssets } from '../../protocol/page-assets.js';
 import { shellCssBudgetBytes } from '../../protocol/shell-css-budget.js';
 import {

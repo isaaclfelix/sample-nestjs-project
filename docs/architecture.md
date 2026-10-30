@@ -309,21 +309,11 @@ Islands do not share React context or state after hydration (see [TD-008](./know
 
 ### Lazy chunks
 
-The client entry imports the registry, not the island components:
-
-```ts
-export const islandLoaders = {
-  'mobile-navigation': loadMobileNavigationIsland,
-} as const;
-
-function loadMobileNavigationIsland() {
-  return import('../../islands/mobile-navigation/mobile-navigation');
-}
-```
+The client hydrate entry imports the island registry, which builds lazy loaders from a filtered `import.meta.glob` of `ui/islands/*/*.tsx` (dirname===basename only). Host identity comes from `protocol/islands.ts` plus gitignored `islands.generated.ts` (`pnpm islands:sync`) ([ADR-0028](./adr/0028-island-filesystem-manifest.md)).
 
 Vite emits a separate chunk per dynamic `import()`. `assetTagsFromManifest` emits the hydrate entry and its static `imports`; it does not walk `dynamicImports`. Vite may still inject runtime `modulepreload` when a dynamic `import()` runs ([ADR-0012](./adr/0012-island-boundaries.md); revisit with [TD-010](./known-tech-debt.md)).
 
-The registry's `isIslandName` check uses `hasOwnProperty`. An unknown name throws before hydration.
+The registry's `isIslandName` check uses `hasOwnProperty` against the generated protocol table. An unknown name throws before hydration.
 
 Product islands live under `ui/islands/`; marker, loaders registry, props codec, and hydrate live under `ui/runtime/island/` ([ADR-0018](./adr/0018-island-runtime-folder.md); [TD-019](./known-tech-debt.md) closed). Nest stays at the `src/web/` root; Nest engines under `host/`; wire types under `protocol/`; React under `ui/` ([ADR-0023](./adr/0023-web-host-ui-protocol.md); earlier folder ADRs 0018/0020 retain history).
 

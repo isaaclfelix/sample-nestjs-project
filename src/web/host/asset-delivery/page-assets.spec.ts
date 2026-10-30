@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import * as islandCssCatalog from '../../protocol/island-css-catalog.js';
+import * as islandsProtocol from '../../protocol/islands.js';
 import type { ClientManifest } from './asset-tags.js';
 import {
   createPageAssets,
@@ -128,9 +128,9 @@ describe('islandCssFromVite', () => {
     ).resolves.toEqual({});
   });
 
-  it('skips islands that have no cssModulePath', async () => {
+  it('skips islands that have hasCssModule false', async () => {
     const spy = vi
-      .spyOn(islandCssCatalog, 'islandCssModuleUrl')
+      .spyOn(islandsProtocol, 'islandCssModuleUrl')
       .mockReturnValue(undefined);
     const vite = { transformRequest: vi.fn() };
 
