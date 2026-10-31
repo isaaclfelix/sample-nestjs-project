@@ -4,7 +4,7 @@
 
 The product name honors Spanish (_archipiélago_) but **drops the accent**—Archipielago, not Archipiélago—so it reads as an international product name rather than a literal dictionary word. Do not introduce other Spanish brand words; kinship labels in the vision (mother, father, Godfather) stay English.
 
-This repository will become the **Archipielago monorepo**: framework packages, runnable host examples (including NestJS), shared tooling, and eventually the public site—which dogfoods Archipielago itself.
+This repository will become the **Archipielago monorepo**: framework packages, runnable host examples (including NestJS), shared tooling, and eventually the public site—which dogfoods Archipielago itself. **Documentation’s home and source of truth remain in this repo** (see [mission.md](./mission.md)).
 
 | Doc                          | Purpose                                                            |
 | ---------------------------- | ------------------------------------------------------------------ |

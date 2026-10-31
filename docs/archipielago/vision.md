@@ -76,7 +76,7 @@ Long term it holds:
 1. **Framework packages** — core render contracts, React SSR/islands runtime, Vite helpers, host adapters.
 2. **Runnable host examples** — named after the framework (`nestjs`, later `express` / `hono`, etc.), not after kinship titles.
 3. **Shared tooling** — pnpm workspace, Vite, oxlint, and related gates the Godfather era taught us to keep coherent across packages.
-4. **Public site** — documentation and marketing that **runs on Archipielago** (dogfooding). NestJS may host that site; that choice is independent of the Godfather metaphor and can be justified in its own note later.
+4. **Public site** — documentation and marketing that **runs on Archipielago** (dogfooding). NestJS may host that site; that choice is independent of the Godfather metaphor and can be justified in its own note later. The site presents in-repo docs; the **repository remains the documentation source of truth** ([mission.md](./mission.md)).
 
 Today the NestJS app still **embeds** the islands stack under `src/web/`. Isolation and package boundaries come first; the monorepo layout follows (see [roadmap.md](./roadmap.md)).
 

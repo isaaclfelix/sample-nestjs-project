@@ -17,6 +17,7 @@ High-level milestones only. Later phases wait on earlier ones. Outcomes, not spr
 - Brand **Archipielago** (no accent; only Spanish product name) and market position written down.
 - Kinship labels in English: Astro mother, is-land father, NestJS Godfather (philosophy only).
 - Mission recorded: human-first AI assist, developer-first OSS, diversity/inclusion with objective contribution standards.
+- Documentation home and source of truth stays in the code repository (agent-friendly; developer-aimed).
 - Recommended AI-assisted workflow documented (conversation → plan → execute → review → merge); Cursor today, other environments welcome.
 - Hard guideline: ADRs mandatory for locked durable decisions; known tech debt from trade-offs highly encouraged / required once recognized.
 - Monorepo destination and dogfooding site claim recorded in vision.
@@ -64,7 +65,7 @@ No commitment to ship Astro’s routing, content collections, or multi-framework
 
 ## Phase 5 — Docs site (dogfood Archipielago)
 
-- Evolve the monorepo’s public site into Archipielago’s documentation and marketing surface (philosophy, how-to, metrics, integration guides).
+- Evolve the monorepo’s public site into Archipielago’s documentation and marketing surface (philosophy, how-to, metrics, integration guides), **rendered from** in-repo docs—the repository stays the source of truth.
 - **Bold claim:** the site is built with Archipielago.
 - NestJS may remain the site host; that selection is independent of the Godfather metaphor and can be expanded in a later note.
 - Keep a working NestJS (and other) host demos alongside or linked from the site.

@@ -34,6 +34,17 @@ We do not optimize for:
 
 When pressure conflicts with engineering quality, quality wins unless the maintainers explicitly accept a documented, time-boxed tradeoff.
 
+### Documentation lives in the repository
+
+The **home and source of truth** for project documentation is this **code repository** (`docs/` and related in-tree files)—not a separate wiki, SaaS knowledge base, or MCP-only corpus.
+
+That choice is deliberate:
+
+- **Agent-friendly** — humans and AI assistants read and update the same markdown beside the code, without extra MCP servers or vendor lock-in just to stay aligned.
+- **Developer-first** — docs target the engineering community that builds and consumes Archipielago; the same PR that changes behavior updates the record.
+
+A public site may **present** that material (and dogfood Archipielago doing so). It does not replace the repo as the source of truth. If rendered docs and the tree diverge, the repository wins until they are reconciled.
+
 ## Diversity, inclusion, and contribution standards
 
 We thrive on **diversity, inclusion, and non-discrimination**. Anyone may propose work.
