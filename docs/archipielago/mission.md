@@ -10,6 +10,14 @@ Archipielago is a **human-first, AI-assisted** initiative. Automation and agents
 
 As the team grows, durable decisions move from individual judgment toward **collective ownership**: material changes should reach a clear level of consensus before they are accepted as project direction.
 
+### Why AI assistance is encouraged (not enforced)
+
+We encourage AI-assisted development because the project accumulates an ever-growing index of [ADRs](../adr/README.md) and [tech debt](../known-tech-debt.md) records. Keeping that corpus fresh in human memory—both **writing** it accurately and **ingesting** it when deciding what to do next—is the real taxing work. Typing the code is rarely the bottleneck.
+
+The recommended [workflow](./workflow.md) plus parallel documentation discipline is what keeps alignment mostly effortless: **think most of the time, execute a little** (roughly ninety percent judgment and ten percent implementation), at the expense of compute rather than cognitive grind.
+
+Faster code generation is a **secondary** win. It is not a license for crunch, worker abuse, or treating people as throughput. It does not dishonor the craft of human-made software that made AI-assisted development possible. That is why assistance is **encouraged**, never **enforced**—contributors choose whether to work with or without AI, and also why we stay away from becoming a fully automated agentic-only project.
+
 A practical, **recommended** (not required) conversation → plan → execute → review loop is documented in [workflow.md](./workflow.md).
 
 ## Open source, developer-first

@@ -1,6 +1,6 @@
 # Recommended AI-assisted workflow
 
-This is the flow we have used from the start of this repository. We are **human-first** and we **encourage AI-assisted development**—agents as accelerators, people as decision-makers ([mission.md](./mission.md)). That encouragement is not an imposition: whether someone works **with or without AI** is their decision. The **sequence** below is a **recommendation**, not a mandate—compress or reorder steps when the change is small or already decided. The **ADR (and related) documentation rules** in the next section are **hard guidelines** for contributions, independent of that flexibility.
+This is the flow we have used from the start of this repository. We are **human-first** and we **encourage AI-assisted development**—agents as accelerators, people as decision-makers. Encouragement is not enforcement: whether someone works **with or without AI** is their decision. The deeper **why** (ADR/tech-debt memory load, think-most / execute-little, compute over crunch) lives in [mission.md](./mission.md). The **sequence** below is a **recommendation**, not a mandate—compress or reorder steps when the change is small or already decided. The **ADR (and related) documentation rules** in the next section are **hard guidelines** for contributions, independent of that flexibility.
 
 It applies to the **whole monorepo**. As the repo becomes Archipielago end to end, this document remains the default contribution rhythm.
 
