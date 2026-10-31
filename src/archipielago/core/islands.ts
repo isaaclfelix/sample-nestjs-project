@@ -2,25 +2,22 @@
  * Host-safe island registration API.
  *
  * The `islands` table is generated into the Nest app's
- * `src/web/protocol/islands.generated.ts` by `pnpm islands:sync` from
- * `ui/islands/<name>/<name>.tsx` ([ADR-0028](../../../docs/adr/0028-island-filesystem-manifest.md)).
+ * `islands.generated.ts` by `pnpm islands:sync` from product island folders.
  * Path helpers and type guards live here so sync never rewrites application API.
  *
- * Phase 1: core still imports the app-generated map in-repo. Path config /
- * injection comes in a later slice before package extraction.
+ * Phase 1: core still imports the app-generated map in-repo. Package extraction
+ * will inject the table instead of importing the sample path.
  */
 
 import { islands } from '../../web/protocol/islands.generated.js';
+import { getArchipielagoPaths } from './paths.js';
 
 export { islands };
 
 /**
  * Dev-only Vite URL for an island CSS module, when the island has one.
- *
- * Nested under `ui/islands/<name>/<name>.module.scss`.
  */
-export type IslandCssModulePath =
-  `/src/web/ui/islands/${string}/${string}.module.scss`;
+export type IslandCssModulePath = `/${string}/${string}/${string}.module.scss`;
 
 /**
  * Returns the Vite client-manifest source key for an island's TSX entry.
@@ -29,10 +26,11 @@ export type IslandCssModulePath =
  * imports and host asset lookup share one path shape.
  *
  * @param {string} name - Island folder / registry name (kebab-case).
- * @returns {string} Manifest key under `src/web/ui/islands/<name>/`.
+ * @returns {string} Manifest key under the configured islands directory.
  */
 export function islandEntryRelPath(name: string): string {
-  return `src/web/ui/islands/${name}/${name}.tsx`;
+  const { islandsDirRel } = getArchipielagoPaths();
+  return `${islandsDirRel}/${name}/${name}.tsx`;
 }
 
 /**
@@ -42,7 +40,8 @@ export function islandEntryRelPath(name: string): string {
  * @returns {IslandCssModulePath} Absolute-from-root Vite URL.
  */
 export function islandCssModulePath(name: string): IslandCssModulePath {
-  return `/src/web/ui/islands/${name}/${name}.module.scss`;
+  const { islandsDirDevPrefix } = getArchipielagoPaths();
+  return `${islandsDirDevPrefix}/${name}/${name}.module.scss`;
 }
 
 /** Names that have a client island chunk (table keys). */
@@ -72,7 +71,7 @@ export function islandCssModuleUrl(name: IslandName): string | undefined {
  * Vite client-manifest source key for an island's TSX entry.
  *
  * @param {IslandName} name - Registered island name.
- * @returns {string} Manifest key under `src/web/ui/islands/`.
+ * @returns {string} Manifest key under the islands directory.
  */
 export function islandManifestSourceKey(name: IslandName): string {
   return islandEntryRelPath(name);

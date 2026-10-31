@@ -1,5 +1,6 @@
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
+import { getArchipielagoPaths } from '../core/paths.js';
 import type { ServerEntry } from '../core/server-entry.js';
 
 export type { ServerEntry };
@@ -56,19 +57,18 @@ export async function loadServerEntry(
   load: (specifier: string) => Promise<ServerEntry> = (specifier) =>
     import(specifier),
 ): Promise<ServerEntry> {
+  const paths = getArchipielagoPaths();
+
   // Dev SSR goes through Vite. A static import would make tsc emit the TSX.
   if (env.vite) {
     // Vite types the module as a record. The entry's render export is the contract.
-    return env.vite.ssrLoadModule(
-      '/src/web/ui/runtime/ssr/entry-server.tsx',
-    ) as Promise<ServerEntry>;
+    return env.vite.ssrLoadModule(paths.entryServerDev) as Promise<ServerEntry>;
   }
 
   // Runtime string so TypeScript does not follow the import into the views.
   const specifier = env.vitest
-    ? new URL('../../web/ui/runtime/ssr/entry-server.tsx', import.meta.url).href
-    : pathToFileURL(join(process.cwd(), 'dist/web-server/entry-server.js'))
-        .href;
+    ? pathToFileURL(join(process.cwd(), paths.entryServerSourceRel)).href
+    : pathToFileURL(join(process.cwd(), paths.entryServerProdRel)).href;
 
   return load(specifier);
 }

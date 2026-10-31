@@ -12,10 +12,11 @@ import { existsSync } from 'node:fs';
 import { mkdir, readdir, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { getArchipielagoPaths } from '../src/archipielago/core/paths.js';
 
 /** Relative path of the generated map from the repo root. */
 export const ISLANDS_GENERATED_REL_PATH =
-  'src/web/protocol/islands.generated.ts';
+  getArchipielagoPaths().islandsGeneratedRel;
 
 /** One discovered product island under `ui/islands/`. */
 export interface IslandManifestEntry {
@@ -106,8 +107,9 @@ ${rows}
 export async function syncIslandManifest(
   rootDir: string,
 ): Promise<{ path: string; entries: IslandManifestEntry[] }> {
-  const islandsDir = join(rootDir, 'src/web/ui/islands');
-  const outPath = join(rootDir, ISLANDS_GENERATED_REL_PATH);
+  const paths = getArchipielagoPaths();
+  const islandsDir = join(rootDir, paths.islandsDirRel);
+  const outPath = join(rootDir, paths.islandsGeneratedRel);
   const entries = await discoverIslands(islandsDir);
   const source = renderIslandsGeneratedModule(entries);
 

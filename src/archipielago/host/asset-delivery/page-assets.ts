@@ -6,6 +6,7 @@ import {
   islandManifestSourceKey,
   type IslandName,
 } from '../../core/islands.js';
+import { getArchipielagoPaths } from '../../core/paths.js';
 import type { PageAssets } from '../../core/page-assets.js';
 import { shellCssBudgetBytes } from '../../core/shell-css-budget.js';
 import {
@@ -24,7 +25,8 @@ export type { PageAssets };
 
 /** Absolute directory that holds production client assets. */
 function clientOutDir(): string {
-  return join(process.cwd(), 'dist/client');
+  const { clientOutDirRel } = getArchipielagoPaths();
+  return join(process.cwd(), clientOutDirRel);
 }
 
 /**
