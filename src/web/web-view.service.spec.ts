@@ -61,7 +61,10 @@ describe('WebViewService', () => {
     ) => {
       const idle = await createAssets([]);
       const active = await createAssets(['mobile-navigation']);
-      return `${idle.tags.scripts.join(',')}|${active.tags.scripts.join(',')}`;
+      return {
+        html: `${idle.tags.scripts.join(',')}|${active.tags.scripts.join(',')}`,
+        assets: active,
+      };
     };
     vi.mocked(loadServerEntry).mockResolvedValue({ render });
     setViteDevServer({ ssrLoadModule: vi.fn() });
@@ -92,7 +95,10 @@ describe('WebViewService', () => {
       createAssets,
     ) => {
       const assets = await createAssets(['mobile-navigation']);
-      return assets.islandCss['mobile-navigation'] ?? '';
+      return {
+        html: assets.islandCss['mobile-navigation'] ?? '',
+        assets,
+      };
     };
     vi.mocked(loadServerEntry).mockResolvedValue({ render });
     setViteDevServer({ ssrLoadModule: vi.fn(), transformRequest });
@@ -143,7 +149,10 @@ describe('WebViewService', () => {
     ) => {
       const idle = await createAssets([]);
       const active = await createAssets(['mobile-navigation']);
-      return `${idle.tags.scripts.join(',')}|${active.tags.scripts.join(',')}`;
+      return {
+        html: `${idle.tags.scripts.join(',')}|${active.tags.scripts.join(',')}`,
+        assets: active,
+      };
     };
     vi.mocked(loadServerEntry).mockResolvedValue({ render });
 
