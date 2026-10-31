@@ -79,8 +79,10 @@ Body sections, in this order:
 - **Risks** — what can go wrong, including tech debt to record
 - **Out of scope**
 - **Before merge** — delete this file in a later commit on the same branch
-  before merge. Keep the commit that added it. The tip of `main` must not
-  contain this file. The pull request commits must still show it.
+  before merge. Keep the commit that added it. This removal rule is the repo
+  rule in every context, not only for this skill. The `plan-files` CI job
+  fails while the file is still in the tree. Check the PR template box after
+  the delete.
 
 Do not put secrets, tokens, or `.env` values in the plan.
 
@@ -89,10 +91,10 @@ Do not put secrets, tokens, or `.env` values in the plan.
 - Implement the approved plan. Update each todo `status` in the plan file as
   the step finishes.
 - Commit the plan file on the branch. Leave that commit in the history.
-- Leave the file in the tree while the pull request is in review so the diff
-  still shows it.
-- Delete the file in a new commit only when the user asks to prepare the
-  branch for merge. Do not amend or drop the commit that added it.
+- The pull request can be reviewed while the file is still in the tree. The
+  `plan-files` check stays red until a later commit deletes it.
+- Delete the file in a new commit before merge, and check the PR template
+  box. Do not amend or drop the commit that added it.
 
 ## Refuse
 
@@ -103,5 +105,5 @@ Do not put secrets, tokens, or `.env` values in the plan.
   machine
 - Adding `.cursor/plans/` to `.gitignore`
 - Product edits before the user approves the plan
-- Deleting the plan file before the user asks, or erasing the commit that
-  added it
+- Deleting the plan file before that add is committed, or erasing the
+  commit that added it

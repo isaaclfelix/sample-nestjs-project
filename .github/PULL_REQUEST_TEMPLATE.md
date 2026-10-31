@@ -54,4 +54,5 @@
 - [ ] Coverage thresholds pass (`pnpm test:cov`)
 - [ ] Manual / API spotchecks for behavior changed in this PR (list below or N/A)
 - [ ] Docs updated if needed (`CONTRIBUTING.md`, README, `docs/architecture.md`, `docs/adr/`, `docs/known-tech-debt.md`, `docs/testing-and-coverage.md`)
+- [ ] No plan file remains under `.cursor/plans/` at the branch tip (removed before merge, or this PR added none)
 - [ ] Ready for review

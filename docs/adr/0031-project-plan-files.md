@@ -18,31 +18,38 @@ plans to remain in the tree of `main` after release.
 
 ## Decision
 
-- In the desktop IDE and the CLI, planning uses built-in Plan mode. Do not
-  run
+- **Authoring stays on the tool that context already has.** In the desktop IDE
+  and the CLI, use built-in Plan mode, then **Save to workspace** so the file
+  is under `.cursor/plans/`. Do not run
   [plan-mode-for-cloud](../../.agents/skills/plan-mode-for-cloud/SKILL.md)
-  there.
-- On a Cloud Agent or at cursor.com/agents, that skill writes the reviewable
-  plan to `.cursor/plans/<date>-<slug>.md` and waits for approval before
-  product edits. That is the same folder **Save to workspace** uses.
-- The plan file is committed on the working branch. A later commit on that
-  same branch deletes it before merge. Do not drop or rewrite the commit that
-  added the file, and do not gitignore `.cursor/plans/`.
-- The tip of `main` should not contain plan files. Repository merge settings
-  are unchanged: a merge commit keeps the blob reachable from `main`'s
-  history; a squash merge leaves it on the pull request commits.
+  there. On a Cloud Agent or at cursor.com/agents, that skill writes
+  `.cursor/plans/<date>-<slug>.md` and waits for approval before product
+  edits.
+- **The gitops lifecycle is the same in every context.** Commit the plan on
+  the working branch so the pull request commits show it. Delete it in a
+  later commit before merge. Do not drop or rewrite the commit that added the
+  file, and do not gitignore `.cursor/plans/`. A pull request that never had a
+  plan does not need one.
+- **CI rejects a tip that still has a plan.** The `plan-files` job runs
+  `scripts/check-no-plan-files.sh` on the merge commit. It fails while any
+  file remains under `.cursor/plans/`. The PR template spotcheck has a
+  matching checkbox. Repository merge settings are unchanged: a merge commit
+  keeps the blob reachable from `main`'s history; a squash merge leaves it on
+  the pull request commits.
 
 ## Consequences
 
 - Pull request review can open the plan from the branch commits after the
-  delete commit removes it from the tip.
-- A missed delete leaves the plan on `main`. Nothing in CI checks for that
-  yet ([TD-034](../known-tech-debt.md)).
+  delete commit removes it from the tip. `plan-files` stays red until that
+  delete is in the tree that would merge.
+- A missed delete fails CI instead of landing quietly on `main`
+  ([TD-034](../known-tech-debt.md) closed). GitHub hides the merge button
+  only after an admin requires the `plan-files` check.
 - Plan text that lands in a merge commit stays in the repository history of
   every clone. Do not put secrets in plan files.
 - Desktop and CLI Plan mode stay the planning path in those environments.
-  Their default file is still `~/.cursor/plans`. The cloud skill does not
-  replace that mode.
+  Their default file is still `~/.cursor/plans` until **Save to workspace**.
+  The cloud skill does not replace that mode.
 
 ## Alternatives considered
 
