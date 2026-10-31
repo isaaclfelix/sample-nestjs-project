@@ -2,8 +2,9 @@
  * Scaffolds an SSR page stub or interactive island under `src/web/`.
  *
  * Shared by humans (`pnpm scaffold:web-ui`) and the `create-web-ui` agent skill.
- * Prefer this script over hand-wiring so island folders and
- * `pnpm islands:sync` stay consistent.
+ * Prefer this script over hand-wiring so island folders stay conventional.
+ * With `islands.registration=filesystem`, island mode runs sync; with
+ * `manifest`, it warns that authors must add a map entry (no sync).
  *
  * Usage:
  *   pnpm scaffold:web-ui --name my-widget --mode island --with-styles
@@ -16,6 +17,12 @@ import { dirname, join, resolve } from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
 import { stdin as input, stdout as output } from 'node:process';
+import {
+  getIslandsRegistration,
+  loadAndApplyArchipielagoConfig,
+  manualIslandManifestWarning,
+} from '../src/archipielago/core/config.js';
+import { getArchipielagoPaths } from '../src/archipielago/core/paths.js';
 import { syncIslandManifest } from './sync-island-manifest.js';
 
 /** CLI / interactive answers before validation. */
@@ -40,6 +47,12 @@ export interface ScaffoldPlan {
   islandStoriesPath: string;
   islandModulePath: string | undefined;
   cssModulePath: string | undefined;
+}
+
+/** Files written plus author-facing notes (e.g. manual manifest entry). */
+export interface ScaffoldResult {
+  written: string[];
+  notes: string[];
 }
 
 /**
@@ -321,17 +334,22 @@ export default function ${plan.pascalName}({
 }
 
 /**
- * Writes scaffold files under `rootDir` and syncs the island protocol table.
+ * Writes scaffold files under `rootDir`; syncs or warns per registration mode.
+ *
+ * Callers that care about host config should run
+ * {@link loadAndApplyArchipielagoConfig} first (CLI does). Tests may set mode
+ * via `applyArchipielagoUserConfig` instead.
  *
  * @param {string} rootDir - Repository root.
  * @param {ScaffoldPlan} plan - Validated plan.
- * @returns {Promise<string[]>} Absolute paths written or updated.
+ * @returns {Promise<ScaffoldResult>} Paths written and author notes.
  */
 export async function applyScaffoldPlan(
   rootDir: string,
   plan: ScaffoldPlan,
-): Promise<string[]> {
+): Promise<ScaffoldResult> {
   const written: string[] = [];
+  const notes: string[] = [];
 
   if (plan.mode === 'page') {
     const { props, component } = pageSources(plan);
@@ -355,7 +373,7 @@ export async function applyScaffoldPlan(
     await writeFile(indexAbs, pageIndex, 'utf8');
     await writeFile(storiesAbs, pageStoriesSource(plan), 'utf8');
     written.push(propsAbs, componentAbs, indexAbs, storiesAbs);
-    return written;
+    return { written, notes };
   }
 
   const { component, moduleCss } = islandSources(plan);
@@ -386,11 +404,23 @@ export async function applyScaffoldPlan(
     written.push(moduleAbs);
   }
 
-  // Regenerate gitignored protocol/islands.generated.ts from the folder tree.
-  const { path: islandsManifestPath } = await syncIslandManifest(rootDir);
-  written.push(islandsManifestPath);
+  const hasCssModule = plan.islandModulePath !== undefined;
+  if (getIslandsRegistration() === 'manifest') {
+    // Host owns the table — do not call sync (would refuse / overwrite).
+    notes.push(
+      manualIslandManifestWarning(
+        plan.name,
+        hasCssModule,
+        getArchipielagoPaths().islandsGeneratedRel,
+      ),
+    );
+  } else {
+    // filesystem mode: regenerate the islands map from conventional folders.
+    const { path: islandsManifestPath } = await syncIslandManifest(rootDir);
+    written.push(islandsManifestPath);
+  }
 
-  return written;
+  return { written, notes };
 }
 
 /**
@@ -404,7 +434,8 @@ function printHelp(): void {
   pnpm scaffold:web-ui   # interactive
 
 --with-styles is allowed only with --mode island (adds *.module.scss).
-Island mode also runs islands:sync for the host catalog.
+Island mode runs islands:sync when archipielago.config registration is
+filesystem; otherwise it warns about adding a manual manifest entry.
 See docs/how-to-web-ui.md for the decision tree.
 `);
 }
@@ -479,11 +510,15 @@ async function main(): Promise<void> {
 
   const plan = resolveScaffoldPlan(answers);
   const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-  const written = await applyScaffoldPlan(rootDir, plan);
+  await loadAndApplyArchipielagoConfig(rootDir);
+  const { written, notes } = await applyScaffoldPlan(rootDir, plan);
 
   output.write(`Scaffolded ${plan.mode} "${plan.name}":\n`);
   for (const path of written) {
     output.write(`  ${path.replace(`${rootDir}/`, '')}\n`);
+  }
+  for (const note of notes) {
+    output.write(`\n${note}\n`);
   }
 
   if (plan.mode === 'page') {
@@ -496,6 +531,18 @@ Next steps:
   4. Style with shell classes only — see docs/how-to-web-ui.md (SSR page props quirk)
   5. Browse the stub story with pnpm storybook (workshop, not QA)
 `);
+  } else if (getIslandsRegistration() === 'manifest') {
+    output.write(`
+Next steps:
+  1. Add the manifest entry above (registration=manifest; sync will not run).
+  2. Render on a page (leave the page folder via @ui aliases — ADR-0027):
+    import ${plan.pascalName} from '@ui/islands/${plan.name}';
+    import { Island } from '@archipielago/react/runtime/island/island';
+    <Island name="${plan.name}" component={${plan.pascalName}} props={{}} />
+
+  Hydrate loaders pick up the conventional folder via glob. Browse with pnpm storybook.
+  See docs/how-to-web-ui.md
+`);
   } else {
     output.write(`
 Next steps:
@@ -504,9 +551,9 @@ Next steps:
     import { Island } from '@archipielago/react/runtime/island/island';
     <Island name="${plan.name}" component={${plan.pascalName}} props={{}} />
 
-  Scaffold ran islands:sync (protocol/islands.generated.ts). Hydrate loaders
-  pick up the new folder via glob — no registry edit. Browse with pnpm storybook.
-  See docs/how-to-web-ui.md
+  Scaffold ran islands:sync (${getArchipielagoPaths().islandsGeneratedRel}).
+  Hydrate loaders pick up the new folder via glob — no registry edit.
+  Browse with pnpm storybook. See docs/how-to-web-ui.md
 `);
   }
 }

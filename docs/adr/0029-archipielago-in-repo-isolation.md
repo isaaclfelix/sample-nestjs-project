@@ -27,7 +27,8 @@ and must keep Nest types out of the render seam.
   (title/branding). Nest `WebViewService` returns `result.html` only.
 - **Path config:** `ArchipielagoPaths` (`get`/`setArchipielagoPaths`) owns
   islands, hydrate, SSR entry, client out, and related roots. Defaults match
-  this repo’s Nest sample layout.
+  this repo’s Nest sample layout. Host file `archipielago.config.ts` plus
+  islands registration mode land in [ADR-0030](./0030-archipielago-host-config.md).
 - **Vite pipeline vs Nest mount:** `createDevAssetPipeline` / `clientAssetsRoot`
   create and register Vite; Nest `main.ts` only mounts middleware or static
   assets. No Nest/Express types inside `src/archipielago/**`.

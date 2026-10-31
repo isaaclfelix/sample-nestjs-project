@@ -51,7 +51,7 @@ src/
   persistence/            PrismaModule / PrismaService / PrismaPg helper
   generated/prisma/       Prisma Client output (`prisma generate`; gitignored)
   archipielago/           In-repo islands engines ([ADR-0029](./adr/0029-archipielago-in-repo-isolation.md))
-    core/                 RenderResult, PageAssets, paths, island helpers
+    core/                 RenderResult, PageAssets, paths, config, island helpers
     host/                 page-loader, asset-delivery, asset-pipeline
     react/runtime/        island marker/hydrate + renderDocument SSR engine
     vite/                 Vite plugins (shell budget, island CSS)
@@ -60,7 +60,7 @@ src/
     web.controller.ts     page routes
     web-view.service.ts
     protocol/page-props/  App-owned SSR page props map
-    protocol/islands.generated.ts  Gitignored island table (`pnpm islands:sync`)
+    protocol/islands.generated.ts  Islands table (sample: gitignored + `pnpm islands:sync`; see ADR-0030)
     ui/                   Product Vite/React UI
       pages/              Per-page folders (<name>-page/) + thin index.ts
       islands/            Per-island folders (+ optional *.module.scss) + thin index.ts
@@ -315,7 +315,7 @@ Islands do not share React context or state after hydration (see [TD-008](./know
 
 ### Lazy chunks
 
-The app hydrate entry (`ui/runtime/island/hydrate-entry.tsx`) injects the generated islands table via `registerIslands`, then calls Archipielago `hydrateIslands`. Loaders come from a filtered `import.meta.glob` of `ui/islands/*/*.tsx` (dirname===basename only). Nest never reads the manifest — only Archipielago engines use it while building HTML ([ADR-0028](./adr/0028-island-filesystem-manifest.md), [ADR-0029](./adr/0029-archipielago-in-repo-isolation.md)).
+The app hydrate entry (`ui/runtime/island/hydrate-entry.tsx`) injects the islands table via `registerIslands`, then calls Archipielago `hydrateIslands`. Loaders come from a filtered `import.meta.glob` of `ui/islands/*/*.tsx` (dirname===basename only). Nest never reads the manifest — only Archipielago engines use it while building HTML. Host `archipielago.config.ts` chooses filesystem sync vs hand-owned map ([ADR-0028](./adr/0028-island-filesystem-manifest.md), [ADR-0029](./adr/0029-archipielago-in-repo-isolation.md), [ADR-0030](./adr/0030-archipielago-host-config.md)).
 
 Vite emits a separate chunk per dynamic `import()`. `assetTagsFromManifest` emits the hydrate entry and its static `imports`; it does not walk `dynamicImports`. Vite may still inject runtime `modulepreload` when a dynamic `import()` runs ([ADR-0012](./adr/0012-island-boundaries.md); revisit with [TD-010](./known-tech-debt.md)).
 

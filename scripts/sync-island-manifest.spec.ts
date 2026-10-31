@@ -3,8 +3,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  applyArchipielagoUserConfig,
+  resetArchipielagoConfig,
+} from '../src/archipielago/core/config.js';
+import { getArchipielagoPaths } from '../src/archipielago/core/paths.js';
+import {
   discoverIslands,
-  ISLANDS_GENERATED_REL_PATH,
+  ManifestRegistrationSyncError,
   renderIslandsGeneratedModule,
   syncIslandManifest,
 } from './sync-island-manifest.js';
@@ -12,6 +17,7 @@ import {
 const tempDirs: string[] = [];
 
 afterEach(async () => {
+  resetArchipielagoConfig();
   const { rm } = await import('node:fs/promises');
   await Promise.all(
     tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })),
@@ -74,7 +80,7 @@ describe('renderIslandsGeneratedModule', () => {
 });
 
 describe('syncIslandManifest', () => {
-  it('writes protocol/islands.generated.ts under the repo root', async () => {
+  it('writes the configured islands map under the repo root', async () => {
     const root = await tempRoot();
     const islands = join(root, 'src/web/ui/islands');
     await mkdir(join(islands, 'widget'), { recursive: true });
@@ -84,12 +90,23 @@ describe('syncIslandManifest', () => {
     );
 
     const { path, entries } = await syncIslandManifest(root);
-    expect(path).toBe(join(root, ISLANDS_GENERATED_REL_PATH));
+    expect(path).toBe(join(root, getArchipielagoPaths().islandsGeneratedRel));
     expect(entries).toEqual([{ name: 'widget', hasCssModule: false }]);
 
     const { readFile } = await import('node:fs/promises');
     const written = await readFile(path, 'utf8');
     expect(written).toContain("'widget': { hasCssModule: false }");
     expect(written).not.toContain('function isIslandName');
+  });
+
+  it('refuses to write when registration is manifest', async () => {
+    applyArchipielagoUserConfig({
+      islands: { registration: 'manifest' },
+    });
+    const root = await tempRoot();
+
+    await expect(syncIslandManifest(root)).rejects.toBeInstanceOf(
+      ManifestRegistrationSyncError,
+    );
   });
 });
