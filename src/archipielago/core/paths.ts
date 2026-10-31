@@ -1,10 +1,11 @@
 /**
  * In-repo path roots for Archipielago engines and this Nest sample app.
  *
- * Phase 1 keeps a single mutable defaults object (no workspace packages yet).
- * Hosts override via repo-root `archipielago.config.ts` (tools call
- * `loadAndApplyArchipielagoConfig`) or tests via {@link setArchipielagoPaths}.
- * Registration mode lives in `config.ts` ([ADR-0030]).
+ * Defaults encode the Nest sample layout (`src/web/…`). That prefix is host
+ * packaging, not an Archipielago island convention — conventions start at
+ * `ui/islands/<name>/<name>.tsx` ([ADR-0025], [ADR-0028]). Host-facing path
+ * overrides in `archipielago.config.ts` are deferred until Phase 3 / a second
+ * host ([ADR-0030]). Tests may call {@link setArchipielagoPaths}.
  */
 
 /**

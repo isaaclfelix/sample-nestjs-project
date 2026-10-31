@@ -1,9 +1,12 @@
 /**
- * Host-facing Archipielago configuration (registration mode + path overrides).
+ * Host-facing Archipielago configuration (islands registration mode).
  *
  * Tools load `archipielago.config.ts` from the repo root via
  * {@link loadAndApplyArchipielagoConfig}. Engines keep using
  * {@link getArchipielagoPaths} / injected islands; they do not branch on mode.
+ *
+ * Path roots stay Nest-sample defaults in {@link getArchipielagoPaths} until a
+ * second host needs overrides (Phase 3) — see ADR-0030.
  */
 
 import { existsSync } from 'node:fs';
@@ -32,10 +35,10 @@ export type IslandsRegistration = 'auto' | 'manual';
 
 /**
  * Optional host config file shape (`archipielago.config.ts` default export).
+ *
+ * Path overrides are not part of this surface yet (deferred to Phase 3).
  */
 export interface ArchipielagoUserConfig {
-  /** Partial path overrides merged onto defaults. */
-  paths?: Partial<ArchipielagoPaths>;
   islands?: {
     /**
      * How the host maintains the islands manifest. Defaults to `auto`.
@@ -68,6 +71,9 @@ export function getIslandsRegistration(): IslandsRegistration {
 /**
  * Returns paths plus registration mode for tools and diagnostics.
  *
+ * Paths always come from {@link getArchipielagoPaths} (sample defaults or
+ * in-process test overrides via {@link setArchipielagoPaths}).
+ *
  * @returns {ArchipielagoResolvedConfig} Current resolved configuration.
  */
 export function getArchipielagoConfig(): ArchipielagoResolvedConfig {
@@ -88,7 +94,7 @@ export function resetArchipielagoConfig(): void {
 }
 
 /**
- * Applies a user config object (path merges + registration).
+ * Applies a user config object (registration mode only).
  *
  * Pass `undefined` to restore path defaults and `auto` registration.
  * Does not clear unspecified fields when a partial config is passed — call
@@ -96,6 +102,7 @@ export function resetArchipielagoConfig(): void {
  *
  * @param {ArchipielagoUserConfig | undefined} config - Host overrides, or clear.
  * @returns {void}
+ * @throws {Error} When a legacy `paths` key is present on the config object.
  */
 export function applyArchipielagoUserConfig(
   config: ArchipielagoUserConfig | undefined,
@@ -105,8 +112,16 @@ export function applyArchipielagoUserConfig(
     return;
   }
 
-  if (config.paths !== undefined) {
-    setArchipielagoPaths(config.paths);
+  // Reject deferred path overrides so hosts do not think config relocates roots.
+  if (
+    Object.prototype.hasOwnProperty.call(config, 'paths') &&
+    (config as { paths?: unknown }).paths !== undefined
+  ) {
+    throw new Error(
+      'archipielago.config.ts: `paths` overrides are not supported yet ' +
+        '(deferred until Phase 3 / a second host). Use Nest-sample defaults in ' +
+        'ArchipielagoPaths, or setArchipielagoPaths in tests only. See ADR-0030.',
+    );
   }
 
   if (config.islands?.registration !== undefined) {
@@ -145,7 +160,7 @@ export async function loadAndApplyArchipielagoConfig(
  *
  * @param {string} name - Island folder / registry name.
  * @param {boolean} hasCssModule - Whether `<name>.module.scss` was written.
- * @param {string} manifestRel - Repo-relative islands manifest path from config.
+ * @param {string} manifestRel - Repo-relative islands manifest path from defaults.
  * @returns {string} Multi-line warning for authors.
  */
 export function manualIslandManifestWarning(

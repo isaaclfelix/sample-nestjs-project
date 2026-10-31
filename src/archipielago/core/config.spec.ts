@@ -40,18 +40,22 @@ describe('Archipielago config', () => {
     expect(getArchipielagoConfig().paths).toEqual(defaultArchipielagoPaths);
   });
 
-  it('applies registration and path overrides', () => {
+  it('applies registration overrides', () => {
     applyArchipielagoUserConfig({
       islands: { registration: 'manual' },
-      paths: { islandsGeneratedRel: 'app/islands.ts' },
     });
     expect(getIslandsRegistration()).toBe('manual');
-    expect(getArchipielagoConfig().paths.islandsGeneratedRel).toBe(
-      'app/islands.ts',
-    );
-    expect(getArchipielagoConfig().paths.islandsDirRel).toBe(
-      defaultArchipielagoPaths.islandsDirRel,
-    );
+    expect(getArchipielagoConfig().paths).toEqual(defaultArchipielagoPaths);
+  });
+
+  it('rejects legacy paths overrides', () => {
+    expect(() =>
+      applyArchipielagoUserConfig({
+        islands: { registration: 'auto' },
+        // @ts-expect-error — paths removed from ArchipielagoUserConfig
+        paths: { islandsGeneratedRel: 'app/islands.ts' },
+      }),
+    ).toThrow(/paths.*not supported yet/i);
   });
 
   it('loads archipielago.config.ts from a repo root', async () => {
@@ -61,7 +65,6 @@ describe('Archipielago config', () => {
       join(root, 'archipielago.config.ts'),
       `export default {
   islands: { registration: 'manual' },
-  paths: { islandsGeneratedRel: 'custom/islands-map.ts' },
 };
 `,
       'utf8',
@@ -69,7 +72,7 @@ describe('Archipielago config', () => {
 
     const resolved = await loadAndApplyArchipielagoConfig(root);
     expect(resolved.islandsRegistration).toBe('manual');
-    expect(resolved.paths.islandsGeneratedRel).toBe('custom/islands-map.ts');
+    expect(resolved.paths).toEqual(defaultArchipielagoPaths);
   });
 
   it('resets when the config file is missing', async () => {
