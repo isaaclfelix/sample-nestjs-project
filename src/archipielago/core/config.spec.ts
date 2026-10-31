@@ -31,6 +31,15 @@ describe('Archipielago config', () => {
     expect(getIslandsRegistration()).toBe('auto');
   });
 
+  it('resets when apply receives undefined', () => {
+    applyArchipielagoUserConfig({
+      islands: { registration: 'manual' },
+    });
+    applyArchipielagoUserConfig(undefined);
+    expect(getIslandsRegistration()).toBe('auto');
+    expect(getArchipielagoConfig().paths).toEqual(defaultArchipielagoPaths);
+  });
+
   it('applies registration and path overrides', () => {
     applyArchipielagoUserConfig({
       islands: { registration: 'manual' },
