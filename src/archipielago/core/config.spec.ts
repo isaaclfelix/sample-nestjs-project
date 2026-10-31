@@ -48,16 +48,6 @@ describe('Archipielago config', () => {
     expect(getArchipielagoConfig().paths).toEqual(defaultArchipielagoPaths);
   });
 
-  it('rejects legacy paths overrides', () => {
-    expect(() =>
-      applyArchipielagoUserConfig({
-        islands: { registration: 'auto' },
-        // @ts-expect-error — paths removed from ArchipielagoUserConfig
-        paths: { islandsGeneratedRel: 'app/islands.ts' },
-      }),
-    ).toThrow(/paths.*not supported yet/i);
-  });
-
   it('loads archipielago.config.ts from a repo root', async () => {
     const root = await mkdtemp(join(tmpdir(), 'arch-config-'));
     tempDirs.push(root);

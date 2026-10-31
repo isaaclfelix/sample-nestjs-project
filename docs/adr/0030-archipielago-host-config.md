@@ -42,7 +42,7 @@ a Phase 3 problem ([docs/archipielago/roadmap.md](../archipielago/roadmap.md)).
 - **Path roots** stay Nest-sample defaults in `ArchipielagoPaths`
   (`get`/`setArchipielagoPaths`). Host-facing `paths` in
   `archipielago.config.ts` is **out of scope** until Phase 3 / real second-host
-  friction; applying a legacy `paths` key fails loudly.
+  friction (not part of `ArchipielagoUserConfig` yet).
 - **Gitignore is host policy**, not package law. This sample may gitignore the
   generated manifest; other hosts may commit it (especially on `manual`).
 

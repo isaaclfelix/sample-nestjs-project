@@ -102,7 +102,6 @@ export function resetArchipielagoConfig(): void {
  *
  * @param {ArchipielagoUserConfig | undefined} config - Host overrides, or clear.
  * @returns {void}
- * @throws {Error} When a legacy `paths` key is present on the config object.
  */
 export function applyArchipielagoUserConfig(
   config: ArchipielagoUserConfig | undefined,
@@ -110,18 +109,6 @@ export function applyArchipielagoUserConfig(
   if (config === undefined) {
     resetArchipielagoConfig();
     return;
-  }
-
-  // Reject deferred path overrides so hosts do not think config relocates roots.
-  if (
-    Object.prototype.hasOwnProperty.call(config, 'paths') &&
-    (config as { paths?: unknown }).paths !== undefined
-  ) {
-    throw new Error(
-      'archipielago.config.ts: `paths` overrides are not supported yet ' +
-        '(deferred until Phase 3 / a second host). Use Nest-sample defaults in ' +
-        'ArchipielagoPaths, or setArchipielagoPaths in tests only. See ADR-0030.',
-    );
   }
 
   if (config.islands?.registration !== undefined) {
