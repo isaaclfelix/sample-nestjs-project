@@ -1,6 +1,6 @@
 # Archipielago roadmap
 
-High-level milestones only. Later phases wait on earlier ones. Outcomes, not sprint tickets. See [vision.md](./vision.md) for philosophy.
+High-level milestones only. Later phases wait on earlier ones. Outcomes, not sprint tickets. See [vision.md](./vision.md) for product philosophy and [mission.md](./mission.md) for how we operate.
 
 | Phase | Name                                | Status                      |
 | ----- | ----------------------------------- | --------------------------- |
@@ -16,6 +16,7 @@ High-level milestones only. Later phases wait on earlier ones. Outcomes, not spr
 
 - Brand **Archipielago** (no accent; only Spanish product name) and market position written down.
 - Kinship labels in English: Astro mother, is-land father, NestJS Godfather (philosophy only).
+- Mission recorded: human-first AI assist, developer-first OSS, diversity/inclusion with objective contribution standards.
 - Monorepo destination and dogfooding site claim recorded in vision.
 - Rendering-contract principle recorded as a design rule (not a shipped API).
 

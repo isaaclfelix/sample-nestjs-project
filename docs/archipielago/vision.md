@@ -1,5 +1,7 @@
 # Archipielago vision
 
+How we work as humans and contributors is in [mission.md](./mission.md). This file is product intent and market position.
+
 ## What it is
 
 Archipielago is **embeddable islands rendering infrastructure** for backends that do **not** monopolize the UI pipeline. The host keeps HTTP, routing, sessions, and business logic. Archipielago supplies React SSR, island discovery, hydration metadata and assets, the browser hydrate runtime, and Vite/build helpers.

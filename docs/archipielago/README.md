@@ -8,6 +8,7 @@ This repository will become the **Archipielago monorepo**: framework packages, r
 
 | Doc                        | Purpose                                                            |
 | -------------------------- | ------------------------------------------------------------------ |
+| [mission.md](./mission.md) | Human-first AI assist, developer-first OSS, community standards    |
 | [vision.md](./vision.md)   | Philosophy, market position, ownership split, monorepo, non-goals  |
 | [roadmap.md](./roadmap.md) | Long-term phases from isolation through parity and differentiation |
 
