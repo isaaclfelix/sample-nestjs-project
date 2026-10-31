@@ -17,7 +17,7 @@ export { islands };
 /**
  * Dev-only Vite URL for an island CSS module, when the island has one.
  */
-export type IslandCssModulePath = `/${string}/${string}/${string}.module.scss`;
+export type IslandCssModulePath = string;
 
 /**
  * Returns the Vite client-manifest source key for an island's TSX entry.

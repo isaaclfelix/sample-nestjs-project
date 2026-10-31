@@ -44,7 +44,7 @@ export class WebViewService {
     const development = vite !== undefined || process.env.VITEST === 'true';
     const pageStylesheets = pageStylesheetsByPage[page];
 
-    return entry.render(
+    const result = await entry.render(
       page,
       props,
       (islandNames) =>
@@ -59,5 +59,9 @@ export class WebViewService {
         }),
       options.csrfToken,
     );
+
+    // Nest returns the full document; assets stay available on RenderResult
+    // for logging or a future host that assembles HTML differently.
+    return result.html;
   }
 }
