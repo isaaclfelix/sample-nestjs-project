@@ -78,7 +78,7 @@ When a task has more than one logical slice, finish one slice, run the checks th
 
 ## 6. Plans and architecture decisions (ADRs)
 
-There is no dedicated create-plan skill. When planning or executing work that locks a **durable architectural tradeoff** (folder layout, auth model, persistence choice, SSR/CSS contract, etc.):
+When the user asks for a plan before implementation, follow [`.agents/skills/plan-before-code/SKILL.md`](.agents/skills/plan-before-code/SKILL.md) ([ADR-0031](docs/adr/0031-project-plan-files.md)): write `.cursor/plans/YYYY-MM-DD-kebab-slug.md` and wait for approval before product edits. When planning or executing work that locks a **durable architectural tradeoff** (folder layout, auth model, persistence choice, SSR/CSS contract, etc.):
 
 - Record it as an ADR under [`docs/adr/`](docs/adr/) in the **same change set** as the code (or immediately after), following [`docs/adr/README.md`](docs/adr/README.md) (template, index row, supersede rules).
 - Update [`docs/architecture.md`](docs/architecture.md) current-state (and how-to / AGENTS paths when they drift) so “how it works now” stays accurate.

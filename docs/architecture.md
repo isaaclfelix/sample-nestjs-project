@@ -383,9 +383,18 @@ flowchart LR
 
 Follow [how-to-web-ui.md](./how-to-web-ui.md) (`pnpm scaffold:web-ui` or the `create-web-ui` agent skill).
 
+## Agent plans
+
+Reviewable implementation plans live in `.cursor/plans/*.md`
+([ADR-0031](./adr/0031-project-plan-files.md)). The
+[plan-before-code](../.agents/skills/plan-before-code/SKILL.md) skill writes
+that file and waits for approval before product edits. The file is committed
+on the working branch. A later commit on that branch deletes it before merge,
+so the tip of `main` does not keep it. The pull request commits still show it.
+
 ## Related docs
 
 - [Architecture Decision Records](./adr/README.md) — durable tradeoffs (ADR-0001–ADR-0017).
 - [How to add web UI](./how-to-web-ui.md) — SSR vs island vs module styles; handpicked icons; anti-patterns; scaffold.
 - [Testing and coverage](./testing-and-coverage.md) — unit/e2e/coverage policy; Testcontainers for e2e ([ADR-0010](./adr/0010-e2e-testcontainers.md)).
-- [Known tech debt](./known-tech-debt.md) — deferred work (TD-IDs). Shared island client state is TD-008; below-the-fold hydrate is TD-010.
+- [Known tech debt](./known-tech-debt.md) — deferred work (TD-IDs). Shared island client state is TD-008; below-the-fold hydrate is TD-010. A missed plan-file delete before merge is TD-034.

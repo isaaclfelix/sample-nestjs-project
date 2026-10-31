@@ -141,6 +141,7 @@ Project skills live in [`.agents/skills`](./.agents/skills):
 
 - [create-commit](./.agents/skills/create-commit/SKILL.md) — stage the current slice and write a Conventional Commit. [AGENTS.md](./AGENTS.md) is the ask for those incremental commits. Do not push unless asked.
 - [create-pr](./.agents/skills/create-pr/SKILL.md) — push the branch with `gh` and create or update the pull request from [`.github/PULL_REQUEST_TEMPLATE.md`](./.github/PULL_REQUEST_TEMPLATE.md). Use it when asked to open a PR or refresh the description (`/create-pr`).
+- [plan-before-code](./.agents/skills/plan-before-code/SKILL.md) — write an implementation plan under `.cursor/plans/` and wait for approval before product edits (`/plan-before-code`). See [ADR-0031](./docs/adr/0031-project-plan-files.md).
 
 ## License
 
