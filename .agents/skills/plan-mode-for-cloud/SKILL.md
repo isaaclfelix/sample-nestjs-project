@@ -1,36 +1,38 @@
 ---
-name: plan-before-code
+name: plan-mode-for-cloud
 description: >-
-  Write an implementation plan to .cursor/plans and wait for approval before
-  editing product code. Use when the user asks to plan, design an approach,
-  or hold coding until a written plan is approved, including Cloud Agent and
-  web sessions that have no Plan mode.
+  On a Cloud Agent or cursor.com/agents session only, write an implementation
+  plan to .cursor/plans and wait for approval before editing product code. Do
+  not use this in the desktop IDE or the CLI. Those have Plan mode.
 disable-model-invocation: true
 icon: book-open
 color: blue
 ---
 
-# Plan before code
+# Plan mode for cloud
 
 Write a reviewable implementation plan under `.cursor/plans/` and stop before
-product changes. Use this when IDE Plan mode is unavailable. Reviewers open
-that file on the pull request.
+product changes. Reviewers open that file on the pull request.
 [ADR-0031](../../../docs/adr/0031-project-plan-files.md).
+
+This skill is only for a Cloud Agent or the web composer at cursor.com/agents.
+The desktop IDE and the CLI already have Plan mode. Do not use this skill
+there, and do not treat it as a stand-in for that mode.
 
 ## When to follow this skill
 
-Follow it when the user:
+Follow it only when both are true:
 
-- types `/plan-before-code`
-- asks for a plan, a design, or an approach before implementation
-- asks to hold coding until they approve a written plan
+- The session is a Cloud Agent or cursor.com/agents.
+- The user types `/plan-mode-for-cloud`, or asks for a plan before
+  implementation.
 
 A request to implement, fix, or open a pull request is not a plan request. Do
 the work. Do not divert it into this workflow.
 
-Desktop Plan mode can still draft a plan in the IDE. When this skill runs,
-the review copy is the project file below. Do not leave the only copy in
-`~/.cursor/plans`.
+If the session is the desktop IDE or the CLI, stop. Tell the user to use Plan
+mode (`Shift+Tab`, the mode picker, or `/plan`). Do not write a plan file
+from this skill.
 
 ## While planning
 
@@ -94,6 +96,8 @@ Do not put secrets, tokens, or `.env` values in the plan.
 
 ## Refuse
 
+- Any use in the desktop IDE or the CLI, including as a replacement for Plan
+  mode
 - A plan that exists only in the chat reply
 - A plan written under `~/.cursor/plans` or any home directory on the agent
   machine

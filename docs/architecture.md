@@ -385,12 +385,14 @@ Follow [how-to-web-ui.md](./how-to-web-ui.md) (`pnpm scaffold:web-ui` or the `cr
 
 ## Agent plans
 
-Reviewable implementation plans live in `.cursor/plans/*.md`
+Desktop and CLI planning uses built-in Plan mode. On a Cloud Agent or at
+cursor.com/agents, reviewable plans live in `.cursor/plans/*.md`
 ([ADR-0031](./adr/0031-project-plan-files.md)). The
-[plan-before-code](../.agents/skills/plan-before-code/SKILL.md) skill writes
-that file and waits for approval before product edits. The file is committed
-on the working branch. A later commit on that branch deletes it before merge,
-so the tip of `main` does not keep it. The pull request commits still show it.
+[plan-mode-for-cloud](../.agents/skills/plan-mode-for-cloud/SKILL.md) skill
+writes that file and waits for approval before product edits. It does not run
+in the IDE. The file is committed on the working branch. A later commit on
+that branch deletes it before merge, so the tip of `main` does not keep it.
+The pull request commits still show it.
 
 ## Related docs
 
