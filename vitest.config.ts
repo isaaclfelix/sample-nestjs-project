@@ -32,7 +32,9 @@ export default defineConfig({
         'src/web/ui/server-components/document/document.tsx',
         'src/web/ui/runtime/ssr/entry-server.tsx',
         'src/archipielago/react/runtime/island/hydrate.tsx',
+        'src/web/ui/runtime/island/hydrate-entry.tsx',
         'src/archipielago/react/runtime/island/island.tsx',
+        'src/web/register-app-islands.ts',
         // One-line window.location.assign wrapper; exercised via browser e2e.
         'src/web/ui/api-fetch/assign-location.ts',
         'src/generated/**',
@@ -56,6 +58,7 @@ export default defineConfig({
           name: 'node',
           globals: true,
           root: './',
+          setupFiles: ['./test/vitest-register-islands.ts'],
           include: ['**/*.spec.ts'],
           exclude: [
             '**/node_modules/**',

@@ -1,14 +1,20 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { islands as appIslands } from '../../web/protocol/islands.generated.js';
 import {
+  getIslands,
   islandCssModulePath,
   islandCssModuleUrl,
   islandEntryRelPath,
   islandManifestSourceKey,
-  islands,
   isIslandName,
+  registerIslands,
 } from './islands.js';
 
-describe('protocol islands helpers', () => {
+describe('Archipielago islands helpers', () => {
+  afterEach(() => {
+    registerIslands(appIslands);
+  });
+
   it('builds concrete entry and CSS module paths', () => {
     expect(islandEntryRelPath('mobile-navigation')).toBe(
       'src/web/ui/islands/mobile-navigation/mobile-navigation.tsx',
@@ -28,11 +34,17 @@ describe('protocol islands helpers', () => {
     expect(islandCssModuleUrl('login-form')).toBeUndefined();
   });
 
-  it('recognizes generated table keys only', () => {
-    for (const name of Object.keys(islands)) {
+  it('recognizes injected table keys only', () => {
+    for (const name of Object.keys(getIslands())) {
       expect(isIslandName(name)).toBe(true);
     }
     expect(isIslandName('toString')).toBe(false);
     expect(isIslandName('missing')).toBe(false);
+  });
+
+  it('clears registration when undefined is passed', () => {
+    registerIslands(undefined);
+    expect(getIslands()).toEqual({});
+    expect(isIslandName('mobile-navigation')).toBe(false);
   });
 });

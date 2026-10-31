@@ -20,12 +20,12 @@ flowchart TD
   ssr --> html[HTML document]
 ```
 
-| Surface     | Owner           | Examples                                                              | Response                                               |
-| ----------- | --------------- | --------------------------------------------------------------------- | ------------------------------------------------------ |
-| JSON API    | `src/api`       | `GET /api`, `POST /api/user`, `GET /api/docs`                         | JSON, or the hello string                              |
-| HTML pages  | `src/web`       | `GET /`                                                               | `text/html`                                            |
-| Dev assets  | Vite middleware | `/@vite/client`, `/src/archipielago/react/runtime/island/hydrate.tsx` | Modules, only when `NODE_ENV` is not `production`      |
-| Prod assets | `dist/client`   | `/assets/...`                                                         | Built client files, `index: false` so `/` stays a page |
+| Surface     | Owner           | Examples                                                        | Response                                               |
+| ----------- | --------------- | --------------------------------------------------------------- | ------------------------------------------------------ |
+| JSON API    | `src/api`       | `GET /api`, `POST /api/user`, `GET /api/docs`                   | JSON, or the hello string                              |
+| HTML pages  | `src/web`       | `GET /`                                                         | `text/html`                                            |
+| Dev assets  | Vite middleware | `/@vite/client`, `/src/web/ui/runtime/island/hydrate-entry.tsx` | Modules, only when `NODE_ENV` is not `production`      |
+| Prod assets | `dist/client`   | `/assets/...`                                                   | Built client files, `index: false` so `/` stays a page |
 
 `GET /user` and `GET /docs` are not aliases. They 404. Swagger UI is `/api/docs`. The raw spec is `/api/docs-json`.
 
@@ -315,7 +315,7 @@ Islands do not share React context or state after hydration (see [TD-008](./know
 
 ### Lazy chunks
 
-The client hydrate entry imports the island registry, which builds lazy loaders from a filtered `import.meta.glob` of `ui/islands/*/*.tsx` (dirname===basename only). Host identity comes from `protocol/islands.ts` plus gitignored `islands.generated.ts` (`pnpm islands:sync`) ([ADR-0028](./adr/0028-island-filesystem-manifest.md)).
+The app hydrate entry (`ui/runtime/island/hydrate-entry.tsx`) injects the generated islands table via `registerIslands`, then calls Archipielago `hydrateIslands`. Loaders come from a filtered `import.meta.glob` of `ui/islands/*/*.tsx` (dirname===basename only). Nest never reads the manifest — only Archipielago engines use it while building HTML ([ADR-0028](./adr/0028-island-filesystem-manifest.md), [ADR-0029](./adr/0029-archipielago-in-repo-isolation.md)).
 
 Vite emits a separate chunk per dynamic `import()`. `assetTagsFromManifest` emits the hydrate entry and its static `imports`; it does not walk `dynamicImports`. Vite may still inject runtime `modulepreload` when a dynamic `import()` runs ([ADR-0012](./adr/0012-island-boundaries.md); revisit with [TD-010](./known-tech-debt.md)).
 
@@ -358,7 +358,7 @@ Hydrating every island as soon as the entry loads (including below the fold) is 
 | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | How it starts                            | `pnpm start` / `start:dev`                                                                                                                                                                                                                                                               | `NODE_ENV=production` via `pnpm start:prod`                                                                                                               |
 | SSR                                      | Vite middleware mode, `ssrLoadModule`                                                                                                                                                                                                                                                    | `dist/web-server/entry-server.js`                                                                                                                         |
-| Client scripts when an island is present | `/@id/@vitejs/plugin-react/preamble`, `/@vite/client`, `/src/archipielago/react/runtime/island/hydrate.tsx`                                                                                                                                                                              | Manifest entry and its static imports, under `/`                                                                                                          |
+| Client scripts when an island is present | `/@id/@vitejs/plugin-react/preamble`, `/@vite/client`, `/src/web/ui/runtime/island/hydrate-entry.tsx`                                                                                                                                                                                    | Manifest entry and its static imports, under `/`                                                                                                          |
 | Styles                                   | Shell `<link href="/src/web/ui/styles/shell.scss">` plus `/@vite/client`. Opt-in siblings (e.g. forms) as extra `<link>`s when the page opts in. Island CSS inlined as sibling `<style>`; Vite client inject is rewritten to update that sibling (no `data-vite-dev-id` head duplicate). | Shell `<style>` or `<link>` by raw-size budget. Opt-in siblings as `<link>`s. Island CSS inlined as sibling `<style>`; hydrate mapDeps has no island CSS. |
 | Static files                             | Vite serves source                                                                                                                                                                                                                                                                       | `express.static` on `dist/client`, with `index: false`                                                                                                    |
 

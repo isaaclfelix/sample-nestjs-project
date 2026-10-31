@@ -1,14 +1,15 @@
 import { createElement } from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { decodeIslandProps } from './island-props';
-import { isIslandName, islandLoaders } from './registry';
+import { getIslandLoaders, isIslandName } from './registry';
 
 /**
  * Hydrates each island marker in `root`.
  *
  * Loads only the chunks named in the document. Other registered islands
  * stay unrequested. The marker element is the container, not part of the
- * component tree.
+ * component tree. Callers must {@link registerIslands} before this runs
+ * (app hydrate entry or test setup).
  *
  * @param {ParentNode} [root] - Document or fragment to scan. Defaults to `document`.
  * @returns {Promise<void>} Resolves when every marker on the page has been hydrated.
@@ -17,6 +18,7 @@ import { isIslandName, islandLoaders } from './registry';
 export async function hydrateIslands(
   root: ParentNode = document,
 ): Promise<void> {
+  const islandLoaders = getIslandLoaders();
   const nodes = [...root.querySelectorAll<HTMLElement>('[data-island]')];
 
   await Promise.all(
@@ -27,12 +29,15 @@ export async function hydrateIslands(
         throw new Error(`Unknown island: ${name}`);
       }
 
+      const load = islandLoaders[name];
+      if (load === undefined) {
+        throw new Error(`Unknown island: ${name}`);
+      }
+
       const props = decodeIslandProps(node.dataset.props ?? '');
-      const islandModule = await islandLoaders[name]();
+      const islandModule = await load();
 
       hydrateRoot(node, createElement(islandModule.default, props));
     }),
   );
 }
-
-await hydrateIslands();

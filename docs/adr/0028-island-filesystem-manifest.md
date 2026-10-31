@@ -12,8 +12,8 @@ After the host / ui / protocol split ([ADR-0023](./0023-web-host-ui-protocol.md)
 
 - **Source of truth:** `src/web/ui/islands/<name>/<name>.tsx` (+ optional `<name>.module.scss`). Islands only — not pages or server-components.
 - **`pnpm islands:sync`** walks that tree and writes **gitignored** `src/web/protocol/islands.generated.ts` — **only** the `islands` map (`hasCssModule` flags). Hook sync from `postinstall`, `prebuild`, `prelint`, `pretest*`, and `prestart*`.
-- **Committed** `src/archipielago/core/islands.ts` imports that map and owns path helpers, `IslandName`, and guards ([ADR-0029](./0029-archipielago-in-repo-isolation.md)). Sync must not regenerate API surface.
-- **UI registry** builds `islandLoaders` from a **non-eager** `import.meta.glob` of `ui/islands/*/*.tsx` (excluding stories/specs), keeping only dirname===basename keys that appear in the generated table. Hydrate stays lazy ([ADR-0012](./0012-island-boundaries.md)).
+- **Committed** `src/archipielago/core/islands.ts` owns path helpers and `registerIslands` / `getIslands` ([ADR-0029](./0029-archipielago-in-repo-isolation.md)). The app injects the generated map at bootstrap and from the browser hydrate entry; Nest HTTP code does not read the table. Sync must not regenerate API surface.
+- **UI registry** builds loaders lazily via `getIslandLoaders()` from a **non-eager** `import.meta.glob` of `ui/islands/*/*.tsx` (excluding stories/specs), keeping only dirname===basename keys that appear in the injected table. Hydrate stays lazy ([ADR-0012](./0012-island-boundaries.md)).
 - **Scaffold** (`--mode island`) creates the folder and runs sync. **Manual** islands: run `pnpm islands:sync` or restart `start:dev` (sync runs at process start). No live watcher on `ui/islands`.
 
 ## Consequences

@@ -6,6 +6,7 @@ import type { App } from 'supertest/types.js';
 import { AppModule } from '../src/app.module.js';
 import { createDevAssetPipeline } from '../src/archipielago/host/asset-pipeline.js';
 import { setViteDevServer } from '../src/archipielago/host/page-loader.js';
+import { registerAppIslands } from '../src/web/register-app-islands.js';
 import type { E2eAppOptions } from './e2e-app.js';
 import { truncateDatabase } from './e2e-truncate.js';
 
@@ -39,6 +40,9 @@ export async function createBrowserE2eApp(
 ): Promise<BrowserE2eApp> {
   // Clear rows from the previous test before wiring a new Nest app.
   await truncateDatabase();
+
+  // Same island injection as main.ts (engines need the table; Nest does not).
+  registerAppIslands();
 
   const moduleFixture: TestingModule = await Test.createTestingModule({
     imports: [AppModule],

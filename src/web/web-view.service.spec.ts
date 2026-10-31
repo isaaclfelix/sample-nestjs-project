@@ -45,9 +45,7 @@ describe('WebViewService', () => {
     );
     expect(html).toContain('data-island="mobile-navigation"');
     expect(html).toContain('/src/web/ui/styles/shell.scss');
-    expect(html).toContain(
-      '/src/archipielago/react/runtime/island/hydrate.tsx',
-    );
+    expect(html).toContain('/src/web/ui/runtime/island/hydrate-entry.tsx');
     expect(html).not.toContain('assets/mobile-navigation.js');
   });
 
@@ -76,7 +74,7 @@ describe('WebViewService', () => {
       });
 
       expect(html).toBe(
-        '/@vite/client|/@id/@vitejs/plugin-react/preamble,/@vite/client,/src/archipielago/react/runtime/island/hydrate.tsx',
+        '/@vite/client|/@id/@vitejs/plugin-react/preamble,/@vite/client,/src/web/ui/runtime/island/hydrate-entry.tsx',
       );
     } finally {
       process.env.VITEST = previous;
@@ -124,7 +122,7 @@ describe('WebViewService', () => {
     writeFileSync(shellPath, 'x'.repeat(50 * 1024 + 1));
 
     setClientManifestReader(() => ({
-      'src/archipielago/react/runtime/island/hydrate.tsx': {
+      'src/web/ui/runtime/island/hydrate-entry.tsx': {
         file: 'assets/hydrate.js',
         isEntry: true,
         imports: ['_react.js'],

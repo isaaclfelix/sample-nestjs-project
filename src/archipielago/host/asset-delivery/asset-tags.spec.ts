@@ -23,7 +23,7 @@ import {
 import { createPageAssets } from './page-assets.js';
 
 const manifest: ClientManifest = {
-  'src/archipielago/react/runtime/island/hydrate.tsx': {
+  'src/web/ui/runtime/island/hydrate-entry.tsx': {
     file: 'assets/hydrate.js',
     isEntry: true,
     imports: ['_react.js', 'missing.js', 'plain.js'],
@@ -158,7 +158,7 @@ describe('asset tags', () => {
       createPageAssets([], {
         development: false,
         manifest: {
-          'src/archipielago/react/runtime/island/hydrate.tsx': {
+          'src/web/ui/runtime/island/hydrate-entry.tsx': {
             file: 'assets/hydrate.js',
             isEntry: true,
           },

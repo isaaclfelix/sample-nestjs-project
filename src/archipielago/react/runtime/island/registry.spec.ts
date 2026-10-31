@@ -1,24 +1,27 @@
-import { islands } from '@archipielago/core/islands';
-import { islandLoaders, isIslandName } from './registry';
+import { getIslands, isIslandName } from '@archipielago/core/islands';
+import { getIslandLoaders } from './registry';
 
 describe('island registry', () => {
-  it('recognizes generated protocol island names only', () => {
-    for (const name of Object.keys(islands)) {
+  it('recognizes injected island names only', () => {
+    for (const name of Object.keys(getIslands())) {
       expect(isIslandName(name)).toBe(true);
     }
     expect(isIslandName('chart')).toBe(false);
     expect(isIslandName('toString')).toBe(false);
   });
 
-  it('keeps loaders in sync with the protocol islands table', () => {
-    expect(Object.keys(islandLoaders).sort()).toEqual(
-      Object.keys(islands).sort(),
+  it('keeps loaders in sync with the injected islands table', () => {
+    expect(Object.keys(getIslandLoaders()).sort()).toEqual(
+      Object.keys(getIslands()).sort(),
     );
   });
 
   it('lazy-loads each registered island module', async () => {
-    for (const name of Object.keys(islands) as (keyof typeof islands)[]) {
-      await expect(islandLoaders[name]()).resolves.toMatchObject({
+    const loaders = getIslandLoaders();
+    for (const name of Object.keys(getIslands())) {
+      const load = loaders[name];
+      expect(load).toBeTypeOf('function');
+      await expect(load!()).resolves.toMatchObject({
         default: expect.any(Function),
       });
     }

@@ -170,7 +170,7 @@ describe('createPageAssets island CSS', () => {
     writeFileSync(join(dir, 'island-small.css'), '._i{}');
 
     const manifest: ClientManifest = {
-      'src/archipielago/react/runtime/island/hydrate.tsx': {
+      'src/web/ui/runtime/island/hydrate-entry.tsx': {
         file: 'assets/hydrate.js',
         isEntry: true,
       },

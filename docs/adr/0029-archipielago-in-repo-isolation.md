@@ -44,8 +44,10 @@ SSR page-props quirk and Nest-thin `web.*` surface from ADR-0023 remain.
 ## Consequences
 
 - Phase 2 can cut packages along existing folders without redesigning the seam.
-- Core still imports app-generated `islands.generated.ts` and page-prop types
-  in-repo ([TD-030](../known-tech-debt.md)); inject fully at package extraction.
+- Islands table is **injected** via `registerIslands` (app bootstrap + hydrate
+  entry); Nest does not consume the manifest for responses. Core still imports
+  app **page-prop** types in-repo ([TD-030](../known-tech-debt.md)) until package
+  extraction generics that contract.
 - Process-global `setViteDevServer` remains ([TD-031](../known-tech-debt.md)).
 - `RenderResult.assets` duplicates data already embedded in `html` until a
   second host needs assembly ([TD-032](../known-tech-debt.md)).

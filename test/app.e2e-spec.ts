@@ -18,7 +18,7 @@ describe('AppController (e2e)', () => {
     expect(response.text).toContain('Rendered on the server at ');
     expect(response.text).toContain('data-island="mobile-navigation"');
     expect(response.text).toContain(
-      '/src/archipielago/react/runtime/island/hydrate.tsx',
+      '/src/web/ui/runtime/island/hydrate-entry.tsx',
     );
   });
 

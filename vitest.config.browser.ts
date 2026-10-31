@@ -21,7 +21,10 @@ export default defineConfig({
     name: 'browser',
     globals: true,
     root: './',
-    setupFiles: ['./test/vitest-browser-setup.ts'],
+    setupFiles: [
+      './test/vitest-register-islands.ts',
+      './test/vitest-browser-setup.ts',
+    ],
     include: browserUnitSpecGlobs,
     browser: {
       enabled: true,

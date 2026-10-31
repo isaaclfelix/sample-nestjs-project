@@ -1,18 +1,54 @@
 /**
- * Host-safe island registration API.
+ * Island registration API for Archipielago engines.
  *
- * The `islands` table is generated into the Nest app's
- * `islands.generated.ts` by `pnpm islands:sync` from product island folders.
- * Path helpers and type guards live here so sync never rewrites application API.
- *
- * Phase 1: core still imports the app-generated map in-repo. Package extraction
- * will inject the table instead of importing the sample path.
+ * The product app owns island folders and the gitignored generated map
+ * (`pnpm islands:sync`). The app **injects** that map via
+ * {@link registerIslands} at bootstrap (and in the browser hydrate entry).
+ * Nest HTTP code never reads the table — only these engines use it while
+ * building the HTML document and hydrating markers.
  */
 
-import { islands } from '../../web/protocol/islands.generated.js';
 import { getArchipielagoPaths } from './paths.js';
 
-export { islands };
+/**
+ * One product island in the generated / injected table.
+ */
+export interface IslandRegistration {
+  /** True when `<name>/<name>.module.scss` exists beside the TSX entry. */
+  hasCssModule: boolean;
+}
+
+/**
+ * Name → registration flags. Keys are kebab-case island folder names.
+ */
+export type IslandsTable = Readonly<Record<string, IslandRegistration>>;
+
+/** Registered island names (table keys after {@link registerIslands}). */
+export type IslandName = string;
+
+let islandsTable: IslandsTable = {};
+
+/**
+ * Injects the app's island table for SSR asset delivery and hydrate loaders.
+ *
+ * Call once at process bootstrap (and from the browser hydrate entry) before
+ * rendering or hydrating. Pass `undefined` in tests to clear.
+ *
+ * @param {IslandsTable | undefined} table - Generated map, or clear.
+ * @returns {void}
+ */
+export function registerIslands(table: IslandsTable | undefined): void {
+  islandsTable = table === undefined ? {} : table;
+}
+
+/**
+ * Returns the injected island table.
+ *
+ * @returns {IslandsTable} Current registration map (empty until registered).
+ */
+export function getIslands(): IslandsTable {
+  return islandsTable;
+}
 
 /**
  * Dev-only Vite URL for an island CSS module, when the island has one.
@@ -44,17 +80,14 @@ export function islandCssModulePath(name: string): IslandCssModulePath {
   return `${islandsDirDevPrefix}/${name}/${name}.module.scss`;
 }
 
-/** Names that have a client island chunk (table keys). */
-export type IslandName = keyof typeof islands;
-
 /**
  * Reports whether a marker name has a registered island.
  *
  * @param {string} name - Value of `data-island`.
- * @returns {boolean} True when the name is a key of {@link islands}.
+ * @returns {boolean} True when the name is a key of the injected table.
  */
 export function isIslandName(name: string): name is IslandName {
-  return Object.prototype.hasOwnProperty.call(islands, name);
+  return Object.prototype.hasOwnProperty.call(islandsTable, name);
 }
 
 /**
@@ -64,7 +97,8 @@ export function isIslandName(name: string): name is IslandName {
  * @returns {string | undefined} Absolute-from-root Vite URL, or undefined.
  */
 export function islandCssModuleUrl(name: IslandName): string | undefined {
-  return islands[name].hasCssModule ? islandCssModulePath(name) : undefined;
+  const entry = islandsTable[name];
+  return entry?.hasCssModule === true ? islandCssModulePath(name) : undefined;
 }
 
 /**
