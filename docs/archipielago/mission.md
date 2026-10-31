@@ -10,6 +10,8 @@ Archipielago is a **human-first, AI-assisted** initiative. Automation and agents
 
 As the team grows, durable decisions move from individual judgment toward **collective ownership**: material changes should reach a clear level of consensus before they are accepted as project direction.
 
+A practical, **recommended** (not required) conversation → plan → execute → review loop is documented in [workflow.md](./workflow.md).
+
 ## Open source, developer-first
 
 We are an **open source**, **developer-first** (developer-friendly) project. We exist to solve engineering problems and to pursue **objectively better** designs—clarity, correctness, testability, maintainability, and honest tradeoffs.
@@ -32,5 +34,6 @@ Openness is not the same as accepting every contribution. Proposals and patches 
 
 ## Related
 
+- Recommended workflow: [workflow.md](./workflow.md)
 - Product philosophy: [vision.md](./vision.md)
 - Phased plan: [roadmap.md](./roadmap.md)

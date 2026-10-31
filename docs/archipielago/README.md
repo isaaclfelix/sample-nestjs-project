@@ -6,10 +6,11 @@ The product name honors Spanish (_archipiélago_) but **drops the accent**—Arc
 
 This repository will become the **Archipielago monorepo**: framework packages, runnable host examples (including NestJS), shared tooling, and eventually the public site—which dogfoods Archipielago itself.
 
-| Doc                        | Purpose                                                            |
-| -------------------------- | ------------------------------------------------------------------ |
-| [mission.md](./mission.md) | Human-first AI assist, developer-first OSS, community standards    |
-| [vision.md](./vision.md)   | Philosophy, market position, ownership split, monorepo, non-goals  |
-| [roadmap.md](./roadmap.md) | Long-term phases from isolation through parity and differentiation |
+| Doc                          | Purpose                                                            |
+| ---------------------------- | ------------------------------------------------------------------ |
+| [mission.md](./mission.md)   | Human-first AI assist, developer-first OSS, community standards    |
+| [workflow.md](./workflow.md) | Recommended AI-assisted flow; mandatory ADR / tech-debt guidelines |
+| [vision.md](./vision.md)     | Philosophy, market position, ownership split, monorepo, non-goals  |
+| [roadmap.md](./roadmap.md)   | Long-term phases from isolation through parity and differentiation |
 
 Current NestJS HTML wiring lives under `src/web/` and is described in [architecture.md](../architecture.md). How-to authoring: [how-to-web-ui.md](../how-to-web-ui.md). Durable decisions: [docs/adr/](../adr/README.md).
