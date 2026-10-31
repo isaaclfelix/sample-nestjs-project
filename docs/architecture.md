@@ -399,4 +399,4 @@ tip of `main` does not. The `plan-files` CI job fails while a file remains.
 - [Architecture Decision Records](./adr/README.md) — durable tradeoffs (ADR-0001–ADR-0017).
 - [How to add web UI](./how-to-web-ui.md) — SSR vs island vs module styles; handpicked icons; anti-patterns; scaffold.
 - [Testing and coverage](./testing-and-coverage.md) — unit/e2e/coverage policy; Testcontainers for e2e ([ADR-0010](./adr/0010-e2e-testcontainers.md)).
-- [Known tech debt](./known-tech-debt.md) — deferred work (TD-IDs). Shared island client state is TD-008; below-the-fold hydrate is TD-010. Plan files left on the merge tip fail the `plan-files` CI job (TD-034 closed).
+- [Known tech debt](./known-tech-debt.md) — deferred work (TD-IDs). Shared island client state is TD-008; below-the-fold hydrate is TD-010.

@@ -42,9 +42,9 @@ plans to remain in the tree of `main` after release.
 - Pull request review can open the plan from the branch commits after the
   delete commit removes it from the tip. `plan-files` stays red until that
   delete is in the tree that would merge.
-- A missed delete fails CI instead of landing quietly on `main`
-  ([TD-034](../known-tech-debt.md) closed). GitHub hides the merge button
-  only after an admin requires the `plan-files` check.
+- A missed delete fails CI instead of landing quietly on `main`. GitHub
+  hides the merge button only after an admin requires the `plan-files`
+  check.
 - Plan text that lands in a merge commit stays in the repository history of
   every clone. Do not put secrets in plan files.
 - Desktop and CLI Plan mode stay the planning path in those environments.
