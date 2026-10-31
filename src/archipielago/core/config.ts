@@ -17,14 +17,18 @@ import {
 } from './paths.js';
 
 /**
- * How the host maintains the islands table.
+ * How the host maintains the islands table that `registerIslands` injects.
  *
- * - `filesystem` — conventional folders are SoT; `islands:sync` writes the map.
- * - `manifest` — host owns the map file; sync refuses to write; scaffold warns.
+ * Engines always consume that injected table; they do not branch on mode.
+ *
+ * - `auto` — derive the table from conventional folders (`islands:sync` may
+ *   write it; scaffold runs sync).
+ * - `manual` — host owns the table file; sync refuses to write; scaffold warns
+ *   with the entry to add.
  *
  * Folder layout stays `ui/islands/<name>/<name>.tsx` either way ([ADR-0025]).
  */
-export type IslandsRegistration = 'filesystem' | 'manifest';
+export type IslandsRegistration = 'auto' | 'manual';
 
 /**
  * Optional host config file shape (`archipielago.config.ts` default export).
@@ -34,7 +38,7 @@ export interface ArchipielagoUserConfig {
   paths?: Partial<ArchipielagoPaths>;
   islands?: {
     /**
-     * Source of truth for the islands table. Defaults to `filesystem`.
+     * How the host maintains the islands table. Defaults to `auto`.
      */
     registration?: IslandsRegistration;
   };
@@ -48,14 +52,14 @@ export interface ArchipielagoResolvedConfig {
   islandsRegistration: IslandsRegistration;
 }
 
-const defaultRegistration: IslandsRegistration = 'filesystem';
+const defaultRegistration: IslandsRegistration = 'auto';
 
 let islandsRegistration: IslandsRegistration = defaultRegistration;
 
 /**
  * Returns the active islands registration mode.
  *
- * @returns {IslandsRegistration} `filesystem` (sync) or `manifest` (manual).
+ * @returns {IslandsRegistration} `auto` (sync) or `manual` (host-owned table).
  */
 export function getIslandsRegistration(): IslandsRegistration {
   return islandsRegistration;
@@ -74,7 +78,7 @@ export function getArchipielagoConfig(): ArchipielagoResolvedConfig {
 }
 
 /**
- * Restores path defaults and `filesystem` registration.
+ * Restores path defaults and `auto` registration.
  *
  * @returns {void}
  */
@@ -86,7 +90,7 @@ export function resetArchipielagoConfig(): void {
 /**
  * Applies a user config object (path merges + registration).
  *
- * Pass `undefined` to restore path defaults and `filesystem` registration.
+ * Pass `undefined` to restore path defaults and `auto` registration.
  * Does not clear unspecified fields when a partial config is passed — call
  * {@link resetArchipielagoConfig} first when loading a fresh host file.
  *
@@ -141,7 +145,7 @@ export async function loadAndApplyArchipielagoConfig(
  *
  * @param {string} name - Island folder / registry name.
  * @param {boolean} hasCssModule - Whether `<name>.module.scss` was written.
- * @param {string} manifestRel - Repo-relative manifest path from config.
+ * @param {string} manifestRel - Repo-relative islands table path from config.
  * @returns {string} Multi-line warning for authors.
  */
 export function manualIslandManifestWarning(
@@ -150,7 +154,7 @@ export function manualIslandManifestWarning(
   manifestRel: string,
 ): string {
   return [
-    `islands.registration=manifest: add this entry to ${manifestRel} (sync will not run):`,
+    `islands.registration=manual: add this entry to ${manifestRel} (sync will not run):`,
     ``,
     `  '${name}': { hasCssModule: ${String(hasCssModule)} },`,
   ].join('\n');

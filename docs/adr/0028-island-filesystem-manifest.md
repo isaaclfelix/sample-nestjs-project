@@ -11,7 +11,7 @@ After the host / ui / protocol split ([ADR-0023](./0023-web-host-ui-protocol.md)
 ## Decision
 
 - **Folder convention (unchanged):** `ui/islands/<name>/<name>.tsx` (+ optional `<name>.module.scss`). Islands only — not pages or server-components.
-- **Table + sync:** Under sample default `islands.registration=filesystem` ([ADR-0030](./0030-archipielago-host-config.md)), `pnpm islands:sync` walks that tree and writes **only** the `islands` map (`hasCssModule` flags) to the configured manifest path (sample: `src/web/protocol/islands.generated.ts`). This sample hooks sync from `postinstall`, `prebuild`, `prelint`, `pretest*`, and `prestart*`, and gitignores the map — host choices, not package requirements.
+- **Table + sync:** Under sample default `islands.registration=auto` ([ADR-0030](./0030-archipielago-host-config.md)), `pnpm islands:sync` walks that tree and writes **only** the `islands` map (`hasCssModule` flags) to the configured table path (sample: `src/web/protocol/islands.generated.ts`). This sample hooks sync from `postinstall`, `prebuild`, `prelint`, `pretest*`, and `prestart*`, and gitignores the map — host choices, not package requirements.
 - **Committed** `src/archipielago/core/islands.ts` owns path helpers and `registerIslands` / `getIslands`. The app injects the map at bootstrap and from the browser hydrate entry; Nest HTTP code does not read the table. Sync must not regenerate API surface.
 - **UI registry** builds loaders lazily via `getIslandLoaders()` from a **non-eager** `import.meta.glob` of `ui/islands/*/*.tsx` (excluding stories/specs), keeping only dirname===basename keys that appear in the injected table. Hydrate stays lazy ([ADR-0012](./0012-island-boundaries.md)).
 - **Scaffold** (`--mode island`) creates the conventional folder; sync vs manual-entry warning follows registration mode ([ADR-0030](./0030-archipielago-host-config.md)). No live watcher on `ui/islands`.
@@ -19,13 +19,13 @@ After the host / ui / protocol split ([ADR-0023](./0023-web-host-ui-protocol.md)
 ## Consequences
 
 - Authors register islands by adding a conventional folder (and sync or a manifest row per mode); no hand-edited loader map or CSS catalog.
-- Clones on `filesystem` mode need sync before typecheck/compile (same class of step as Prisma generate) unless the host commits the map.
-- Nest `--watch` reloads when scaffold (or sync) rewrites the manifest; adding a folder alone while the server runs does not refresh the catalog until sync/restart (or a manual edit + reload in `manifest` mode).
+- Clones on `auto` mode need sync before typecheck/compile (same class of step as Prisma generate) unless the host commits the map.
+- Nest `--watch` reloads when scaffold (or sync) rewrites the table; adding a folder alone while the server runs does not refresh the catalog until sync/restart (or a manual edit + reload in `manual` mode).
 - ADR-0023’s “island CSS catalog” note is superseded by this decision for registration shape.
 
 ## Alternatives considered
 
-- Hand-maintained protocol catalog + explicit loader map — dual registration; rejected as the **only** mode (manual table ownership returns as optional `manifest` mode in [ADR-0030](./0030-archipielago-host-config.md)).
+- Hand-maintained protocol catalog + explicit loader map — dual registration; rejected as the **only** mode (manual table ownership returns as optional `manual` mode in [ADR-0030](./0030-archipielago-host-config.md)).
 - Regenerating helpers/types into one generated `islands.ts` — erases durable API on every sync; rejected in favor of map-only codegen.
 - Committed full generated module with `--check` on build — valid host policy; this sample preferred gitignored regen to avoid manifest PR noise (not mandated for embedders — [ADR-0030](./0030-archipielago-host-config.md)).
 - Variable `import(\`…/${name}.tsx\`)` without glob — valid lazy alternative; glob matches “folder is the registry” more directly.

@@ -4,8 +4,8 @@
  * Sync and scaffold read this file from the repo root. Engines consume the
  * injected islands table and path getters — not this module directly.
  *
- * - `filesystem` — folders are SoT; `pnpm islands:sync` writes the map.
- * - `manifest` — you own the map; sync refuses to write; scaffold warns.
+ * - `auto` — derive the table from conventional folders (`pnpm islands:sync`).
+ * - `manual` — you own the table file; sync refuses to write; scaffold warns.
  *
  * Changing `paths.islandsGeneratedRel` also requires updating the static
  * import in `src/web/register-app-islands.ts` (and the hydrate entry path).
@@ -17,7 +17,7 @@ import type { ArchipielagoUserConfig } from './src/archipielago/core/config.js';
 
 const config: ArchipielagoUserConfig = {
   islands: {
-    registration: 'filesystem',
+    registration: 'auto',
   },
   paths: {
     islandsDirRel: 'src/web/ui/islands',

@@ -24,19 +24,19 @@ afterEach(async () => {
 });
 
 describe('Archipielago config', () => {
-  it('defaults to filesystem registration and sample paths', () => {
+  it('defaults to auto registration and sample paths', () => {
     expect(getArchipielagoConfig()).toEqual(
       defaultArchipielagoResolvedConfig(),
     );
-    expect(getIslandsRegistration()).toBe('filesystem');
+    expect(getIslandsRegistration()).toBe('auto');
   });
 
   it('applies registration and path overrides', () => {
     applyArchipielagoUserConfig({
-      islands: { registration: 'manifest' },
+      islands: { registration: 'manual' },
       paths: { islandsGeneratedRel: 'app/islands.ts' },
     });
-    expect(getIslandsRegistration()).toBe('manifest');
+    expect(getIslandsRegistration()).toBe('manual');
     expect(getArchipielagoConfig().paths.islandsGeneratedRel).toBe(
       'app/islands.ts',
     );
@@ -51,7 +51,7 @@ describe('Archipielago config', () => {
     await writeFile(
       join(root, 'archipielago.config.ts'),
       `export default {
-  islands: { registration: 'manifest' },
+  islands: { registration: 'manual' },
   paths: { islandsGeneratedRel: 'custom/islands-map.ts' },
 };
 `,
@@ -59,24 +59,27 @@ describe('Archipielago config', () => {
     );
 
     const resolved = await loadAndApplyArchipielagoConfig(root);
-    expect(resolved.islandsRegistration).toBe('manifest');
+    expect(resolved.islandsRegistration).toBe('manual');
     expect(resolved.paths.islandsGeneratedRel).toBe('custom/islands-map.ts');
   });
 
   it('resets when the config file is missing', async () => {
     applyArchipielagoUserConfig({
-      islands: { registration: 'manifest' },
+      islands: { registration: 'manual' },
     });
     const root = await mkdtemp(join(tmpdir(), 'arch-config-empty-'));
     tempDirs.push(root);
     await mkdir(root, { recursive: true });
 
     const resolved = await loadAndApplyArchipielagoConfig(root);
-    expect(resolved.islandsRegistration).toBe('filesystem');
+    expect(resolved.islandsRegistration).toBe('auto');
     expect(resolved.paths).toEqual(defaultArchipielagoPaths);
   });
 
-  it('formats a manual-mode manifest warning', () => {
+  it('formats a manual-mode table warning', () => {
+    expect(
+      manualIslandManifestWarning('toggle', true, 'src/web/protocol/map.ts'),
+    ).toContain('islands.registration=manual');
     expect(
       manualIslandManifestWarning('toggle', true, 'src/web/protocol/map.ts'),
     ).toContain('src/web/protocol/map.ts');

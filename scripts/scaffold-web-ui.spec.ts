@@ -187,11 +187,11 @@ describe('applyScaffoldPlan', () => {
     expect(manifest).toContain("'toggle': { hasCssModule: true }");
   });
 
-  it('warns for a manifest entry and skips sync in manifest mode', async () => {
+  it('warns for a table entry and skips sync in manual mode', async () => {
     applyArchipielagoUserConfig({
-      islands: { registration: 'manifest' },
+      islands: { registration: 'manual' },
     });
-    const root = await mkdtemp(join(tmpdir(), 'scaffold-web-ui-manifest-'));
+    const root = await mkdtemp(join(tmpdir(), 'scaffold-web-ui-manual-'));
     tempDirs.push(root);
     await mkdir(join(root, 'src/web/ui/islands'), { recursive: true });
 
@@ -205,7 +205,7 @@ describe('applyScaffoldPlan', () => {
     expect(
       written.some((path) => path.endsWith('protocol/islands.generated.ts')),
     ).toBe(false);
-    expect(notes[0]).toContain('islands.registration=manifest');
+    expect(notes[0]).toContain('islands.registration=manual');
     expect(notes[0]).toContain("'toggle': { hasCssModule: false }");
   });
 });

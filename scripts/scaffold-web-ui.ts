@@ -3,8 +3,8 @@
  *
  * Shared by humans (`pnpm scaffold:web-ui`) and the `create-web-ui` agent skill.
  * Prefer this script over hand-wiring so island folders stay conventional.
- * With `islands.registration=filesystem`, island mode runs sync; with
- * `manifest`, it warns that authors must add a map entry (no sync).
+ * With `islands.registration=auto`, island mode runs sync; with `manual`, it
+ * warns that authors must add a map entry (no sync).
  *
  * Usage:
  *   pnpm scaffold:web-ui --name my-widget --mode island --with-styles
@@ -405,7 +405,7 @@ export async function applyScaffoldPlan(
   }
 
   const hasCssModule = plan.islandModulePath !== undefined;
-  if (getIslandsRegistration() === 'manifest') {
+  if (getIslandsRegistration() === 'manual') {
     // Host owns the table — do not call sync (would refuse / overwrite).
     notes.push(
       manualIslandManifestWarning(
@@ -415,7 +415,7 @@ export async function applyScaffoldPlan(
       ),
     );
   } else {
-    // filesystem mode: regenerate the islands map from conventional folders.
+    // auto mode: regenerate the islands table from conventional folders.
     const { path: islandsManifestPath } = await syncIslandManifest(rootDir);
     written.push(islandsManifestPath);
   }
@@ -435,7 +435,7 @@ function printHelp(): void {
 
 --with-styles is allowed only with --mode island (adds *.module.scss).
 Island mode runs islands:sync when archipielago.config registration is
-filesystem; otherwise it warns about adding a manual manifest entry.
+auto; otherwise it warns about adding a manual table entry.
 See docs/how-to-web-ui.md for the decision tree.
 `);
 }
@@ -531,10 +531,10 @@ Next steps:
   4. Style with shell classes only — see docs/how-to-web-ui.md (SSR page props quirk)
   5. Browse the stub story with pnpm storybook (workshop, not QA)
 `);
-  } else if (getIslandsRegistration() === 'manifest') {
+  } else if (getIslandsRegistration() === 'manual') {
     output.write(`
 Next steps:
-  1. Add the manifest entry above (registration=manifest; sync will not run).
+  1. Add the table entry above (registration=manual; sync will not run).
   2. Render on a page (leave the page folder via @ui aliases — ADR-0027):
     import ${plan.pascalName} from '@ui/islands/${plan.name}';
     import { Island } from '@archipielago/react/runtime/island/island';

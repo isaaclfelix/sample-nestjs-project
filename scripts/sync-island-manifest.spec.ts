@@ -9,7 +9,7 @@ import {
 import { getArchipielagoPaths } from '../src/archipielago/core/paths.js';
 import {
   discoverIslands,
-  ManifestRegistrationSyncError,
+  ManualRegistrationSyncError,
   renderIslandsGeneratedModule,
   syncIslandManifest,
 } from './sync-island-manifest.js';
@@ -99,14 +99,14 @@ describe('syncIslandManifest', () => {
     expect(written).not.toContain('function isIslandName');
   });
 
-  it('refuses to write when registration is manifest', async () => {
+  it('refuses to write when registration is manual', async () => {
     applyArchipielagoUserConfig({
-      islands: { registration: 'manifest' },
+      islands: { registration: 'manual' },
     });
     const root = await tempRoot();
 
     await expect(syncIslandManifest(root)).rejects.toBeInstanceOf(
-      ManifestRegistrationSyncError,
+      ManualRegistrationSyncError,
     );
   });
 });
