@@ -1,5 +1,5 @@
 /**
- * Scans conventional island folders and writes the host islands table.
+ * Scans conventional island folders and writes the host islands manifest.
  *
  * Convention (ADR-0025): `ui/islands/<name>/<name>.tsx` is a registered island;
  * optional `<name>.module.scss` sets `hasCssModule`. Only runs when
@@ -26,7 +26,7 @@ export interface IslandManifestEntry {
 }
 
 /**
- * Error when sync is invoked while the host owns the islands table by hand.
+ * Error when sync is invoked while the host owns the islands manifest by hand.
  */
 export class ManualRegistrationSyncError extends Error {
   /**
@@ -114,10 +114,10 @@ ${rows}
 }
 
 /**
- * Discovers islands under the repo and writes the configured islands table.
+ * Discovers islands under the repo and writes the configured islands manifest.
  *
  * Refuses when `islands.registration` is `manual` so sync never overwrites
- * a hand-maintained table. Call {@link loadAndApplyArchipielagoConfig} first
+ * a hand-maintained manifest. Call {@link loadAndApplyArchipielagoConfig} first
  * from CLI; tests may set registration via `applyArchipielagoUserConfig`.
  *
  * @param {string} rootDir - Repository root.

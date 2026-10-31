@@ -34,7 +34,7 @@ Scaffold (`pnpm scaffold:web-ui --mode page`) writes SSR props under `protocol/p
 
 ### Island registration
 
-Island identity is an injected map (sample path `protocol/islands.generated.ts` from `pnpm islands:sync` when `registration=auto`). Host config and optional hand-owned maps: [ADR-0030](./0030-archipielago-host-config.md). UI registry derives lazy loaders via `import.meta.glob` ([ADR-0028](./0028-island-filesystem-manifest.md)).
+Island identity is an injected manifest (sample path `protocol/islands.generated.ts` from `pnpm islands:sync` when `registration=auto`). Host config and optional hand-owned manifests: [ADR-0030](./0030-archipielago-host-config.md). UI registry derives lazy loaders via `import.meta.glob` ([ADR-0028](./0028-island-filesystem-manifest.md)).
 
 ## Consequences
 

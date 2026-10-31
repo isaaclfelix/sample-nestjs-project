@@ -148,7 +148,7 @@ describe('applyScaffoldPlan', () => {
     expect(stories).toContain("title: 'Pages/AboutPage'");
   });
 
-  it('writes island files and syncs the protocol islands table', async () => {
+  it('writes island files and syncs the protocol islands manifest', async () => {
     const root = await mkdtemp(join(tmpdir(), 'scaffold-web-ui-'));
     tempDirs.push(root);
     await mkdir(join(root, 'src/web/ui/islands'), { recursive: true });
@@ -187,7 +187,7 @@ describe('applyScaffoldPlan', () => {
     expect(manifest).toContain("'toggle': { hasCssModule: true }");
   });
 
-  it('warns for a table entry and skips sync in manual mode', async () => {
+  it('warns for a manifest entry and skips sync in manual mode', async () => {
     applyArchipielagoUserConfig({
       islands: { registration: 'manual' },
     });

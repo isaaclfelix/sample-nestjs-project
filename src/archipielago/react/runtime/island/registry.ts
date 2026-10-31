@@ -17,7 +17,7 @@ export { isIslandName };
  * Vite glob of product island TSX under `web/ui/islands/` (lazy; never eager).
  *
  * Negative patterns drop Storybook and colocated specs. Loaders then keep only
- * `<name>/<name>.tsx` keys that appear in the injected islands table.
+ * `<name>/<name>.tsx` keys that appear in the injected islands manifest.
  */
 const islandModules = import.meta.glob([
   '../../../../web/ui/islands/*/*.tsx',
@@ -32,7 +32,7 @@ let islandLoadersCache:
  * Returns lazy island loaders keyed by injected registration names.
  *
  * Builds once after {@link registerIslands} / app bootstrap. Safe to call from
- * hydrate after the app hydrate entry has registered the table (ESM import
+ * hydrate after the app hydrate entry has registered the manifest (ESM import
  * hoisting must not build loaders at module evaluate time).
  *
  * @returns {Partial<Record<IslandName, () => Promise<IslandModule>>>} Loaders.

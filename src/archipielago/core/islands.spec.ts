@@ -34,7 +34,7 @@ describe('Archipielago islands helpers', () => {
     expect(islandCssModuleUrl('login-form')).toBeUndefined();
   });
 
-  it('recognizes injected table keys only', () => {
+  it('recognizes injected manifest keys only', () => {
     for (const name of Object.keys(getIslands())) {
       expect(isIslandName(name)).toBe(true);
     }

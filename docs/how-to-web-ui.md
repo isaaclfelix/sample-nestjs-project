@@ -94,10 +94,10 @@ Scaffold: `pnpm scaffold:web-ui --name about --mode page` (writes protocol SSR p
 
 1. Folder under `src/web/ui/islands/<name>/` with `<name>.tsx` (default export), thin `index.ts`, JSON-serializable props.
 2. Optional: colocated `<name>.module.scss` (import tokens via `@ui/styles/tokens`) — never re-import the shell sheet or Bootstrap CSS-emitting partials (including forms/validation).
-3. Refresh the islands table per `archipielago.config.ts` ([ADR-0030](./adr/0030-archipielago-host-config.md)):
-   - **`auto`** (this sample): **scaffold runs `pnpm islands:sync`**. Hand-added folders: run `pnpm islands:sync` **or** restart `pnpm start:dev` (sync runs at process start). Do not hand-edit the generated map.
-   - **`manual`**: scaffold **warns** with the entry to add; sync refuses to overwrite. You own the map file (commit it if you want — gitignore is optional).
-     App bootstrap / hydrate entry calls `registerIslands` so Archipielago engines can build HTML; Nest never reads the table. Hydrate loaders discover conventional folders via glob — no registry map edit ([ADR-0028](./adr/0028-island-filesystem-manifest.md)).
+3. Refresh the islands manifest per `archipielago.config.ts` ([ADR-0030](./adr/0030-archipielago-host-config.md)):
+   - **`auto`** (this sample): **scaffold runs `pnpm islands:sync`**. Hand-added folders: run `pnpm islands:sync` **or** restart `pnpm start:dev` (sync runs at process start). Do not hand-edit the generated manifest.
+   - **`manual`**: scaffold **warns** with the entry to add; sync refuses to overwrite. You own the manifest (commit it if you want — gitignore is optional).
+     App bootstrap / hydrate entry calls `registerIslands` so Archipielago engines can build HTML; Nest never reads the manifest. Hydrate loaders discover conventional folders via glob — no registry map edit ([ADR-0028](./adr/0028-island-filesystem-manifest.md)).
 4. Render `<Island name="…" component={…} props={…} />` from a page (directory-import the island barrel; import `Island` from `@archipielago/react/runtime/island/island`). Do **not** wire CSS context yourself — the framework fills it after the name-collection pass and emits a sibling `<style data-css-island>` for used islands (deduped by name).
 5. Hydrate still loads **JS only** for that island; CSS was already inlined in the HTML.
 

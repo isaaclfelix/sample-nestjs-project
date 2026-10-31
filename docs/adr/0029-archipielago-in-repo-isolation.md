@@ -45,7 +45,7 @@ SSR page-props quirk and Nest-thin `web.*` surface from ADR-0023 remain.
 ## Consequences
 
 - Phase 2 can cut packages along existing folders without redesigning the seam.
-- Islands table is **injected** via `registerIslands` (app bootstrap + hydrate
+- Islands manifest is **injected** via `registerIslands` (app bootstrap + hydrate
   entry); Nest does not consume the manifest for responses. Core still imports
   app **page-prop** types in-repo ([TD-030](../known-tech-debt.md)) until package
   extraction generics that contract.

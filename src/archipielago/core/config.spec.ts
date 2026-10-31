@@ -76,7 +76,7 @@ describe('Archipielago config', () => {
     expect(resolved.paths).toEqual(defaultArchipielagoPaths);
   });
 
-  it('formats a manual-mode table warning', () => {
+  it('formats a manual-mode manifest warning', () => {
     expect(
       manualIslandManifestWarning('toggle', true, 'src/web/protocol/map.ts'),
     ).toContain('islands.registration=manual');

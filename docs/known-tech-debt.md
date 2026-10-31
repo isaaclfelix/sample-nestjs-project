@@ -25,7 +25,7 @@ DELETE `/api/user/:id` returning **204** whether or not the user existed is an i
 | TD-019 | Web UI      | Product islands under `src/web/islands/`; marker, registry, props codec, and hydrate under `src/web/runtime/island/`; slim `api-fetch/` keeps CSRF / `apiRequestDefaults` only. Decision: [ADR-0018](./adr/0018-island-runtime-folder.md).                |
 | TD-020 | Web UI      | Nest at `src/web/` root; engines under `runtime/{island,ssr,asset-delivery}`; `server-components/document.tsx`; `styles/shell.scss`. Decisions: [ADR-0019](./adr/0019-web-folder-grouping.md) (superseded), [ADR-0020](./adr/0020-web-runtime-folder.md). |
 | TD-025 | Testing     | Vitest browser mode (UI units) + Playwright library (browser e2e) + product `.tsx` coverage; happy-dom removed. Decision: [ADR-0021](./adr/0021-vitest-browser-ui-testing.md).                                                                            |
-| TD-028 | Web UI      | Island registration is conventional folders + injected table + glob loaders; host picks `auto` sync vs `manual` ownership ([ADR-0028](./adr/0028-island-filesystem-manifest.md), [ADR-0030](./adr/0030-archipielago-host-config.md)).                     |
+| TD-028 | Web UI      | Island registration is conventional folders + injected manifest + glob loaders; host picks `auto` sync vs `manual` ownership ([ADR-0028](./adr/0028-island-filesystem-manifest.md), [ADR-0030](./adr/0030-archipielago-host-config.md)).                  |
 
 ## Open items
 

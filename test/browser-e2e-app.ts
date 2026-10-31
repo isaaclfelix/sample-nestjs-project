@@ -41,7 +41,7 @@ export async function createBrowserE2eApp(
   // Clear rows from the previous test before wiring a new Nest app.
   await truncateDatabase();
 
-  // Same island injection as main.ts (engines need the table; Nest does not).
+  // Same island injection as main.ts (engines need the manifest; Nest does not).
   registerAppIslands();
 
   const moduleFixture: TestingModule = await Test.createTestingModule({

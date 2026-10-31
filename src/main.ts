@@ -12,15 +12,15 @@ import { registerAppIslands } from './web/register-app-islands.js';
 /**
  * Starts the Nest HTTP application.
  *
- * Registers the app island table into Archipielago, the global Standard Schema
- * validation pipe, Swagger UI at `/api/docs`, Archipielago client assets (Vite
- * middleware in development, static files in production), and listens on PORT
- * or 3000.
+ * Registers the app islands manifest into Archipielago, the global Standard
+ * Schema validation pipe, Swagger UI at `/api/docs`, Archipielago client assets
+ * (Vite middleware in development, static files in production), and listens on
+ * PORT or 3000.
  *
  * @returns {Promise<void>} Resolves when the server is listening.
  */
 async function bootstrap(): Promise<void> {
-  // App injects the generated islands map; Nest never reads it for responses.
+  // App injects the generated islands manifest; Nest never reads it for responses.
   registerAppIslands();
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {

@@ -10,7 +10,7 @@ describe('island registry', () => {
     expect(isIslandName('toString')).toBe(false);
   });
 
-  it('keeps loaders in sync with the injected islands table', () => {
+  it('keeps loaders in sync with the injected islands manifest', () => {
     expect(Object.keys(getIslandLoaders()).sort()).toEqual(
       Object.keys(getIslands()).sort(),
     );

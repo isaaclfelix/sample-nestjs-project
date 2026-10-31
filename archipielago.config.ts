@@ -2,10 +2,10 @@
  * Host Archipielago configuration for this Nest sample.
  *
  * Sync and scaffold read this file from the repo root. Engines consume the
- * injected islands table and path getters — not this module directly.
+ * injected islands manifest and path getters — not this module directly.
  *
- * - `auto` — derive the table from conventional folders (`pnpm islands:sync`).
- * - `manual` — you own the table file; sync refuses to write; scaffold warns.
+ * - `auto` — derive the manifest from conventional folders (`pnpm islands:sync`).
+ * - `manual` — you own the manifest; sync refuses to write; scaffold warns.
  *
  * Changing `paths.islandsGeneratedRel` also requires updating the static
  * import in `src/web/register-app-islands.ts` (and the hydrate entry path).

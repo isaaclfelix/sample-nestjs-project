@@ -1,17 +1,17 @@
 /**
  * Island registration API for Archipielago engines.
  *
- * The product app owns island folders and the gitignored generated map
- * (`pnpm islands:sync`). The app **injects** that map via
+ * The product app owns island folders and the gitignored generated manifest
+ * (`pnpm islands:sync`). The app **injects** that manifest via
  * {@link registerIslands} at bootstrap (and in the browser hydrate entry).
- * Nest HTTP code never reads the table — only these engines use it while
+ * Nest HTTP code never reads the manifest — only these engines use it while
  * building the HTML document and hydrating markers.
  */
 
 import { getArchipielagoPaths } from './paths.js';
 
 /**
- * One product island in the generated / injected table.
+ * One product island in the generated / injected manifest.
  */
 export interface IslandRegistration {
   /** True when `<name>/<name>.module.scss` exists beside the TSX entry. */
@@ -23,18 +23,18 @@ export interface IslandRegistration {
  */
 export type IslandsTable = Readonly<Record<string, IslandRegistration>>;
 
-/** Registered island names (table keys after {@link registerIslands}). */
+/** Registered island names (manifest keys after {@link registerIslands}). */
 export type IslandName = string;
 
 let islandsTable: IslandsTable = {};
 
 /**
- * Injects the app's island table for SSR asset delivery and hydrate loaders.
+ * Injects the app's islands manifest for SSR asset delivery and hydrate loaders.
  *
  * Call once at process bootstrap (and from the browser hydrate entry) before
  * rendering or hydrating. Pass `undefined` in tests to clear.
  *
- * @param {IslandsTable | undefined} table - Generated map, or clear.
+ * @param {IslandsTable | undefined} table - Generated manifest, or clear.
  * @returns {void}
  */
 export function registerIslands(table: IslandsTable | undefined): void {
@@ -42,7 +42,7 @@ export function registerIslands(table: IslandsTable | undefined): void {
 }
 
 /**
- * Returns the injected island table.
+ * Returns the injected islands manifest.
  *
  * @returns {IslandsTable} Current registration map (empty until registered).
  */
@@ -84,7 +84,7 @@ export function islandCssModulePath(name: string): IslandCssModulePath {
  * Reports whether a marker name has a registered island.
  *
  * @param {string} name - Value of `data-island`.
- * @returns {boolean} True when the name is a key of the injected table.
+ * @returns {boolean} True when the name is a key of the injected manifest.
  */
 export function isIslandName(name: string): name is IslandName {
   return Object.prototype.hasOwnProperty.call(islandsTable, name);

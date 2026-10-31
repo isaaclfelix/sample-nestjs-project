@@ -315,7 +315,7 @@ Islands do not share React context or state after hydration (see [TD-008](./know
 
 ### Lazy chunks
 
-The app hydrate entry (`ui/runtime/island/hydrate-entry.tsx`) injects the islands table via `registerIslands`, then calls Archipielago `hydrateIslands`. Loaders come from a filtered `import.meta.glob` of `ui/islands/*/*.tsx` (dirname===basename only). Nest never reads the manifest — only Archipielago engines use it while building HTML. Host `archipielago.config.ts` chooses `auto` sync vs `manual` table ownership ([ADR-0028](./adr/0028-island-filesystem-manifest.md), [ADR-0029](./adr/0029-archipielago-in-repo-isolation.md), [ADR-0030](./adr/0030-archipielago-host-config.md)).
+The app hydrate entry (`ui/runtime/island/hydrate-entry.tsx`) injects the islands manifest via `registerIslands`, then calls Archipielago `hydrateIslands`. Loaders come from a filtered `import.meta.glob` of `ui/islands/*/*.tsx` (dirname===basename only). Nest never reads the manifest — only Archipielago engines use it while building HTML. Host `archipielago.config.ts` chooses `auto` sync vs `manual` manifest ownership ([ADR-0028](./adr/0028-island-filesystem-manifest.md), [ADR-0029](./adr/0029-archipielago-in-repo-isolation.md), [ADR-0030](./adr/0030-archipielago-host-config.md)).
 
 Vite emits a separate chunk per dynamic `import()`. `assetTagsFromManifest` emits the hydrate entry and its static `imports`; it does not walk `dynamicImports`. Vite may still inject runtime `modulepreload` when a dynamic `import()` runs ([ADR-0012](./adr/0012-island-boundaries.md); revisit with [TD-010](./known-tech-debt.md)).
 

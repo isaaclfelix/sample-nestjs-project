@@ -17,13 +17,13 @@ import {
 } from './paths.js';
 
 /**
- * How the host maintains the islands table that `registerIslands` injects.
+ * How the host maintains the islands manifest that `registerIslands` injects.
  *
- * Engines always consume that injected table; they do not branch on mode.
+ * Engines always consume that injected manifest; they do not branch on mode.
  *
- * - `auto` — derive the table from conventional folders (`islands:sync` may
+ * - `auto` — derive the manifest from conventional folders (`islands:sync` may
  *   write it; scaffold runs sync).
- * - `manual` — host owns the table file; sync refuses to write; scaffold warns
+ * - `manual` — host owns the manifest; sync refuses to write; scaffold warns
  *   with the entry to add.
  *
  * Folder layout stays `ui/islands/<name>/<name>.tsx` either way ([ADR-0025]).
@@ -38,7 +38,7 @@ export interface ArchipielagoUserConfig {
   paths?: Partial<ArchipielagoPaths>;
   islands?: {
     /**
-     * How the host maintains the islands table. Defaults to `auto`.
+     * How the host maintains the islands manifest. Defaults to `auto`.
      */
     registration?: IslandsRegistration;
   };
@@ -59,7 +59,7 @@ let islandsRegistration: IslandsRegistration = defaultRegistration;
 /**
  * Returns the active islands registration mode.
  *
- * @returns {IslandsRegistration} `auto` (sync) or `manual` (host-owned table).
+ * @returns {IslandsRegistration} `auto` (sync) or `manual` (host-owned manifest).
  */
 export function getIslandsRegistration(): IslandsRegistration {
   return islandsRegistration;
@@ -145,7 +145,7 @@ export async function loadAndApplyArchipielagoConfig(
  *
  * @param {string} name - Island folder / registry name.
  * @param {boolean} hasCssModule - Whether `<name>.module.scss` was written.
- * @param {string} manifestRel - Repo-relative islands table path from config.
+ * @param {string} manifestRel - Repo-relative islands manifest path from config.
  * @returns {string} Multi-line warning for authors.
  */
 export function manualIslandManifestWarning(
