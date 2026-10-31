@@ -383,6 +383,17 @@ flowchart LR
 
 Follow [how-to-web-ui.md](./how-to-web-ui.md) (`pnpm scaffold:web-ui` or the `create-web-ui` agent skill).
 
+## Agent plans
+
+Any context that plans for a pull request puts the file in `.cursor/plans/`
+([ADR-0031](./adr/0031-project-plan-files.md)). The desktop IDE and the CLI
+use Plan mode, then **Save to workspace**. A Cloud Agent or cursor.com/agents
+uses
+[plan-mode-for-cloud](../.agents/skills/plan-mode-for-cloud/SKILL.md), which
+does not run in the IDE. The file is committed on the branch and deleted in a
+later commit before merge, so the pull request commits still show it and the
+tip of `main` does not. The `plan-files` CI job fails while a file remains.
+
 ## Related docs
 
 - [Architecture Decision Records](./adr/README.md) — durable tradeoffs (ADR-0001–ADR-0017).

@@ -96,6 +96,15 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+  plan-files:
+    name: plan-files
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v5
+      # pull_request checks out the merge commit: the tree that would land on main.
+      - name: Reject plan files still in the tree
+        run: bash scripts/check-no-plan-files.sh
+
   storybook:
     name: storybook
     runs-on: ubuntu-26.04

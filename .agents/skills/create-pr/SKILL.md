@@ -72,6 +72,7 @@ Section order is fixed. Omit **Changes** only when **Summary** already covers th
 - [ ] Coverage thresholds pass (`pnpm test:cov`)
 - [ ] Manual / API spotchecks for behavior changed in this PR (list below or N/A)
 - [ ] Docs updated if needed (`CONTRIBUTING.md`, README, `docs/known-tech-debt.md`, `docs/testing-and-coverage.md`)
+- [ ] No plan file remains under `.cursor/plans/` at the branch tip (removed before merge, or this PR added none)
 - [ ] Ready for review
 ```
 
@@ -88,7 +89,7 @@ Section order is fixed. Omit **Changes** only when **Summary** already covers th
 - **Architecture decisions:** Always present and explicit. Cross-check [docs/adr/](../../../docs/adr/README.md).
   - If nothing applies: one bullet `- **None**`
   - Else list new or superseded ADR-IDs (and that architecture current-state links were updated).
-- **Spotcheck:** Single bottom sign-off (no separate Checklist). Check boxes only for steps actually verified in this session. Nest defaults: `pnpm lint`, `pnpm build`, `pnpm test`, `pnpm test:e2e`, `pnpm test:cov`, plus HTTP/API checks when endpoints change. Do **not** check **Ready for review** unless the user asked to assert that. Add PR-specific bullets under the manual/API line when useful. See [docs/testing-and-coverage.md](../../../docs/testing-and-coverage.md).
+- **Spotcheck:** Single bottom sign-off (no separate Checklist). Check boxes only for steps actually verified in this session. Nest defaults: `pnpm lint`, `pnpm build`, `pnpm test`, `pnpm test:e2e`, `pnpm test:cov`, plus HTTP/API checks when endpoints change. Check the `.cursor/plans/` box when that directory has no file at the branch tip: the plan was deleted in a later commit, or this PR never added one. Leave it unchecked while a plan file is still in the tree (`plan-files` CI fails in that state). Do **not** check **Ready for review** unless the user asked to assert that. Add PR-specific bullets under the manual/API line when useful. See [docs/testing-and-coverage.md](../../../docs/testing-and-coverage.md).
 
 ## Agent shell (required for `gh`)
 

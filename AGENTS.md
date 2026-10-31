@@ -78,7 +78,7 @@ When a task has more than one logical slice, finish one slice, run the checks th
 
 ## 6. Plans and architecture decisions (ADRs)
 
-There is no dedicated create-plan skill. When planning or executing work that locks a **durable architectural tradeoff** (folder layout, auth model, persistence choice, SSR/CSS contract, etc.):
+In the desktop IDE or the CLI, plan with built-in Plan mode and **Save to workspace** so the file is under `.cursor/plans/`. Do not follow [`.agents/skills/plan-mode-for-cloud/SKILL.md`](.agents/skills/plan-mode-for-cloud/SKILL.md) there. On a Cloud Agent or at cursor.com/agents, when the user asks for a plan before implementation, follow that skill. In every context, commit `.cursor/plans/YYYY-MM-DD-kebab-slug.md` on the branch and delete it in a later commit before merge ([ADR-0031](docs/adr/0031-project-plan-files.md)). The `plan-files` CI job fails while any file remains. Check the PR template box only after that delete, or when the PR never added a plan. When planning or executing work that locks a **durable architectural tradeoff** (folder layout, auth model, persistence choice, SSR/CSS contract, etc.):
 
 - Record it as an ADR under [`docs/adr/`](docs/adr/) in the **same change set** as the code (or immediately after), following [`docs/adr/README.md`](docs/adr/README.md) (template, index row, supersede rules).
 - Update [`docs/architecture.md`](docs/architecture.md) current-state (and how-to / AGENTS paths when they drift) so “how it works now” stays accurate.

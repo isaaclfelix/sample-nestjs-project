@@ -49,7 +49,7 @@ flowchart TD
 ```
 
 1. **Conversation** — Brainstorm; shape the idea in dialogue (often Ask mode or free chat).
-2. **Planning** — Draft a plan and lock decisions that are ready (Plan mode). Locked durable tradeoffs imply ADR work in execution.
+2. **Planning** — Draft a plan and lock decisions that are ready. In the desktop IDE and the CLI, use Plan mode, then **Save to workspace** so the file is under `.cursor/plans/`. On a Cloud Agent or the web composer, follow [plan-mode-for-cloud](../../.agents/skills/plan-mode-for-cloud/SKILL.md) and write that same folder. Do not use that skill in the IDE. In every context, commit the plan on the branch and delete it in a later commit before merge. The `plan-files` CI job fails while a file remains ([ADR-0031](../adr/0031-project-plan-files.md)). Locked durable tradeoffs imply ADR work in execution.
 3. **Iteration** — Toggle conversation and planning (Ask + Plan) until the plan is good to go. Surface soft decisions, challenge assumptions, consider alternatives that missed the first pass, and bake results back into the plan. Call out trade-offs that likely spawn tech debt.
 4. **Execution** — Implement: write code, create branches, open pull requests, add or update ADRs for locked decisions, and record recognized tech debt (Agent mode or equivalent).
 5. **Testing** — Confirm automated and manual checks pass.

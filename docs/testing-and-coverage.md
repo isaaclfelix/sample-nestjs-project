@@ -66,13 +66,14 @@ pnpm exec playwright install --with-deps chromium
 
 [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on every pull request and on pushes to `main`. Parallel jobs:
 
-| Job        | Command                                          |
-| ---------- | ------------------------------------------------ |
-| `lint`     | `pnpm lint`                                      |
-| `build`    | `pnpm build`                                     |
-| `unit`     | `pnpm test` (needs Chromium)                     |
-| `e2e`      | `pnpm test:e2e` (Docker + Chromium)              |
-| `coverage` | `pnpm test:cov` + PR coverage comment (Chromium) |
+| Job          | Command                                          |
+| ------------ | ------------------------------------------------ |
+| `lint`       | `pnpm lint`                                      |
+| `build`      | `pnpm build`                                     |
+| `unit`       | `pnpm test` (needs Chromium)                     |
+| `e2e`        | `pnpm test:e2e` (Docker + Chromium)              |
+| `coverage`   | `pnpm test:cov` + PR coverage comment (Chromium) |
+| `plan-files` | `bash scripts/check-no-plan-files.sh`            |
 
 `unit` and `coverage` both run the unit workspace (once without instrumentation, once with). That is intentional so each check stays clear.
 
@@ -93,7 +94,7 @@ Why **lint and build are separate:** oxlint `--type-aware` uses type information
 YAML alone does not block merges. A repo admin should configure **Settings → Branches → Branch protection rule** for `main`:
 
 1. Enable **Require status checks to pass before merging**.
-2. Require these checks (exact job names): `lint`, `build`, `unit`, `e2e`, `coverage`.
+2. Require these checks (exact job names): `lint`, `build`, `unit`, `e2e`, `coverage`, `plan-files`.
 3. Avoid allowing ordinary contributors to bypass the rule.
 
 Until that is set, CI still runs and goes red on failure, but GitHub will not hide the merge button.
