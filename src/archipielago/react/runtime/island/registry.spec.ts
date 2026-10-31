@@ -16,14 +16,11 @@ describe('island registry', () => {
     );
   });
 
-  it('lazy-loads each registered island module', async () => {
+  it('exposes a lazy loader function per registered island', () => {
+    // Do not invoke loaders here — that boots product island modules (e2e / TD-033).
     const loaders = getIslandLoaders();
     for (const name of Object.keys(getIslands())) {
-      const load = loaders[name];
-      expect(load).toBeTypeOf('function');
-      await expect(load!()).resolves.toMatchObject({
-        default: expect.any(Function),
-      });
+      expect(loaders[name]).toBeTypeOf('function');
     }
   });
 });

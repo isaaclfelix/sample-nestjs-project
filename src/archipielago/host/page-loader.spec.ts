@@ -1,5 +1,4 @@
-import { emptyAssetTags } from '../core/page-assets.js';
-import type { PageAssets } from '../core/page-assets.js';
+import { setArchipielagoPaths } from '../core/paths.js';
 import {
   getViteDevServer,
   loadServerEntry,
@@ -11,6 +10,7 @@ import {
 describe('page loader', () => {
   afterEach(() => {
     setViteDevServer(undefined);
+    setArchipielagoPaths(undefined);
   });
 
   it('stores and clears the vite dev server', () => {
@@ -60,20 +60,22 @@ describe('page loader', () => {
     );
   });
 
-  it('imports the source entry when no loader is injected', async () => {
+  it('uses the default dynamic import when no loader is injected', async () => {
+    // Tiny fixture — not the real entry-server graph (home SSR stays in e2e).
+    setArchipielagoPaths({
+      entryServerSourceRel: 'test/fixtures/server-entry-stub.ts',
+    });
+
     const entry = await loadServerEntry({ vitest: true });
-    const assets: PageAssets = { tags: emptyAssetTags, islandCss: {} };
     const result = await entry.render(
       'home',
-      { renderedAt: '2026-10-22T12:00:00.000Z', isAuthenticated: false },
-      () => assets,
+      { renderedAt: 't', isAuthenticated: false },
+      () => ({
+        tags: { stylesheets: [], inlineStyles: [], scripts: [] },
+        islandCss: {},
+      }),
     );
 
-    expect(result.html.startsWith('<!DOCTYPE html>')).toBe(true);
-    expect(result.html).toContain(
-      'Rendered on the server at 2026-10-22T12:00:00.000Z.',
-    );
-    expect(result.html).toContain('data-island="mobile-navigation"');
-    expect(result.assets).toBe(assets);
+    expect(result.html).toBe('<!DOCTYPE html><p>stub</p>');
   });
 });
