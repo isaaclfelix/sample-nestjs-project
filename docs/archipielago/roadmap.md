@@ -2,15 +2,15 @@
 
 High-level milestones only. Later phases wait on earlier ones. Outcomes, not sprint tickets. See [vision.md](./vision.md) for product philosophy, [mission.md](./mission.md) for how we operate, and [workflow.md](./workflow.md) for the recommended contribution flow.
 
-| Phase | Name                                | Status                      |
-| ----- | ----------------------------------- | --------------------------- |
-| 0     | Name and intent                     | In progress (this docs set) |
-| 1     | In-repo isolation                   | Not started                 |
-| 2     | Monorepo packages + NestJS consumer | Not started                 |
-| 3     | Host-adapter proof                  | Not started                 |
-| 4     | Parent parity                       | Not started                 |
-| 5     | Docs site (dogfood Archipielago)    | Not started                 |
-| 6     | Differentiation                     | Not started                 |
+| Phase | Name                                | Status                 |
+| ----- | ----------------------------------- | ---------------------- |
+| 0     | Name and intent                     | Done                   |
+| 1     | In-repo isolation                   | Done (this change set) |
+| 2     | Monorepo packages + NestJS consumer | Not started            |
+| 3     | Host-adapter proof                  | Not started            |
+| 4     | Parent parity                       | Not started            |
+| 5     | Docs site (dogfood Archipielago)    | Not started            |
+| 6     | Differentiation                     | Not started            |
 
 ## Phase 0 — Name and intent
 
@@ -25,11 +25,13 @@ High-level milestones only. Later phases wait on earlier ones. Outcomes, not spr
 
 ## Phase 1 — In-repo isolation
 
-- Parameterize hardcoded paths and product registries in host + SSR entry (`src/web/host/`, `src/web/ui/runtime/`, `src/web/protocol/`).
+- Engines under `src/archipielago/{core,host,react,vite}`; Nest product under `src/web/` ([ADR-0029](../adr/0029-archipielago-in-repo-isolation.md)).
+- Parameterize roots via `ArchipielagoPaths`; inject product page map + Document in thin `entry-server`.
 - NestJS-only surface stays thin: `web-view.service.ts`, `web.controller.ts`, `web.module.ts`, plus product pages, islands, and document.
-- Protocol types are host-agnostic; page prop maps stay app-owned.
-- Thin in-repo orchestration: `render → { html, assets / island metadata }` with **no NestJS types inside that seam**; the NestJS view service only consumes it.
-- ADR when the package/workspace boundary inside this repo is chosen.
+- Page prop maps stay app-owned under `src/web/protocol/page-props/`.
+- Thin orchestration: `render → RenderResult { html, assets }` (full document) with **no NestJS types inside that seam**; Nest view service returns `html`.
+- Vite bootstrap via `createDevAssetPipeline`; Nest `main.ts` only mounts.
+- No pnpm workspace packages yet (Phase 2).
 
 ## Phase 2 — Monorepo packages + NestJS consumer
 

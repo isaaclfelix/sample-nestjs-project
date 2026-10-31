@@ -45,9 +45,10 @@ Current wiring and behavior live in [architecture.md](../architecture.md). That 
 | ADR-0020 | `src/web/runtime/` engines and styles shell                    | Accepted               | [0020-web-runtime-folder.md](./0020-web-runtime-folder.md)                               |
 | ADR-0021 | Vitest browser UI testing and in-repo QA ownership             | Accepted               | [0021-vitest-browser-ui-testing.md](./0021-vitest-browser-ui-testing.md)                 |
 | ADR-0022 | Unix/WSL-first local platform and durable Playwright cache     | Accepted               | [0022-unix-wsl-playwright-browser-cache.md](./0022-unix-wsl-playwright-browser-cache.md) |
-| ADR-0023 | Nest host, embedded Vite UI, and typed protocol                | Accepted               | [0023-web-host-ui-protocol.md](./0023-web-host-ui-protocol.md)                           |
+| ADR-0023 | Nest host, embedded Vite UI, and typed protocol                | Superseded by ADR-0029 | [0023-web-host-ui-protocol.md](./0023-web-host-ui-protocol.md)                           |
 | ADR-0024 | Dual import resolution (Nest `.js` vs Vite extensionless)      | Accepted               | [0024-dual-import-resolution.md](./0024-dual-import-resolution.md)                       |
 | ADR-0025 | Per-component folders with thin barrels                        | Accepted               | [0025-per-component-folders.md](./0025-per-component-folders.md)                         |
 | ADR-0026 | Storybook as a local UI workshop                               | Accepted               | [0026-storybook-ui-workshop.md](./0026-storybook-ui-workshop.md)                         |
 | ADR-0027 | UI zone path aliases (`@ui` / `@protocol` / `@api`)            | Accepted               | [0027-ui-path-aliases.md](./0027-ui-path-aliases.md)                                     |
 | ADR-0028 | Island filesystem manifest and glob loaders                    | Accepted               | [0028-island-filesystem-manifest.md](./0028-island-filesystem-manifest.md)               |
+| ADR-0029 | In-repo Archipielago isolation (folder boundary, no packages)  | Accepted               | [0029-archipielago-in-repo-isolation.md](./0029-archipielago-in-repo-isolation.md)       |

@@ -13,4 +13,4 @@ This repository will become the **Archipielago monorepo**: framework packages, r
 | [vision.md](./vision.md)     | Philosophy, market position, ownership split, monorepo, non-goals  |
 | [roadmap.md](./roadmap.md)   | Long-term phases from isolation through parity and differentiation |
 
-Current NestJS HTML wiring lives under `src/web/` and is described in [architecture.md](../architecture.md). How-to authoring: [how-to-web-ui.md](../how-to-web-ui.md). Durable decisions: [docs/adr/](../adr/README.md).
+Engines live under `src/archipielago/`; Nest product UI under `src/web/` ([ADR-0029](../adr/0029-archipielago-in-repo-isolation.md)). Current-state map: [architecture.md](../architecture.md). How-to authoring: [how-to-web-ui.md](../how-to-web-ui.md). Durable decisions: [docs/adr/](../adr/README.md).

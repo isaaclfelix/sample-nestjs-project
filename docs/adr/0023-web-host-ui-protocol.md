@@ -1,6 +1,6 @@
 # ADR-0023: Nest host, embedded Vite UI, and typed protocol
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0029](./0029-archipielago-in-repo-isolation.md) for live folder layout (engine roots). SSR page-props quirk and Nest-thin `web.*` surface remain in force as described below and restated in ADR-0029.
 - **Date:** 2026-10-29
 
 ## Context
