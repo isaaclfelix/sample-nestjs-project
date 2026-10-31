@@ -12,7 +12,7 @@ export const browserUnitSpecGlobs: string[] = [
   'src/web/ui/pages/**/*.spec.ts',
   'src/web/ui/hooks/**/*.spec.ts',
   'src/web/ui/api-fetch/csrf.spec.ts',
-  'src/web/ui/runtime/island/hydrate.spec.ts',
+  'src/archipielago/react/runtime/island/hydrate.spec.ts',
 ];
 
 export default defineConfig({

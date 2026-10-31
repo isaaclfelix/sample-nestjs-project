@@ -1,11 +1,11 @@
 import type { ReactElement } from 'react';
 import { renderToString } from 'react-dom/server';
-import type { PageAssets } from '@protocol/page-assets';
+import type { PageAssets } from '@archipielago/core/page-assets';
+import type { IslandName } from '@archipielago/core/islands';
 import type {
   SsrPagePropsMap,
   WebPageName,
 } from '@protocol/page-props/page-props';
-import type { IslandName } from '@protocol/islands';
 import { HomePage } from '@ui/pages/home-page';
 import { LoginPage } from '@ui/pages/login-page';
 import { RegisterPage } from '@ui/pages/register-page';
@@ -13,7 +13,7 @@ import { Document } from '@ui/server-components/document';
 import {
   IslandCssContext,
   IslandNamesContext,
-} from '@ui/runtime/island/island';
+} from '@archipielago/react/runtime/island/island';
 
 const pages = {
   home: HomePage,

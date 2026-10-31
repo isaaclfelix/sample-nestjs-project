@@ -1,5 +1,5 @@
-import { emptyAssetTags } from '../protocol/page-assets.js';
-import type { PageAssets } from '../protocol/page-assets.js';
+import { emptyAssetTags } from '../core/page-assets.js';
+import type { PageAssets } from '../core/page-assets.js';
 import {
   getViteDevServer,
   loadServerEntry,

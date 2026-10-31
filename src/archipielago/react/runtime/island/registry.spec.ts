@@ -1,4 +1,4 @@
-import { islands } from '@protocol/islands';
+import { islands } from '@archipielago/core/islands';
 import { islandLoaders, isIslandName } from './registry';
 
 describe('island registry', () => {

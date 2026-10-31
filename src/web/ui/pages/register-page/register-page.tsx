@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { Island } from '@ui/runtime/island/island';
+import { Island } from '@archipielago/react/runtime/island/island';
 import RegisterForm from '@ui/islands/register-form';
 import Layout from '@ui/server-components/layout';
 import type { RegisterPageSsrProps } from '@protocol/page-props/register-page.ssr-props';

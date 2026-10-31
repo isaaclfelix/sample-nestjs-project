@@ -5,9 +5,9 @@ import {
   islandCssModuleUrl,
   islandManifestSourceKey,
   type IslandName,
-} from '../../protocol/islands.js';
-import type { PageAssets } from '../../protocol/page-assets.js';
-import { shellCssBudgetBytes } from '../../protocol/shell-css-budget.js';
+} from '../../core/islands.js';
+import type { PageAssets } from '../../core/page-assets.js';
+import { shellCssBudgetBytes } from '../../core/shell-css-budget.js';
 import {
   assetTagsFromManifest,
   developmentAssetTags,

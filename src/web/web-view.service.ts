@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { loadClientManifest } from './host/asset-delivery/asset-tags.js';
-import { createPageAssets } from './host/asset-delivery/page-assets.js';
-import { pageStylesheetsByPage } from './host/asset-delivery/page-stylesheets.js';
-import { getViteDevServer, loadServerEntry } from './host/page-loader.js';
+import { loadClientManifest } from '../archipielago/host/asset-delivery/asset-tags.js';
+import { createPageAssets } from '../archipielago/host/asset-delivery/page-assets.js';
+import { pageStylesheetsByPage } from '../archipielago/host/asset-delivery/page-stylesheets.js';
+import {
+  getViteDevServer,
+  loadServerEntry,
+} from '../archipielago/host/page-loader.js';
 import type {
   SsrPagePropsMap,
   WebPageName,

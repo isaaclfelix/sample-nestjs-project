@@ -501,7 +501,7 @@ Next steps:
 Next steps:
   Render on a page (leave the page folder via @ui aliases — ADR-0027):
     import ${plan.pascalName} from '@ui/islands/${plan.name}';
-    import { Island } from '@ui/runtime/island/island';
+    import { Island } from '@archipielago/react/runtime/island/island';
     <Island name="${plan.name}" component={${plan.pascalName}} props={{}} />
 
   Scaffold ran islands:sync (protocol/islands.generated.ts). Hydrate loaders

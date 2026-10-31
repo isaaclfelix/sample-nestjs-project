@@ -1,12 +1,16 @@
 /**
  * Host-safe island registration API.
  *
- * The `islands` table is generated into `islands.generated.ts` by
- * `pnpm islands:sync` from `ui/islands/<name>/<name>.tsx` ([ADR-0028](../../../docs/adr/0028-island-filesystem-manifest.md)).
+ * The `islands` table is generated into the Nest app's
+ * `src/web/protocol/islands.generated.ts` by `pnpm islands:sync` from
+ * `ui/islands/<name>/<name>.tsx` ([ADR-0028](../../../docs/adr/0028-island-filesystem-manifest.md)).
  * Path helpers and type guards live here so sync never rewrites application API.
+ *
+ * Phase 1: core still imports the app-generated map in-repo. Path config /
+ * injection comes in a later slice before package extraction.
  */
 
-import { islands } from './islands.generated.js';
+import { islands } from '../../web/protocol/islands.generated.js';
 
 export { islands };
 

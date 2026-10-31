@@ -4,7 +4,7 @@ import {
   emptyAssetTags,
   type AssetTags,
   type InlineStyleTag,
-} from '../../protocol/page-assets.js';
+} from '../../core/page-assets.js';
 import {
   pageStylesheetRegistration,
   type PageStylesheetName,
@@ -35,7 +35,7 @@ const shellStylesheetSource = 'src/web/ui/styles/shell.scss';
 const viteClientDev = '/@vite/client';
 
 /** Manifest key for the browser hydrate entry. */
-const hydrateEntrySource = 'src/web/ui/runtime/island/hydrate.tsx';
+const hydrateEntrySource = 'src/archipielago/react/runtime/island/hydrate.tsx';
 
 /**
  * Returns the production path of the Vite client manifest.
@@ -113,7 +113,7 @@ export function developmentAssetTags(): AssetTags {
       // Sets window.$RefreshReg$ before any island module evaluates.
       '/@id/@vitejs/plugin-react/preamble',
       viteClientDev,
-      '/src/web/ui/runtime/island/hydrate.tsx',
+      '/src/archipielago/react/runtime/island/hydrate.tsx',
     ],
   };
 }

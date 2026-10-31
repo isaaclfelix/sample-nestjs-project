@@ -10,7 +10,8 @@
     "paths": {
       "@ui/*": ["./src/web/ui/*"],
       "@protocol/*": ["./src/web/protocol/*"],
-      "@api/*": ["./src/api/*"]
+      "@api/*": ["./src/api/*"],
+      "@archipielago/*": ["./src/archipielago/*"]
     },
     "types": [
       "vite/client",
@@ -24,6 +25,9 @@
     "src/web/ui/**/*.tsx",
     "src/web/ui/**/*.d.ts",
     "src/web/protocol/**/*.ts",
+    "src/archipielago/core/**/*.ts",
+    "src/archipielago/react/**/*.ts",
+    "src/archipielago/react/**/*.tsx",
     "src/shared/**/*.ts",
     "src/api/auth/session.ts",
     "src/api/auth/session.constants.ts",
@@ -31,5 +35,5 @@
     "src/api/user/dto/**/*.ts",
     "test/vitest-browser-setup.ts"
   ],
-  "exclude": ["node_modules", "dist", "src/web/host/**"]
+  "exclude": ["node_modules", "dist", "src/archipielago/host/**"]
 }

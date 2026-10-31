@@ -1,4 +1,4 @@
-import type { IslandName } from '@protocol/islands';
+import type { IslandName } from '@archipielago/core/islands';
 import { islandNameFromGlobKey } from './island-glob-key';
 import type { IslandModule } from './island-module';
 

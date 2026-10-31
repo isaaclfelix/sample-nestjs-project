@@ -1,6 +1,6 @@
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
-import type { ServerEntry } from '../protocol/server-entry.js';
+import type { ServerEntry } from '../core/server-entry.js';
 
 export type { ServerEntry };
 
@@ -66,7 +66,7 @@ export async function loadServerEntry(
 
   // Runtime string so TypeScript does not follow the import into the views.
   const specifier = env.vitest
-    ? new URL('../ui/runtime/ssr/entry-server.tsx', import.meta.url).href
+    ? new URL('../../web/ui/runtime/ssr/entry-server.tsx', import.meta.url).href
     : pathToFileURL(join(process.cwd(), 'dist/web-server/entry-server.js'))
         .href;
 

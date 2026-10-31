@@ -1,4 +1,8 @@
-import { islands, isIslandName, type IslandName } from '@protocol/islands';
+import {
+  islands,
+  isIslandName,
+  type IslandName,
+} from '@archipielago/core/islands';
 import {
   assertIslandLoadersComplete,
   buildIslandLoaders,
@@ -8,13 +12,13 @@ import type { IslandModule } from './island-module';
 export type { IslandModule };
 
 /**
- * Vite glob of island TSX under `ui/islands/` (lazy; never eager).
+ * Vite glob of product island TSX under `web/ui/islands/` (lazy; never eager).
  *
  * Negative patterns drop Storybook and colocated specs. Loaders then keep only
  * `<name>/<name>.tsx` keys that appear in {@link islands}.
  */
 const islandModules = import.meta.glob([
-  '../../islands/*/*.tsx',
+  '../../../../web/ui/islands/*/*.tsx',
   '!**/*.stories.tsx',
   '!**/*.spec.tsx',
 ]) as Record<string, () => Promise<IslandModule>>;

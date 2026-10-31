@@ -1,4 +1,4 @@
-import { Island } from '@ui/runtime/island/island';
+import { Island } from '@archipielago/react/runtime/island/island';
 import LogoutButton from '@ui/islands/logout-button';
 import MobileNavigation from '@ui/islands/mobile-navigation';
 

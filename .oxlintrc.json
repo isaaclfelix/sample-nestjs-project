@@ -17,7 +17,11 @@
   },
   "overrides": [
     {
-      "files": [".storybook/**/*.{ts,tsx}", "src/web/ui/**/*.{ts,tsx}"],
+      "files": [
+        ".storybook/**/*.{ts,tsx}",
+        "src/web/ui/**/*.{ts,tsx}",
+        "src/archipielago/react/**/*.{ts,tsx}"
+      ],
       "rules": {
         "import/extensions": [
           "error",
@@ -34,7 +38,7 @@
       }
     },
     {
-      "files": ["src/web/ui/vite-plugins/**/*.{ts,tsx}"],
+      "files": ["src/archipielago/vite/**/*.{ts,tsx}"],
       "rules": {
         "import/extensions": [
           "error",
