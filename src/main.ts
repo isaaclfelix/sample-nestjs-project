@@ -1,21 +1,28 @@
-import { join } from 'node:path';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule, ObserveInstrument } from './app.module.js';
 import { StandardSchemaValidationPipe } from '@nestjs/common';
 import { setupOpenApi } from './api/openapi.setup.js';
-import { setViteDevServer } from './web/host/page-loader.js';
+import {
+  clientAssetsRoot,
+  createDevAssetPipeline,
+} from './archipielago/host/asset-pipeline.js';
+import { registerAppIslands } from './web/register-app-islands.js';
 
 /**
  * Starts the Nest HTTP application.
  *
- * Registers the global Standard Schema validation pipe, mounts Swagger UI at
- * `/api/docs`, serves the built client assets in production, and listens on
+ * Registers the app islands manifest into Archipielago, the global Standard
+ * Schema validation pipe, Swagger UI at `/api/docs`, Archipielago client assets
+ * (Vite middleware in development, static files in production), and listens on
  * PORT or 3000.
  *
  * @returns {Promise<void>} Resolves when the server is listening.
  */
 async function bootstrap(): Promise<void> {
+  // App injects the generated islands manifest; Nest never reads it for responses.
+  registerAppIslands();
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     instrument: ObserveInstrument,
   });
@@ -23,18 +30,12 @@ async function bootstrap(): Promise<void> {
   app.useGlobalPipes(new StandardSchemaValidationPipe());
   setupOpenApi(app);
 
-  // Dev SSR loads TSX through Vite. Production serves the built client files
-  // and renders from the SSR bundle. Missing files fall through to Nest.
+  // Archipielago owns Vite create/register and the client root; Nest only mounts.
   if (process.env.NODE_ENV === 'production') {
-    app.useStaticAssets(join(process.cwd(), 'dist/client'), { index: false });
+    app.useStaticAssets(clientAssetsRoot(), { index: false });
   } else {
-    const { createServer } = await import('vite');
-    const vite = await createServer({
-      server: { middlewareMode: true },
-      appType: 'custom',
-    });
-    setViteDevServer(vite);
-    app.use(vite.middlewares);
+    const pipeline = await createDevAssetPipeline();
+    app.use(pipeline.middlewares);
   }
 
   await app.listen(process.env.PORT ?? 3000);

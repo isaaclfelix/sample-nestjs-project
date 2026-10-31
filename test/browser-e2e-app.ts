@@ -3,9 +3,10 @@ import { INestApplication, StandardSchemaValidationPipe } from '@nestjs/common';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Test, type TestingModule } from '@nestjs/testing';
 import type { App } from 'supertest/types.js';
-import type { ViteDevServer } from 'vite';
 import { AppModule } from '../src/app.module.js';
-import { setViteDevServer } from '../src/web/host/page-loader.js';
+import { createDevAssetPipeline } from '../src/archipielago/host/asset-pipeline.js';
+import { setViteDevServer } from '../src/archipielago/host/page-loader.js';
+import { registerAppIslands } from '../src/web/register-app-islands.js';
 import type { E2eAppOptions } from './e2e-app.js';
 import { truncateDatabase } from './e2e-truncate.js';
 
@@ -40,6 +41,9 @@ export async function createBrowserE2eApp(
   // Clear rows from the previous test before wiring a new Nest app.
   await truncateDatabase();
 
+  // Same island injection as main.ts (engines need the manifest; Nest does not).
+  registerAppIslands();
+
   const moduleFixture: TestingModule = await Test.createTestingModule({
     imports: [AppModule],
   }).compile();
@@ -51,19 +55,14 @@ export async function createBrowserE2eApp(
   }
   options.configure?.(app);
 
-  const { createServer } = await import('vite');
-  const vite: ViteDevServer = await createServer({
-    server: { middlewareMode: true },
-    appType: 'custom',
-  });
-  setViteDevServer(vite);
-  app.use(vite.middlewares);
+  const pipeline = await createDevAssetPipeline();
+  app.use(pipeline.middlewares);
 
   await app.init();
   await app.listen(0);
   const address = app.getHttpServer().address() as AddressInfo | string | null;
   if (address === null || typeof address === 'string') {
-    await vite.close();
+    await pipeline.vite.close();
     setViteDevServer(undefined);
     await app.close();
     throw new Error('Expected Nest to listen on a TCP port');
@@ -76,7 +75,7 @@ export async function createBrowserE2eApp(
     baseURL,
     close: async (): Promise<void> => {
       await app.close();
-      await vite.close();
+      await pipeline.vite.close();
       setViteDevServer(undefined);
     },
   };

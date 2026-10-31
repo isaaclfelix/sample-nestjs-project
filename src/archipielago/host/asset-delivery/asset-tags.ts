@@ -1,10 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { getArchipielagoPaths } from '../../core/paths.js';
 import {
   emptyAssetTags,
   type AssetTags,
   type InlineStyleTag,
-} from '../../protocol/page-assets.js';
+} from '../../core/page-assets.js';
 import {
   pageStylesheetRegistration,
   type PageStylesheetName,
@@ -25,25 +26,25 @@ export interface ManifestChunk {
 /** Vite client manifest keyed by source or chunk id. */
 export type ClientManifest = Record<string, ManifestChunk>;
 
-/** Dev URL for the shared sheet. Vite serves it as CSS for a stylesheet link. */
-export const shellStylesheetDev = '/src/web/ui/styles/shell.scss';
-
-/** Manifest key for the shared sheet, which is its own client build input. */
-const shellStylesheetSource = 'src/web/ui/styles/shell.scss';
-
 /** Vite client runtime: HMR / full-reload for shell SCSS even without islands. */
 const viteClientDev = '/@vite/client';
 
-/** Manifest key for the browser hydrate entry. */
-const hydrateEntrySource = 'src/web/ui/runtime/island/hydrate.tsx';
+/**
+ * Dev URL for the shared sheet. Vite serves it as CSS for a stylesheet link.
+ *
+ * @returns {string} Absolute-from-root Vite URL from active path config.
+ */
+export function shellStylesheetDev(): string {
+  return getArchipielagoPaths().shellStylesheetDev;
+}
 
 /**
  * Returns the production path of the Vite client manifest.
  *
- * @returns {string} Absolute path under `dist/client`.
+ * @returns {string} Absolute path under the configured client out dir.
  */
 export function clientManifestPath(): string {
-  return join(process.cwd(), 'dist/client/.vite/manifest.json');
+  return join(process.cwd(), getArchipielagoPaths().clientManifestRel);
 }
 
 /**
@@ -106,14 +107,16 @@ export function loadClientManifest(): ClientManifest {
  * @returns {AssetTags} Dev client URLs.
  */
 export function developmentAssetTags(): AssetTags {
+  const { hydrateEntryDev, shellStylesheetDev: shellDev } =
+    getArchipielagoPaths();
   return {
-    stylesheets: [shellStylesheetDev],
+    stylesheets: [shellDev],
     inlineStyles: [],
     scripts: [
       // Sets window.$RefreshReg$ before any island module evaluates.
       '/@id/@vitejs/plugin-react/preamble',
       viteClientDev,
-      '/src/web/ui/runtime/island/hydrate.tsx',
+      hydrateEntryDev,
     ],
   };
 }
@@ -128,7 +131,7 @@ export function developmentAssetTags(): AssetTags {
  */
 export function developmentShellOnlyAssetTags(): AssetTags {
   return {
-    stylesheets: [shellStylesheetDev],
+    stylesheets: [getArchipielagoPaths().shellStylesheetDev],
     inlineStyles: [],
     scripts: [viteClientDev],
   };
@@ -214,7 +217,11 @@ function stylesheetFromManifestEntry(
  * @throws {Error} When the shell chunk is missing.
  */
 export function shellStylesheetFromManifest(manifest: ClientManifest): string {
-  return stylesheetFromManifestEntry(manifest, shellStylesheetSource, 'shell');
+  return stylesheetFromManifestEntry(
+    manifest,
+    getArchipielagoPaths().shellStylesheetSource,
+    'shell',
+  );
 }
 
 /**
@@ -275,7 +282,7 @@ export function pageStylesheetHrefs(
 function hydrateEntryChunk(
   manifest: ClientManifest,
 ): ManifestChunk | undefined {
-  const named = manifest[hydrateEntrySource];
+  const named = manifest[getArchipielagoPaths().hydrateEntrySource];
 
   if (named) {
     return named;

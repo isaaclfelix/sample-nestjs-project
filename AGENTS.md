@@ -95,8 +95,8 @@ Follow these conventions when adding or refactoring application code so reviews 
 - CLI scripts and seeds that need app crypto **import** shared modules (for example `src/api/common/password.ts`); do not duplicate hashing or verification.
 - Nest wrappers around vendor clients use **composition** (own a `client` / dependency field), not `extends`, unless there is a documented exception. `PrismaService` owns `PrismaClient`.
 - **One interface/type per file is not required.** Port-related types may live next to the port that uses them (for example `CreateUserRecord` beside `UserRepository`).
-- **Relative import extensions** follow the zone ([ADR-0024](docs/adr/0024-dual-import-resolution.md)): Nest-emitted code (`src/api/`, `src/web/host/`, `src/web/protocol/`, Nest web root) keeps **`.js`** emit specifiers; Vite `src/web/ui/**` uses **extensionless** relatives, except `ui/vite-plugins/**` (Vite Node config graph → `.js`). Do not “normalize” product UI imports to Nest style or strip `.js` from `api/`.
-- **UI path aliases** ([ADR-0027](docs/adr/0027-ui-path-aliases.md)): from a product component folder, imports that leave that folder use `@ui/*`, `@protocol/*`, or `@api/*` (not `../` climbs). Same-folder stays `./`. Nest emit trees do not use these aliases.
+- **Relative import extensions** follow the zone ([ADR-0024](docs/adr/0024-dual-import-resolution.md)): Nest-emitted code (`src/api/`, `src/archipielago/core/`, `src/archipielago/host/`, `src/web/protocol/`, Nest web root) keeps **`.js`** emit specifiers; Vite `src/web/ui/**` and `src/archipielago/react/**` use **extensionless** relatives, except `src/archipielago/vite/**` (Vite Node config graph → `.js`). Do not “normalize” product UI imports to Nest style or strip `.js` from `api/`.
+- **UI path aliases** ([ADR-0027](docs/adr/0027-ui-path-aliases.md)): from a product component folder, imports that leave that folder use `@ui/*`, `@protocol/*`, `@archipielago/*`, or `@api/*` (not `../` climbs). Same-folder stays `./`. Nest emit trees do not use these aliases.
 
 ## 8. Web UI (SSR pages and islands)
 
@@ -110,7 +110,16 @@ When adding or changing browser-facing pages under `src/web/`:
 - Shell CSS lives in `src/web/ui/styles/shell.scss`; island styles use colocated `*.module.scss` and are inlined as sibling `<style>` tags at SSR — do not invent a parallel delivery path.
 - Icons: handpick Bootstrap Icons SVGs into `src/web/ui/shared-components/icon/` and render `<Icon name="…" />` from server-components or islands — do not ship the icon webfont or paste one-off SVGs (see [docs/how-to-web-ui.md](docs/how-to-web-ui.md#icons)).
 
-## 9. GitHub CLI and git remotes (Cursor agent shell)
+## 9. Unit tests stay unit tests
+
+Do **not** turn `*.spec.ts` (Node or browser UI unit projects) into integration or smoke tests.
+
+- **Unit:** exercise one unit with stubs/fakes at its boundaries. Prefer injected loaders, mocked peers, and small fixtures. Keep cases fast enough for the default Vitest timeout under parallel `pnpm test` / `pnpm test:cov`.
+- **Do not** boot the live product graph from unit specs (real `entry-server`, full home SSR, loading every island module via Vite glob) just to assert HTML strings or “it loads.” That belongs in HTTP/browser e2e today, or a future **integration** Vitest project once we add one ([TD-033](docs/known-tech-debt.md)).
+- **E2E** (`*.e2e-spec.ts`, `*.browser-e2e-spec.ts`) owns Nest + DB / real browser journeys. Do not duplicate that smoke inside unit coverage to chase thresholds.
+- Known mixups and the audit backlog: [TD-033](docs/known-tech-debt.md). Layers overview: [docs/testing-and-coverage.md](docs/testing-and-coverage.md).
+
+## 10. GitHub CLI and git remotes (Cursor agent shell)
 
 The user's IDE terminal can reach GitHub freely. The **agent Shell tool defaults to Cursor's network sandbox**, which injects `HTTP_PROXY` / `HTTPS_PROXY` / `ALL_PROXY` to a local allowlist proxy. That proxy **blocks `api.github.com`** (`CONNECT` 403). Without the proxy, DNS for `api.github.com` fails in the same sandbox.
 

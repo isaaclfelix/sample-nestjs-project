@@ -4,5 +4,12 @@
     "rootDir": "./src"
   },
   "include": ["src"],
-  "exclude": ["node_modules", "test", "dist", "**/*spec.ts", "src/web/ui/**"]
+  "exclude": [
+    "node_modules",
+    "test",
+    "dist",
+    "**/*spec.ts",
+    "src/web/ui/**",
+    "src/archipielago/react/**"
+  ]
 }

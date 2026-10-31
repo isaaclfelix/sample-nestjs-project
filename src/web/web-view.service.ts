@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { loadClientManifest } from './host/asset-delivery/asset-tags.js';
-import { createPageAssets } from './host/asset-delivery/page-assets.js';
-import { pageStylesheetsByPage } from './host/asset-delivery/page-stylesheets.js';
-import { getViteDevServer, loadServerEntry } from './host/page-loader.js';
+import { loadClientManifest } from '../archipielago/host/asset-delivery/asset-tags.js';
+import { createPageAssets } from '../archipielago/host/asset-delivery/page-assets.js';
+import { pageStylesheetsByPage } from '../archipielago/host/asset-delivery/page-stylesheets.js';
+import {
+  getViteDevServer,
+  loadServerEntry,
+} from '../archipielago/host/page-loader.js';
 import type {
   SsrPagePropsMap,
   WebPageName,
@@ -41,7 +44,7 @@ export class WebViewService {
     const development = vite !== undefined || process.env.VITEST === 'true';
     const pageStylesheets = pageStylesheetsByPage[page];
 
-    return entry.render(
+    const result = await entry.render(
       page,
       props,
       (islandNames) =>
@@ -56,5 +59,9 @@ export class WebViewService {
         }),
       options.csrfToken,
     );
+
+    // Nest returns the full document; assets stay available on RenderResult
+    // for logging or a future host that assembles HTML differently.
+    return result.html;
   }
 }

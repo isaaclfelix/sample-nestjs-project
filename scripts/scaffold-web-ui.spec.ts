@@ -3,6 +3,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  applyArchipielagoUserConfig,
+  resetArchipielagoConfig,
+} from '../src/archipielago/core/config.js';
+import {
   applyScaffoldPlan,
   kebabToPascal,
   parseScaffoldArgs,
@@ -12,6 +16,7 @@ import {
 const tempDirs: string[] = [];
 
 afterEach(async () => {
+  resetArchipielagoConfig();
   // Best-effort cleanup; tests do not require the dirs to survive.
   const { rm } = await import('node:fs/promises');
   await Promise.all(
@@ -126,7 +131,7 @@ describe('applyScaffoldPlan', () => {
       mode: 'page',
       withStyles: false,
     });
-    const written = await applyScaffoldPlan(root, plan);
+    const { written } = await applyScaffoldPlan(root, plan);
     expect(written).toHaveLength(4);
     const props = await readFile(join(root, plan.pagePropsPath), 'utf8');
     expect(props).toContain('AboutPageSsrProps');
@@ -143,7 +148,7 @@ describe('applyScaffoldPlan', () => {
     expect(stories).toContain("title: 'Pages/AboutPage'");
   });
 
-  it('writes island files and syncs the protocol islands table', async () => {
+  it('writes island files and syncs the protocol islands manifest', async () => {
     const root = await mkdtemp(join(tmpdir(), 'scaffold-web-ui-'));
     tempDirs.push(root);
     await mkdir(join(root, 'src/web/ui/islands'), { recursive: true });
@@ -154,7 +159,7 @@ describe('applyScaffoldPlan', () => {
       mode: 'island',
       withStyles: true,
     });
-    const written = await applyScaffoldPlan(root, plan);
+    const { written, notes } = await applyScaffoldPlan(root, plan);
 
     const component = await readFile(
       join(root, plan.islandComponentPath),
@@ -174,10 +179,33 @@ describe('applyScaffoldPlan', () => {
     expect(
       written.some((path) => path.endsWith('protocol/islands.generated.ts')),
     ).toBe(true);
+    expect(notes).toEqual([]);
     const manifest = await readFile(
       join(root, 'src/web/protocol/islands.generated.ts'),
       'utf8',
     );
     expect(manifest).toContain("'toggle': { hasCssModule: true }");
+  });
+
+  it('warns for a manifest entry and skips sync in manual mode', async () => {
+    applyArchipielagoUserConfig({
+      islands: { registration: 'manual' },
+    });
+    const root = await mkdtemp(join(tmpdir(), 'scaffold-web-ui-manual-'));
+    tempDirs.push(root);
+    await mkdir(join(root, 'src/web/ui/islands'), { recursive: true });
+
+    const plan = resolveScaffoldPlan({
+      name: 'toggle',
+      mode: 'island',
+      withStyles: false,
+    });
+    const { written, notes } = await applyScaffoldPlan(root, plan);
+
+    expect(
+      written.some((path) => path.endsWith('protocol/islands.generated.ts')),
+    ).toBe(false);
+    expect(notes[0]).toContain('islands.registration=manual');
+    expect(notes[0]).toContain("'toggle': { hasCssModule: false }");
   });
 });

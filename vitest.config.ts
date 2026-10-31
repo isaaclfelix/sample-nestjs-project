@@ -20,9 +20,9 @@ export default defineConfig({
       exclude: [
         'src/main.ts',
         // Vite build-time plugins; not Nest runtime.
-        'src/web/ui/vite-plugins/vite-shell-css-budget.ts',
-        'src/web/ui/vite-plugins/vite-strip-island-css-preload.ts',
-        'src/web/ui/vite-plugins/vite-suppress-island-css-inject.ts',
+        'src/archipielago/vite/vite-shell-css-budget.ts',
+        'src/archipielago/vite/vite-strip-island-css-preload.ts',
+        'src/archipielago/vite/vite-suppress-island-css-inject.ts',
         'src/**/*.module.ts',
         'src/**/*.spec.ts',
         // Storybook workshop files; not unit-tested runtime.
@@ -31,8 +31,10 @@ export default defineConfig({
         // Runtime/document plumbing; covered indirectly by SSR and browser e2e.
         'src/web/ui/server-components/document/document.tsx',
         'src/web/ui/runtime/ssr/entry-server.tsx',
-        'src/web/ui/runtime/island/hydrate.tsx',
-        'src/web/ui/runtime/island/island.tsx',
+        'src/archipielago/react/runtime/island/hydrate.tsx',
+        'src/web/ui/runtime/island/hydrate-entry.tsx',
+        'src/archipielago/react/runtime/island/island.tsx',
+        'src/web/register-app-islands.ts',
         // One-line window.location.assign wrapper; exercised via browser e2e.
         'src/web/ui/api-fetch/assign-location.ts',
         'src/generated/**',
@@ -56,6 +58,7 @@ export default defineConfig({
           name: 'node',
           globals: true,
           root: './',
+          setupFiles: ['./test/vitest-register-islands.ts'],
           include: ['**/*.spec.ts'],
           exclude: [
             '**/node_modules/**',

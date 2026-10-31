@@ -27,6 +27,8 @@ HTML report after `pnpm test:cov`: open `coverage/index.html` (directory is giti
 
 **In-repo vs out-of-repo:** this app owns the four layers above for every shipped path. Separate QA-org tooling (Cucumber repos, visual release matrices, cross-system sign-off) is optional later — [TD-026](./known-tech-debt.md), not a hole in current coverage. See [ADR-0021](./adr/0021-vitest-browser-ui-testing.md).
 
+There is **no dedicated integration Vitest project yet**. Unit specs must not quietly become product-graph boots or smoke tests; audit backlog [TD-033](./known-tech-debt.md) and agent rule [AGENTS.md](../AGENTS.md) §9.
+
 ## Coverage policy
 
 - **Unit coverage only** (Node + browser UI unit projects). Thresholds via [`vitest.config.ts`](../vitest.config.ts).

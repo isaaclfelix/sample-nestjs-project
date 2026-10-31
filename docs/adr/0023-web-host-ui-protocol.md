@@ -1,6 +1,6 @@
 # ADR-0023: Nest host, embedded Vite UI, and typed protocol
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0029](./0029-archipielago-in-repo-isolation.md) for live folder layout (engine roots). SSR page-props quirk and Nest-thin `web.*` surface remain in force as described below and restated in ADR-0029.
 - **Date:** 2026-10-29
 
 ## Context
@@ -34,7 +34,7 @@ Scaffold (`pnpm scaffold:web-ui --mode page`) writes SSR props under `protocol/p
 
 ### Island registration
 
-Host-readable island identity lives in committed `protocol/islands.ts`; the `islands` map is **gitignored** `protocol/islands.generated.ts` from `pnpm islands:sync`. UI `registry.ts` derives lazy loaders via `import.meta.glob` ([ADR-0028](./0028-island-filesystem-manifest.md)).
+Island identity is an injected manifest (sample path `protocol/islands.generated.ts` from `pnpm islands:sync` when `registration=auto`). Host config and optional hand-owned manifests: [ADR-0030](./0030-archipielago-host-config.md). UI registry derives lazy loaders via `import.meta.glob` ([ADR-0028](./0028-island-filesystem-manifest.md)).
 
 ## Consequences
 

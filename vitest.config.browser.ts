@@ -12,7 +12,7 @@ export const browserUnitSpecGlobs: string[] = [
   'src/web/ui/pages/**/*.spec.ts',
   'src/web/ui/hooks/**/*.spec.ts',
   'src/web/ui/api-fetch/csrf.spec.ts',
-  'src/web/ui/runtime/island/hydrate.spec.ts',
+  'src/archipielago/react/runtime/island/hydrate.spec.ts',
 ];
 
 export default defineConfig({
@@ -21,7 +21,10 @@ export default defineConfig({
     name: 'browser',
     globals: true,
     root: './',
-    setupFiles: ['./test/vitest-browser-setup.ts'],
+    setupFiles: [
+      './test/vitest-register-islands.ts',
+      './test/vitest-browser-setup.ts',
+    ],
     include: browserUnitSpecGlobs,
     browser: {
       enabled: true,

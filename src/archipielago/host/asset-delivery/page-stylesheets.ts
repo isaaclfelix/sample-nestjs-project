@@ -1,7 +1,9 @@
+import { getArchipielagoPaths } from '../../core/paths.js';
+
 /**
  * Optional design-system stylesheets a page can opt into (not the shell).
  *
- * Each name is a Vite client build input under `src/web/ui/styles/`. Pages list
+ * Each name is a Vite client build input under product `ui/styles/`. Pages list
  * the sheets they need in {@link pageStylesheetsByPage}; `createPageAssets`
  * emits head `<link>` tags for those sheets only.
  */
@@ -18,17 +20,25 @@ export interface PageStylesheetRegistration {
 }
 
 /**
- * Registry of opt-in page stylesheets.
+ * Returns the registry of opt-in page stylesheets from active path config.
  *
  * Grow this when adding another sibling sheet (e.g. tables). Do not put
  * shell or island module CSS here.
+ *
+ * @returns {Record<PageStylesheetName, PageStylesheetRegistration>} Registry.
  */
-export const pageStylesheetRegistry = {
-  forms: {
-    source: 'src/web/ui/styles/forms.scss',
-    devUrl: '/src/web/ui/styles/forms.scss',
-  },
-} as const satisfies Record<PageStylesheetName, PageStylesheetRegistration>;
+export function pageStylesheetRegistry(): Record<
+  PageStylesheetName,
+  PageStylesheetRegistration
+> {
+  const paths = getArchipielagoPaths();
+  return {
+    forms: {
+      source: paths.formsStylesheetSource,
+      devUrl: paths.formsStylesheetDev,
+    },
+  };
+}
 
 /**
  * Stylesheets each named page opts into.
@@ -49,7 +59,7 @@ export const pageStylesheetsByPage = {
  * @returns {boolean} True when the name is a {@link PageStylesheetName}.
  */
 export function isPageStylesheetName(name: string): name is PageStylesheetName {
-  return Object.prototype.hasOwnProperty.call(pageStylesheetRegistry, name);
+  return Object.prototype.hasOwnProperty.call(pageStylesheetRegistry(), name);
 }
 
 /**
@@ -61,5 +71,5 @@ export function isPageStylesheetName(name: string): name is PageStylesheetName {
 export function pageStylesheetRegistration(
   name: PageStylesheetName,
 ): PageStylesheetRegistration {
-  return pageStylesheetRegistry[name];
+  return pageStylesheetRegistry()[name];
 }

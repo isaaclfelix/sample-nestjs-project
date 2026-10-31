@@ -5,9 +5,10 @@ import {
   islandCssModuleUrl,
   islandManifestSourceKey,
   type IslandName,
-} from '../../protocol/islands.js';
-import type { PageAssets } from '../../protocol/page-assets.js';
-import { shellCssBudgetBytes } from '../../protocol/shell-css-budget.js';
+} from '../../core/islands.js';
+import { getArchipielagoPaths } from '../../core/paths.js';
+import type { PageAssets } from '../../core/page-assets.js';
+import { shellCssBudgetBytes } from '../../core/shell-css-budget.js';
 import {
   assetTagsFromManifest,
   developmentAssetTags,
@@ -24,7 +25,8 @@ export type { PageAssets };
 
 /** Absolute directory that holds production client assets. */
 function clientOutDir(): string {
-  return join(process.cwd(), 'dist/client');
+  const { clientOutDirRel } = getArchipielagoPaths();
+  return join(process.cwd(), clientOutDirRel);
 }
 
 /**

@@ -2,6 +2,7 @@ import { INestApplication, StandardSchemaValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { App } from 'supertest/types.js';
 import { AppModule } from '../src/app.module.js';
+import { registerAppIslands } from '../src/web/register-app-islands.js';
 import { truncateDatabase } from './e2e-truncate.js';
 
 export type E2eAppOptions = {
@@ -31,6 +32,9 @@ export async function createE2eApp(
 ): Promise<INestApplication<App>> {
   // Clear rows from the previous test before wiring a new Nest app.
   await truncateDatabase();
+
+  // Inject islands for Archipielago SSR (Nest does not read the manifest).
+  registerAppIslands();
 
   const moduleFixture: TestingModule = await Test.createTestingModule({
     imports: [AppModule],
