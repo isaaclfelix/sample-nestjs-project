@@ -237,6 +237,8 @@ sequenceDiagram
 
 ## Web pages
 
+Long-term extraction of this islands stack into the **Archipielago** package (vision and milestones): [docs/archipielago/](./archipielago/).
+
 ### Roles
 
 | Piece                          | Responsibility                                                    |
