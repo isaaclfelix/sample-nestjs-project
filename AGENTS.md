@@ -141,3 +141,16 @@ For PR **create/update**, follow [`.agents/skills/create-pr/SKILL.md`](.agents/s
 Do **not** work around this by asking the user to run `gh`, typing into their terminal via Computer Use, or re-running `gh auth login` unless `gh auth status` fails **outside** the sandbox (`required_permissions: ["all"]`). Keep using the normal `gh` workflow in [`.agents/skills/create-pr/SKILL.md`](.agents/skills/create-pr/SKILL.md).
 
 **Playwright / Chromium OS deps:** `pnpm exec playwright install --with-deps chromium` may need `sudo` on Linux/WSL. Agent Shell cannot enter a sudo password. If install fails with missing libraries (e.g. `libnspr4.so`), **ask the user** to run that command in their IDE terminal. Test scripts unset `PLAYWRIGHT_BROWSERS_PATH` so runs use Playwright’s durable default cache instead of Cursor’s per-session `/tmp/cursor-sandbox-cache/...` path — do not re-download Chromium into that sandbox cache after an IDE restart when the user already installed browsers. Do not document or rely on unpacking `.deb`s into `/tmp` + `LD_LIBRARY_PATH` as the supported path — see [docs/testing-and-coverage.md](docs/testing-and-coverage.md#playwright-browsers-local-and-agents).
+
+## 11. Skip `node_modules` when searching the monorepo
+
+The pnpm workspace multiplies dependency trees under the repo root and packages. Unscoped walks of the tree are a common cause of agent tasks hanging on “taking longer than expected.” Treat excluding dependency and build output as mandatory hygiene for every search or file walk.
+
+- **Prefer scoped roots** over the whole repo: `packages/`, `examples/`, `docs/`, `.agents/`, `.github/`. Avoid `find .`, recursive Glob from `.`, or Grep without a path when a narrower directory will do.
+- **Exclude install and emit trees** whenever a command can descend into them: `node_modules`, `.pnpm-store`, `dist`, `coverage`, `.vite`, Storybook/static build dirs. Do not open or parse files inside those trees unless the task is explicitly about a dependency.
+- **Shell examples** (pick the tool you are already using):
+  - `rg` / Grep: rely on `.gitignore` (default) or add `--glob '!**/node_modules/**' --glob '!**/dist/**'`.
+  - `find`: prune before descend, e.g. `find packages examples -name node_modules -prune -o -name '*.ts' -print`.
+  - `du` / tree listings: never summarize the repo without `--exclude=node_modules` (or equivalent).
+- **Project scripts** (`pnpm lint`, `pnpm test`, package builds) already target workspace packages; prefer them over ad-hoc recursion from the repo root.
+- If a search is slow or the UI reports a long-running status, stop and re-run with a tighter path and explicit `node_modules` exclusions rather than waiting on a full-tree scan.
