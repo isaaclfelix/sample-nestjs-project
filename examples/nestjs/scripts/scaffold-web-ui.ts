@@ -179,7 +179,7 @@ function pageSources(plan: ScaffoldPlan): { props: string; component: string } {
   const props = `/**
  * SSR embed props for the ${plan.name} page component (\`ui/pages/${plan.name}-page/\`).
  *
- * Built by Nest (\`WebController\`), passed through \`WebViewService.render\`,
+ * Built by Nest (\`WebController\`), passed through \`ArchipielagoViewService.render\`,
  * consumed by the Vite SSR page. JSON-serializable only. Not colocated with
  * the page on purpose — see ADR-0023 / how-to-web-ui (SSR page props quirk).
  */

@@ -1,5 +1,5 @@
+import type { ArchipielagoViewService } from '@archipielago/nestjs/archipielago-view.service.js';
 import { WebController } from './web.controller.js';
-import type { WebViewService } from './web-view.service.js';
 
 /**
  * Minimal request stub with an optional session (CSRF + optional user).
@@ -35,8 +35,8 @@ function reqWithSession(options?: {
 describe('WebController', () => {
   it('asks the view service for the home page with CSRF and auth flag', async () => {
     const render = vi.fn().mockResolvedValue('<!DOCTYPE html><html></html>');
-    const webViewService = { render } as unknown as WebViewService;
-    const controller = new WebController(webViewService);
+    const viewService = { render } as unknown as ArchipielagoViewService;
+    const controller = new WebController(viewService);
 
     await expect(
       controller.home(reqWithSession({ csrfToken: 'csrf-home' }) as never),
@@ -53,8 +53,8 @@ describe('WebController', () => {
 
   it('passes isAuthenticated true on home when the session has a user', async () => {
     const render = vi.fn().mockResolvedValue('<!DOCTYPE html><html></html>');
-    const webViewService = { render } as unknown as WebViewService;
-    const controller = new WebController(webViewService);
+    const viewService = { render } as unknown as ArchipielagoViewService;
+    const controller = new WebController(viewService);
 
     await controller.home(
       reqWithSession({ csrfToken: 'csrf-home', userId: 'user-1' }) as never,
@@ -72,8 +72,8 @@ describe('WebController', () => {
 
   it('asks the view service for the login page with CSRF', async () => {
     const render = vi.fn().mockResolvedValue('<!DOCTYPE html><html></html>');
-    const webViewService = { render } as unknown as WebViewService;
-    const controller = new WebController(webViewService);
+    const viewService = { render } as unknown as ArchipielagoViewService;
+    const controller = new WebController(viewService);
     const res = { redirect: vi.fn() };
 
     await expect(
@@ -92,8 +92,8 @@ describe('WebController', () => {
 
   it('redirects authenticated users away from login', () => {
     const render = vi.fn();
-    const webViewService = { render } as unknown as WebViewService;
-    const controller = new WebController(webViewService);
+    const viewService = { render } as unknown as ArchipielagoViewService;
+    const controller = new WebController(viewService);
     const res = { redirect: vi.fn() };
 
     const result = controller.login(
@@ -111,8 +111,8 @@ describe('WebController', () => {
 
   it('asks the view service for the register page with CSRF', async () => {
     const render = vi.fn().mockResolvedValue('<!DOCTYPE html><html></html>');
-    const webViewService = { render } as unknown as WebViewService;
-    const controller = new WebController(webViewService);
+    const viewService = { render } as unknown as ArchipielagoViewService;
+    const controller = new WebController(viewService);
     const res = { redirect: vi.fn() };
 
     await expect(
@@ -131,8 +131,8 @@ describe('WebController', () => {
 
   it('redirects authenticated users away from register', () => {
     const render = vi.fn();
-    const webViewService = { render } as unknown as WebViewService;
-    const controller = new WebController(webViewService);
+    const viewService = { render } as unknown as ArchipielagoViewService;
+    const controller = new WebController(viewService);
     const res = { redirect: vi.fn() };
 
     const result = controller.register(

@@ -235,15 +235,15 @@ Long-term extraction of this islands stack into the **Archipielago** package (vi
 
 ### Roles
 
-| Piece                             | Responsibility                                                 |
-| --------------------------------- | -------------------------------------------------------------- |
-| `WebController`                   | Chooses the page name and builds JSON props. Sets `text/html`. |
-| `WebViewService`                  | Loads the server entry; returns `RenderResult.html`.           |
-| `ui/runtime/ssr/entry-server`     | App page map + Document; calls Archipielago `renderDocument`.  |
-| `archipielago/.../renderDocument` | Two-pass SSR engine; Nest-free `RenderResult`.                 |
-| Page component                    | Server-only body. May place islands in the tree.               |
-| `Island`                          | Server-renders the component and writes the hydration marker.  |
-| `archipielago/.../hydrate.tsx`    | Browser entry. Hydrates markers and nothing else.              |
+| Piece                                              | Responsibility                                                         |
+| -------------------------------------------------- | ---------------------------------------------------------------------- |
+| `WebController`                                    | Chooses the page name and builds JSON props. Sets `text/html`.         |
+| `ArchipielagoViewService` (`@archipielago/nestjs`) | Loads the server entry; returns `RenderResult.html` for Nest.          |
+| `ui/runtime/ssr/entry-server`                      | App page map + Document; calls `@archipielago/react` `renderDocument`. |
+| `@archipielago/react` `renderDocument`             | Two-pass SSR engine; Nest-free `RenderResult`.                         |
+| Page component                                     | Server-only body. May place islands in the tree.                       |
+| `Island`                                           | Server-renders the component and writes the hydration marker.          |
+| `@archipielago/react` `hydrateIslands`             | Browser entry. Hydrates markers and nothing else.                      |
 
 SSR embed props live in `protocol/page-props/*-page.ssr-props.ts` (`*PageSsrProps`). The controller imports those types, not the component ([ADR-0029](./adr/0029-archipielago-in-repo-isolation.md); SSR props quirk from ADR-0023).
 
@@ -262,7 +262,7 @@ Rendering is two passes of `renderToString` ([ADR-0011](./adr/0011-two-pass-rend
 ```mermaid
 sequenceDiagram
   participant W as WebController
-  participant V as WebViewService
+  participant V as ArchipielagoViewService
   participant E as entry-server
   participant B as Browser
   W->>V: render("home", props)
