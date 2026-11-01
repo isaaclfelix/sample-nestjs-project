@@ -1,5 +1,11 @@
 import { getIslands, isIslandName } from '@archipielago/core/islands';
-import { getIslandLoaders } from './registry';
+import {
+  getIslandLoaders,
+  resetIslandLoadersCache,
+  resetIslandModules,
+  setIslandModules,
+} from './registry';
+import type { IslandModule } from './island-module';
 
 describe('island registry', () => {
   it('recognizes injected island names only', () => {
@@ -22,5 +28,21 @@ describe('island registry', () => {
     for (const name of Object.keys(getIslands())) {
       expect(loaders[name]).toBeTypeOf('function');
     }
+  });
+
+  it('requires setIslandModules before building loaders', () => {
+    const previous = getIslandLoaders();
+    resetIslandModules();
+    expect(() => getIslandLoaders()).toThrow(/setIslandModules/);
+    // Restore the Vitest setup glob so later specs keep working.
+    setIslandModules(
+      Object.fromEntries(
+        Object.keys(previous).map((name) => [
+          `../../islands/${name}/${name}.tsx`,
+          async (): Promise<IslandModule> => ({ default: () => null }),
+        ]),
+      ),
+    );
+    resetIslandLoadersCache();
   });
 });

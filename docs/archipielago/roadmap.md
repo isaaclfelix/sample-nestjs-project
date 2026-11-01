@@ -2,16 +2,16 @@
 
 High-level milestones only. Later phases wait on earlier ones. Outcomes, not sprint tickets. See [vision.md](./vision.md) for product philosophy, [mission.md](./mission.md) for how we operate, and [workflow.md](./workflow.md) for the recommended contribution flow.
 
-| Phase   | Name                                | Status                                                              |
-| ------- | ----------------------------------- | ------------------------------------------------------------------- |
-| 0       | Name and intent                     | Done                                                                |
-| 1       | In-repo isolation                   | Done                                                                |
-| 2       | Monorepo packages + NestJS consumer | In progress ([ADR-0032](../adr/0032-archipielago-pnpm-monorepo.md)) |
-| Publish | First npm publish (`0.0.1`)         | Not started (after Phase 2; prefer after Phase 3)                   |
-| 3       | Host-adapter proof                  | Not started                                                         |
-| 4       | Parent parity                       | Not started                                                         |
-| 5       | Docs site (dogfood Archipielago)    | Not started                                                         |
-| 6       | Differentiation                     | Not started                                                         |
+| Phase   | Name                                | Status                                                       |
+| ------- | ----------------------------------- | ------------------------------------------------------------ |
+| 0       | Name and intent                     | Done                                                         |
+| 1       | In-repo isolation                   | Done                                                         |
+| 2       | Monorepo packages + NestJS consumer | Done ([ADR-0032](../adr/0032-archipielago-pnpm-monorepo.md)) |
+| Publish | First npm publish (`0.0.1`)         | Not started (after Phase 2; prefer after Phase 3)            |
+| 3       | Host-adapter proof                  | Not started                                                  |
+| 4       | Parent parity                       | Not started                                                  |
+| 5       | Docs site (dogfood Archipielago)    | Not started                                                  |
+| 6       | Differentiation                     | Not started                                                  |
 
 ## Phase 0 — Name and intent
 

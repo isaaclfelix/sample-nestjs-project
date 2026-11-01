@@ -3,10 +3,7 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule, ObserveInstrument } from './app.module.js';
 import { StandardSchemaValidationPipe } from '@nestjs/common';
 import { setupOpenApi } from './api/openapi.setup.js';
-import {
-  clientAssetsRoot,
-  createDevAssetPipeline,
-} from '@archipielago/vite/asset-pipeline.js';
+import { mountArchipielagoAssets } from '@archipielago/nestjs/mount-assets.js';
 import { registerAppIslands } from './web/register-app-islands.js';
 
 /**
@@ -30,13 +27,8 @@ async function bootstrap(): Promise<void> {
   app.useGlobalPipes(new StandardSchemaValidationPipe());
   setupOpenApi(app);
 
-  // Archipielago owns Vite create/register and the client root; Nest only mounts.
-  if (process.env.NODE_ENV === 'production') {
-    app.useStaticAssets(clientAssetsRoot(), { index: false });
-  } else {
-    const pipeline = await createDevAssetPipeline();
-    app.use(pipeline.middlewares);
-  }
+  // Archipielago selects and mounts the production or development asset path.
+  await mountArchipielagoAssets(app);
 
   await app.listen(process.env.PORT ?? 3000);
 }

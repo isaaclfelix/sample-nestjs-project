@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { islands as appIslands } from '../../../src/web/protocol/islands.generated.js';
 import {
   getIslands,
   islandCssModulePath,
@@ -9,6 +8,11 @@ import {
   isIslandName,
   registerIslands,
 } from './islands.js';
+
+const appIslands = {
+  'login-form': { hasCssModule: false },
+  'mobile-navigation': { hasCssModule: true },
+} as const;
 
 describe('Archipielago islands helpers', () => {
   afterEach(() => {

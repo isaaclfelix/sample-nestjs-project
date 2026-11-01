@@ -5,6 +5,7 @@
     "moduleResolution": "bundler",
     "noEmit": true,
     "declaration": false,
+    "rootDir": "../..",
     "jsx": "react-jsx",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "paths": {
@@ -24,8 +25,8 @@
     "src/web/ui/**/*.tsx",
     "src/web/ui/**/*.d.ts",
     "src/web/protocol/**/*.ts",
-    "packages/react/src/**/*.ts",
-    "packages/react/src/**/*.tsx",
+    "../../packages/react/src/**/*.ts",
+    "../../packages/react/src/**/*.tsx",
     "src/shared/**/*.ts",
     "src/api/auth/session.ts",
     "src/api/auth/session.constants.ts",

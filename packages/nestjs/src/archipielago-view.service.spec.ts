@@ -6,7 +6,7 @@ import {
   setViteDevServer,
   type ServerEntry,
 } from '@archipielago/vite/page-loader.js';
-import { WebViewService } from './web-view.service.js';
+import { ArchipielagoViewService } from './archipielago-view.service.js';
 
 vi.mock('@archipielago/vite/page-loader.js', async () => {
   const actual = await vi.importActual<
@@ -19,7 +19,7 @@ vi.mock('@archipielago/vite/page-loader.js', async () => {
   };
 });
 
-describe('WebViewService', () => {
+describe('ArchipielagoViewService', () => {
   afterEach(() => {
     setViteDevServer(undefined);
     setClientManifestReader(undefined);
@@ -48,7 +48,9 @@ describe('WebViewService', () => {
     };
     vi.mocked(loadServerEntry).mockResolvedValue({ render });
 
-    const html = await new WebViewService().render(
+    const html = await new ArchipielagoViewService({
+      getPageStylesheets: () => ['forms'],
+    }).render(
       'home',
       {
         renderedAt: '2026-10-22T12:00:00.000Z',
@@ -66,6 +68,7 @@ describe('WebViewService', () => {
     expect(html).toContain('at=2026-10-22T12:00:00.000Z');
     expect(html).toContain('csrf=csrf-token');
     expect(html).toContain('/src/web/ui/styles/shell.scss');
+    expect(html).toContain('/src/web/ui/styles/forms.scss');
     expect(html).toContain('/src/web/ui/runtime/island/hydrate-entry.tsx');
     expect(html).not.toContain('assets/mobile-navigation.js');
   });
@@ -89,7 +92,7 @@ describe('WebViewService', () => {
     setViteDevServer({ ssrLoadModule: vi.fn() });
 
     try {
-      const html = await new WebViewService().render('home', {
+      const html = await new ArchipielagoViewService().render('home', {
         renderedAt: 't',
         isAuthenticated: false,
       });
@@ -123,7 +126,7 @@ describe('WebViewService', () => {
     setViteDevServer({ ssrLoadModule: vi.fn(), transformRequest });
 
     try {
-      const html = await new WebViewService().render('home', {
+      const html = await new ArchipielagoViewService().render('home', {
         renderedAt: 't',
         isAuthenticated: false,
       });
@@ -176,7 +179,7 @@ describe('WebViewService', () => {
     vi.mocked(loadServerEntry).mockResolvedValue({ render });
 
     try {
-      const html = await new WebViewService().render('home', {
+      const html = await new ArchipielagoViewService().render('home', {
         renderedAt: 't',
         isAuthenticated: false,
       });

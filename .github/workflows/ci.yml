@@ -95,6 +95,8 @@ jobs:
         uses: davelosert/vitest-coverage-report-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          json-summary-path: ./examples/nestjs/coverage/coverage-summary.json
+          json-final-path: ./examples/nestjs/coverage/coverage-final.json
 
   plan-files:
     name: plan-files

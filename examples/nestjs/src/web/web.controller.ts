@@ -1,11 +1,11 @@
 import { Controller, Get, Header, Req, Res } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
+import { ArchipielagoViewService } from '@archipielago/nestjs/archipielago-view.service.js';
 import type { Request, Response } from 'express';
 import type { AppSession } from '../api/auth/session.js';
 import type { HomePageSsrProps } from './protocol/page-props/home-page.ssr-props.js';
 import type { LoginPageSsrProps } from './protocol/page-props/login-page.ssr-props.js';
 import type { RegisterPageSsrProps } from './protocol/page-props/register-page.ssr-props.js';
-import { WebViewService } from './web-view.service.js';
 
 /** Express request after SessionMiddleware may have attached a session. */
 type RequestWithSession = Request & { session?: AppSession };
@@ -13,7 +13,7 @@ type RequestWithSession = Request & { session?: AppSession };
 @Controller()
 @ApiExcludeController()
 export class WebController {
-  constructor(private readonly webViewService: WebViewService) {}
+  constructor(private readonly webViewService: ArchipielagoViewService) {}
 
   /**
    * Renders the home page as HTML.

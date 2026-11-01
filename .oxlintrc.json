@@ -18,8 +18,8 @@
   "overrides": [
     {
       "files": [
-        ".storybook/**/*.{ts,tsx}",
-        "src/web/ui/**/*.{ts,tsx}",
+        "examples/nestjs/.storybook/**/*.{ts,tsx}",
+        "examples/nestjs/src/web/ui/**/*.{ts,tsx}",
         "packages/react/**/*.{ts,tsx}"
       ],
       "rules": {
@@ -56,8 +56,8 @@
   },
   "ignorePatterns": [
     "**/dist/**",
-    "coverage/**",
+    "**/coverage/**",
     "**/node_modules/**",
-    "src/generated/**"
+    "examples/nestjs/src/generated/**"
   ]
 }

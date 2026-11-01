@@ -10,12 +10,12 @@ Per-component folders ([ADR-0025](./0025-per-component-folders.md)) made UI→`p
 
 ## Decision
 
-- Declare Vite/UI-only aliases on [tsconfig.web.json](../../tsconfig.web.json) (no `baseUrl` — oxlint-tsgolint rejects it; path values are relative `./src/...`):
+- Declare Vite/UI-only aliases on [tsconfig.web.json](../../examples/nestjs/tsconfig.web.json) (no `baseUrl` — oxlint-tsgolint rejects it; path values are relative `./src/...`):
   - `@ui/*` → `./src/web/ui/*`
   - `@protocol/*` → `./src/web/protocol/*`
   - `@archipielago/*` → `./src/archipielago/*` (engines; [ADR-0029](./0029-archipielago-in-repo-isolation.md))
   - `@api/*` → `./src/api/*`
-- Mirror the same aliases in [vite.config.ts](../../vite.config.ts), [vitest.shared.ts](../../vitest.shared.ts), and Storybook `viteFinal`.
+- Mirror the same aliases in [vite.config.ts](../../examples/nestjs/vite.config.ts), [vitest.shared.ts](../../examples/nestjs/vitest.shared.ts), and Storybook `viteFinal`.
 - **Usage rule:** from a product component folder (`ui/{pages,islands,server-components,shared-components}/<name>/`), any import that leaves that folder uses `@ui` / `@protocol` / `@api`. Keep `./…` for same-folder siblings and thin barrels. Non-component UI modules (`hooks/`, `api-fetch/`, `runtime/`) use the same aliases when crossing lanes or into `protocol` / `api`.
 - **Do not** use these aliases in Nest-emitted `host/`, `protocol/`, or `api/` sources.
 - **`ui/vite-plugins/**`:** keep relative `.js` (Node config graph).

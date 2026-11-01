@@ -12,8 +12,8 @@ HTTP e2e (supertest + Testcontainers) covered API contracts and scraped CSRF fro
 ### Tooling
 
 - **Vitest** remains the single test runner.
-- **UI unit tests** run in Vitest **browser mode** with the Playwright **provider** (`@vitest/browser-playwright`), sibling config [`vitest.config.browser.ts`](../../vitest.config.browser.ts), composed into the default unit workspace via `test.projects`.
-- **Browser e2e journeys** run as Vitest Node tests using the Playwright **library** (`playwright`) against Nest + Testcontainers + Vite middleware, sibling [`vitest.config.browser-e2e.ts`](../../vitest.config.browser-e2e.ts) under the e2e workspace. Do **not** add `@playwright/test` as a second runner.
+- **UI unit tests** run in Vitest **browser mode** with the Playwright **provider** (`@vitest/browser-playwright`), sibling config [`vitest.config.browser.ts`](../../examples/nestjs/vitest.config.browser.ts), composed into the default unit workspace via `test.projects`.
+- **Browser e2e journeys** run as Vitest Node tests using the Playwright **library** (`playwright`) against Nest + Testcontainers + Vite middleware, sibling [`vitest.config.browser-e2e.ts`](../../examples/nestjs/vitest.config.browser-e2e.ts) under the e2e workspace. Do **not** add `@playwright/test` as a second runner.
 - Component helpers: `@testing-library/react`, `@testing-library/user-event`, and `@testing-library/jest-dom` via `@testing-library/jest-dom/vitest` (extends Vitest `expect`; the Jest runner is not a dependency).
 - Remove **happy-dom**; DOM unit specs use the browser project.
 - Nest + Testcontainers stay **out** of the default unit projects.
