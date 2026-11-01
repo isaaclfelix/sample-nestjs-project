@@ -26,6 +26,8 @@ High-level milestones only. Later phases wait on earlier ones. Outcomes, not spr
 
 ## Phase 1 — In-repo isolation
 
+Historical layout (pre-[ADR-0032](../adr/0032-archipielago-pnpm-monorepo.md)); current trees are under `packages/*` and `examples/nestjs`.
+
 - Engines under `src/archipielago/{core,host,react,vite}`; Nest product under `src/web/` ([ADR-0029](../adr/0029-archipielago-in-repo-isolation.md)).
 - Parameterize roots via `ArchipielagoPaths`; inject product page map + Document in thin `entry-server`.
 - NestJS-only surface stays thin: `web-view.service.ts`, `web.controller.ts`, `web.module.ts`, plus product pages, islands, and document.

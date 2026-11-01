@@ -4,26 +4,26 @@ How [examples/nestjs](../../../examples/nestjs) applies the host-agnostic
 steps from [wiring.md](./wiring.md). This page maps concepts onto Nest files; it
 does **not** redefine the primitives ([concepts.md](./concepts.md)).
 
-| Wiring step                    | Nest example                                                                 |
-| ------------------------------ | ---------------------------------------------------------------------------- |
-| Packages                       | `@archipielago/{core,react,vite,nestjs}` in `examples/nestjs/package.json`   |
-| Product UI                     | `examples/nestjs/src/web/ui/**`                                              |
-| Page props / manifest          | `src/web/protocol/**`                                                        |
-| Config                         | `examples/nestjs/archipielago.config.ts` (`islands.registration: 'auto'`)    |
-| Register islands + stylesheets | `src/web/register-app-islands.ts` (called from `main.ts`)                    |
-| Island glob                    | `src/web/ui/runtime/island/island-modules.ts` (hydrate entry + Vitest setup) |
-| SSR entry                      | `src/web/ui/runtime/ssr/entry-server.tsx`                                    |
-| Hydrate entry                  | `src/web/ui/runtime/island/hydrate-entry.tsx`                                |
-| Vite                           | `examples/nestjs/vite.config.ts` + Archipielago plugins                      |
-| Mount assets                   | `mountArchipielagoAssets(app)` in `src/main.ts`                              |
-| Module / renderer              | `ArchipielagoModule.forRoot({ getPageStylesheets })` in `web.module.ts`      |
-| Routes → HTML                  | `WebController` → `ArchipielagoViewService.render`                           |
+| Wiring step                    | Nest example                                                                                    |
+| ------------------------------ | ----------------------------------------------------------------------------------------------- |
+| Packages                       | `@archipielago/{core,react,vite,nestjs}` in `examples/nestjs/package.json`                      |
+| Product UI                     | `examples/nestjs/src/web/ui/**`                                                                 |
+| Page props / manifest          | `examples/nestjs/src/web/protocol/**`                                                           |
+| Config                         | `examples/nestjs/archipielago.config.ts` (`islands.registration: 'auto'`)                       |
+| Register islands + stylesheets | `examples/nestjs/src/web/register-app-islands.ts` (called from `main.ts`)                       |
+| Island glob                    | `examples/nestjs/src/web/ui/runtime/island/island-modules.ts` (hydrate entry + Vitest setup)    |
+| SSR entry                      | `examples/nestjs/src/web/ui/runtime/ssr/entry-server.tsx`                                       |
+| Hydrate entry                  | `examples/nestjs/src/web/ui/runtime/island/hydrate-entry.tsx`                                   |
+| Vite                           | `examples/nestjs/vite.config.ts` + Archipielago plugins                                         |
+| Mount assets                   | `mountArchipielagoAssets(app)` in `examples/nestjs/src/main.ts`                                 |
+| Module / renderer              | `ArchipielagoModule.forRoot({ getPageStylesheets })` in `examples/nestjs/src/web/web.module.ts` |
+| Routes → HTML                  | `WebController` → `ArchipielagoViewService.render`                                              |
 
 ## Adapter surface
 
 - **`ArchipielagoModule.forRoot(options)`** — provides `ArchipielagoViewService`.
   Pass `getPageStylesheets(page)` so product sheet policy stays in the example
-  (`src/web/page-stylesheets.ts`).
+  (`examples/nestjs/src/web/page-stylesheets.ts`).
 - **`ArchipielagoViewService.render(page, props, { csrfToken?, pageStylesheets? })`** —
   returns the full document string.
 - **`mountArchipielagoAssets(app)`** — static client root in production; Vite

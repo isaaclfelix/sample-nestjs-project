@@ -25,7 +25,7 @@ Do **not** put product UI under `packages/`; do **not** put Nest-executed engine
 
 **Relative imports in `ui/` and `packages/react/` are extensionless** (no `.js` suffix). Nest zones (`api/`, `web/protocol`, Nest web root) and Node packages (`packages/core/`, `packages/vite/`) keep `.js` emit specifiers. See [ADR-0024](./adr/0024-dual-import-resolution.md).
 
-**Path aliases when leaving a component folder** ([ADR-0027](./adr/0027-ui-path-aliases.md)): use `@ui/…`, `@protocol/…`, `@archipielago/…`, or `@api/…` instead of climbing with `../`. Keep `./` for same-folder siblings / thin barrels. Example: `import LoginForm from '@ui/islands/login-form'` and `import { Island } from '@archipielago/react/runtime/island/island'`.
+**Path aliases when leaving a component folder** ([ADR-0027](./adr/0027-ui-path-aliases.md)): use `@ui/…`, `@protocol/…`, or `@api/…` instead of climbing with `../`. Keep `./` for same-folder siblings / thin barrels. Engines use **package** imports (`@archipielago/…`), not a UI path alias. Example: `import LoginForm from '@ui/islands/login-form'` and `import { Island } from '@archipielago/react/runtime/island/island'`.
 
 ## SSR page props quirk
 

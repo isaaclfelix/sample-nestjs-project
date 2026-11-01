@@ -23,10 +23,12 @@ a Phase 3 problem ([docs/archipielago/roadmap.md](../archipielago/roadmap.md)).
 
 ## Decision
 
-- **Host config file:** repo-root `archipielago.config.ts` exports
-  `ArchipielagoUserConfig` with **`islands.registration` only**. Sync and
-  scaffold load it via `loadAndApplyArchipielagoConfig`. In-process tests may
-  call `applyArchipielagoUserConfig` / `resetArchipielagoConfig`.
+- **Host config file:** the Nest example’s
+  [`examples/nestjs/archipielago.config.ts`](../../examples/nestjs/archipielago.config.ts)
+  (host package root) exports `ArchipielagoUserConfig` with
+  **`islands.registration` only**. Sync and scaffold load it via
+  `loadAndApplyArchipielagoConfig` with that package as `rootDir`. In-process
+  tests may call `applyArchipielagoUserConfig` / `resetArchipielagoConfig`.
 - **Registration modes** control how the host **maintains** the islands
   manifest that `registerIslands` injects. Engines always consume that
   manifest; they do not branch on this setting:
