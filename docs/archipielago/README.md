@@ -13,4 +13,4 @@ This repository will become the **Archipielago monorepo**: framework packages, r
 | [vision.md](./vision.md)     | Philosophy, market position, ownership split, monorepo, non-goals  |
 | [roadmap.md](./roadmap.md)   | Long-term phases from isolation through parity and differentiation |
 
-Engines live under `src/archipielago/`; Nest product UI under `src/web/` ([ADR-0029](../adr/0029-archipielago-in-repo-isolation.md)). Current-state map: [architecture.md](../architecture.md). How-to authoring: [how-to-web-ui.md](../how-to-web-ui.md). Durable decisions: [docs/adr/](../adr/README.md).
+Phase 2 turns this tree into a pnpm monorepo: `@archipielago/*` under `packages/*`, Nest host under `examples/nestjs` ([ADR-0032](../adr/0032-archipielago-pnpm-monorepo.md)). Until that cut lands, engines may still live under `src/archipielago/` with Nest product UI under `src/web/` ([ADR-0029](../adr/0029-archipielago-in-repo-isolation.md)). Current-state map: [architecture.md](../architecture.md). How-to authoring: [how-to-web-ui.md](../how-to-web-ui.md). Durable decisions: [docs/adr/](../adr/README.md).

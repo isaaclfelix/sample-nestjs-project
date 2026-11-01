@@ -54,3 +54,4 @@ Current wiring and behavior live in [architecture.md](../architecture.md). That 
 | ADR-0029 | In-repo Archipielago isolation (folder boundary, no packages)  | Accepted               | [0029-archipielago-in-repo-isolation.md](./0029-archipielago-in-repo-isolation.md)       |
 | ADR-0030 | Archipielago host config and islands registration mode         | Accepted               | [0030-archipielago-host-config.md](./0030-archipielago-host-config.md)                   |
 | ADR-0031 | Project plan files for agent planning                          | Accepted               | [0031-project-plan-files.md](./0031-project-plan-files.md)                               |
+| ADR-0032 | Archipielago pnpm monorepo packages and NestJS example         | Accepted               | [0032-archipielago-pnpm-monorepo.md](./0032-archipielago-pnpm-monorepo.md)               |

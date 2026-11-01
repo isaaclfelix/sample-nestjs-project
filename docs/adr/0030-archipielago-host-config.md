@@ -62,6 +62,11 @@ loaders from 0028 remain. Supersedes the earlier draft of this ADR that exposed
 - Follow-up (out of scope): host-facing path overrides for non-`src/web` mounts
   (Phase 3), optional `manual`↔folder `--check`, inject-import codegen,
   alternate island layouts.
+- Phase 2 ([ADR-0032](./0032-archipielago-pnpm-monorepo.md)) moves this host
+  config with the Nest example under `examples/nestjs` and injects path roots
+  into `@archipielago/*` package APIs. Host-facing `paths` on
+  `ArchipielagoUserConfig` remains deferred until second-host friction unless
+  injection alone is insufficient for the Nest example move.
 
 ## Alternatives considered
 

@@ -2,15 +2,16 @@
 
 High-level milestones only. Later phases wait on earlier ones. Outcomes, not sprint tickets. See [vision.md](./vision.md) for product philosophy, [mission.md](./mission.md) for how we operate, and [workflow.md](./workflow.md) for the recommended contribution flow.
 
-| Phase | Name                                | Status                 |
-| ----- | ----------------------------------- | ---------------------- |
-| 0     | Name and intent                     | Done                   |
-| 1     | In-repo isolation                   | Done (this change set) |
-| 2     | Monorepo packages + NestJS consumer | Not started            |
-| 3     | Host-adapter proof                  | Not started            |
-| 4     | Parent parity                       | Not started            |
-| 5     | Docs site (dogfood Archipielago)    | Not started            |
-| 6     | Differentiation                     | Not started            |
+| Phase   | Name                                | Status                                                              |
+| ------- | ----------------------------------- | ------------------------------------------------------------------- |
+| 0       | Name and intent                     | Done                                                                |
+| 1       | In-repo isolation                   | Done                                                                |
+| 2       | Monorepo packages + NestJS consumer | In progress ([ADR-0032](../adr/0032-archipielago-pnpm-monorepo.md)) |
+| Publish | First npm publish (`0.0.1`)         | Not started (after Phase 2; prefer after Phase 3)                   |
+| 3       | Host-adapter proof                  | Not started                                                         |
+| 4       | Parent parity                       | Not started                                                         |
+| 5       | Docs site (dogfood Archipielago)    | Not started                                                         |
+| 6       | Differentiation                     | Not started                                                         |
 
 ## Phase 0 — Name and intent
 
@@ -35,11 +36,19 @@ High-level milestones only. Later phases wait on earlier ones. Outcomes, not spr
 
 ## Phase 2 — Monorepo packages + NestJS consumer
 
-- This repository becomes an Archipielago **pnpm monorepo**: framework packages, shared tooling (Vite, oxlint, etc.), and a NestJS host example that depends on those packages.
-- Host example paths and package ids use **`nestjs`** (respect the framework’s name)—not “Godfather” or other nicknames.
-- Published surface starts minimal: core render contracts, React runtime, Vite helpers, NestJS adapter (exact package names at extraction time).
+- This repository becomes an Archipielago **pnpm monorepo**: framework packages, shared tooling (Vite, oxlint, etc.), and a NestJS host example that depends on those packages ([ADR-0032](../adr/0032-archipielago-pnpm-monorepo.md)).
+- Package IDs: `@archipielago/core`, `@archipielago/react`, `@archipielago/vite`, `@archipielago/nestjs`.
+- Host example paths and package ids use **`nestjs`** (respect the framework’s name)—not “Godfather” or other nicknames. Nest sample lives under `examples/nestjs`.
+- Published surface starts minimal (workspace packages with explicit `exports` / peers); **npm registry publish is deferred** to the Publish milestone below.
 - NestJS adapter is the first proof that HTTP and DI live outside core.
 - Shared tooling stays workspace-owned so host examples and packages do not fork lint/build stacks.
+
+## Publish — First npm publish (`0.0.1`)
+
+- After Phase 2 workspace packages exist and stay publish-ready (clean `exports`, peers, no reverse example imports).
+- Prefer waiting until Phase 3 proves the public `Renderer` → `RenderResult` contract with a second host, so the first public cut is not Nest-shaped by accident.
+- Does **not** block starting Phase 3. Version target: **`0.0.1`** for the `@archipielago/*` packages that form the public surface.
+- Out of Phase 2 scope: Changesets, publish CI, and registry org setup beyond the `@archipielago` name already used in the workspace.
 
 ## Phase 3 — Host-adapter proof
 
