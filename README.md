@@ -2,7 +2,7 @@
 
 A Nest application with two surfaces in one process. The JSON API lives under `/api` (Zod validation, Swagger). React server-renders HTML at the root and hydrates islands from lazy chunks.
 
-How the two sides fit together: [docs/architecture.md](./docs/architecture.md).
+This repo is a **pnpm monorepo**: Archipielago engines live in `packages/*`; the Nest sample app lives in `examples/nestjs` ([ADR-0032](./docs/adr/0032-archipielago-pnpm-monorepo.md)). Root `pnpm` scripts filter into the example. How the two sides fit together: [docs/architecture.md](./docs/architecture.md).
 
 ## Prerequisites
 
@@ -10,7 +10,7 @@ How the two sides fit together: [docs/architecture.md](./docs/architecture.md).
 - [pnpm](https://pnpm.io/installation) 12. This repo uses pnpm, not npm or Yarn.
 - Node.js 24.22.0. That version is pinned in [`.node-version`](./.node-version). `package.json` requires Node `>=24.7.0`.
 - [Docker](https://docs.docker.com/get-docker/) for e2e (Testcontainers) and for the optional local database.
-- [GNU Make](https://www.gnu.org/software/make/) for local database helpers (`Makefile`). Not required for `pnpm test` / CI unit jobs.
+- [GNU Make](https://www.gnu.org/software/make/) for local database helpers ([`examples/nestjs/Makefile`](./examples/nestjs/Makefile)). Not required for `pnpm test` / CI unit jobs.
 
 Install pnpm first, then install Node with pnpm's runtime manager and put `node` on your PATH:
 
@@ -35,24 +35,28 @@ node --version
 pnpm install
 ```
 
-`pnpm install` also installs the Git hooks and runs `prisma generate`. Commit, branch, and lint rules are in [CONTRIBUTING.md](./CONTRIBUTING.md).
+`pnpm install` installs Git hooks, builds `@archipielago/{core,vite,nestjs}`, and runs the Nest example `postinstall` (`prisma generate` + islands sync). Commit, branch, and lint rules are in [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Database
 
-PostgreSQL via Prisma. Copy `.env.example` to `.env` and keep `DATABASE_URL` pointed at local Compose (defaults match the Makefile).
+PostgreSQL via Prisma in the Nest example. Copy the example env file and keep `DATABASE_URL` pointed at local Compose (defaults match the Makefile):
+
+```bash
+cp examples/nestjs/.env.example examples/nestjs/.env
+```
 
 ```bash
 # start Postgres (Docker Compose)
-make db-up
+make -C examples/nestjs db-up
 
 # apply migrations
-make db-migrate-deploy
+make -C examples/nestjs db-migrate-deploy
 
 # optional demo row
-make db-seed
+make -C examples/nestjs db-seed
 ```
 
-Other Make targets: `db-down`, `db-logs`, `db-migrate` (dev), `db-reset`, `db-studio`. Persistence: [docs/architecture.md](./docs/architecture.md#persistence), [ADR-0005](./docs/adr/0005-persistence-postgres-prisma.md).
+Other Make targets (from `examples/nestjs`): `db-down`, `db-logs`, `db-migrate` (dev), `db-reset`, `db-studio`. Persistence: [docs/architecture.md](./docs/architecture.md#persistence), [ADR-0005](./docs/adr/0005-persistence-postgres-prisma.md).
 
 E2E does **not** use Compose. `pnpm test:e2e` starts Postgres with Testcontainers (Docker required).
 
@@ -81,13 +85,13 @@ The app listens on port 3000 unless `PORT` is set.
 
 Run these locally before opening a pull request. [CI](./.github/workflows/ci.yml) runs the same five commands, each in its own job, after `pnpm install --frozen-lockfile`. Warnings fail lint. Coverage fails under the thresholds in [docs/testing-and-coverage.md](./docs/testing-and-coverage.md).
 
-| CI job     | Local command   | What it does                                                         |
-| ---------- | --------------- | -------------------------------------------------------------------- |
-| `lint`     | `pnpm lint`     | Oxlint, type-aware, on `src/` and `test/`. Warnings fail.            |
-| `build`    | `pnpm build`    | Nest compile, web typecheck, Vite client build, and the SSR bundle.  |
-| `unit`     | `pnpm test`     | Unit tests (`*.spec.ts`).                                            |
-| `e2e`      | `pnpm test:e2e` | HTTP tests (`*.e2e-spec.ts`) against Nest + Testcontainers Postgres. |
-| `coverage` | `pnpm test:cov` | The unit suite again, with coverage thresholds.                      |
+| CI job     | Local command   | What it does                                                                |
+| ---------- | --------------- | --------------------------------------------------------------------------- |
+| `lint`     | `pnpm lint`     | Oxlint, type-aware, on `packages/` and `examples/`. Warnings fail.          |
+| `build`    | `pnpm build`    | Package builds, then Nest compile / Vite client + SSR for the Nest example. |
+| `unit`     | `pnpm test`     | Unit tests (`*.spec.ts`) via `@archipielago/example-nestjs`.                |
+| `e2e`      | `pnpm test:e2e` | HTTP tests (`*.e2e-spec.ts`) against Nest + Testcontainers Postgres.        |
+| `coverage` | `pnpm test:cov` | The unit suite again, with coverage thresholds.                             |
 
 ```bash
 pnpm lint
@@ -116,13 +120,13 @@ Request keys with:
 npx @nestjs/observe link
 ```
 
-Approve the printed code at [observe.nestjs.com/link](https://observe.nestjs.com/link). Then copy the example env file and fill in the two values:
+Approve the printed code at [observe.nestjs.com/link](https://observe.nestjs.com/link). Then copy the Nest example env file (if you have not already) and fill in the two values:
 
 ```bash
-cp .env.example .env
+cp examples/nestjs/.env.example examples/nestjs/.env
 ```
 
-`.env` is gitignored. `start`, `start:dev`, and `start:debug` load it. In production, set `OBSERVE_APP_KEY` and `OBSERVE_APP_SECRET` in the environment instead of using that file.
+`examples/nestjs/.env` is gitignored. `start`, `start:dev`, and `start:debug` load it. In production, set `OBSERVE_APP_KEY` and `OBSERVE_APP_SECRET` in the environment instead of using that file.
 
 ## Documentation
 
