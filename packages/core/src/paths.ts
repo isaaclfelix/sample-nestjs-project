@@ -1,11 +1,12 @@
 /**
  * In-repo path roots for Archipielago engines and this Nest sample app.
  *
- * Defaults encode the Nest sample layout (`src/web/…`). That prefix is host
- * packaging, not an Archipielago island convention — conventions start at
- * `ui/islands/<name>/<name>.tsx` ([ADR-0025], [ADR-0028]). Host-facing path
- * overrides in `archipielago.config.ts` are deferred until Phase 3 / a second
- * host ([ADR-0030]). Tests may call {@link setArchipielagoPaths}.
+ * Defaults encode the Nest sample layout under `examples/nestjs` (`src/web/…`
+ * relative to that package cwd). That prefix is host packaging, not an
+ * Archipielago island convention — conventions start at
+ * `ui/islands/<name>/<name>.tsx` ([ADR-0025], [ADR-0028]). Non-Nest hosts must
+ * call {@link setArchipielagoPaths} at bootstrap; host-facing path keys on
+ * `archipielago.config.ts` stay deferred until Phase 3 ([ADR-0030]).
  */
 
 /**

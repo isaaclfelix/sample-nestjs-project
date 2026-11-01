@@ -56,6 +56,8 @@ Historical layout (pre-[ADR-0032](../adr/0032-archipielago-pnpm-monorepo.md)); c
 
 - Same UI artifacts render through a second non-monopolizing host example in the monorepo (Express or Hono preferred) without changing pages, islands, or hydrate core.
 - Public `Renderer` → `RenderResult` contract is refined from real second-host friction; that is when the integration boundary counts as **proven**.
+- Resolve **TD-031** (explicit Vite/server handle instead of process global) and **TD-032** (hosts that assemble from `RenderResult.assets`) from that friction—do not invent those APIs in Phase 2 without a second consumer.
+- Non-Nest hosts should call `setArchipielagoPaths` explicitly; Nest sample path defaults must not become the undocumented public layout law ([ADR-0030](../adr/0030-archipielago-host-config.md)).
 
 ## Phase 4 — Parent parity
 
