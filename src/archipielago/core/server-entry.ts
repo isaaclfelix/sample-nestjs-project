@@ -1,23 +1,27 @@
 import type { PageAssets } from './page-assets.js';
 import type { RenderResult } from './render-result.js';
-import type {
-  SsrPagePropsMap,
-  WebPageName,
-} from '../../web/protocol/page-props/page-props.js';
 
 export type { RenderResult } from './render-result.js';
 
 /**
- * Server render function implemented by the Vite SSR bundle (`ui` entry-server).
+ * Host-owned map of page name → SSR embed props.
  *
- * Page prop types stay app-owned under `src/web/protocol/page-props/`. Core
- * imports them in-repo for typed `render` until package extraction generics the
- * contract. Returns a full-document {@link RenderResult}.
+ * Product apps define a concrete map (for example Nest `SsrPagePropsMap`).
+ * Core stays free of app page-prop modules ([ADR-0032](../../../docs/adr/0032-archipielago-pnpm-monorepo.md)).
  */
-export interface ServerEntry {
-  render<K extends WebPageName>(
+export type PagePropsMap = Record<string, object>;
+
+/**
+ * Server render function implemented by the Vite SSR bundle (`entry-server`).
+ *
+ * Page prop types stay app-owned. Returns a full-document {@link RenderResult}.
+ *
+ * @template {PagePropsMap} TPages - Host page name → props map.
+ */
+export interface ServerEntry<TPages extends PagePropsMap = PagePropsMap> {
+  render<K extends keyof TPages & string>(
     page: K,
-    props: SsrPagePropsMap[K],
+    props: TPages[K],
     createAssets: (islandNames: string[]) => PageAssets | Promise<PageAssets>,
     csrfToken?: string,
   ): Promise<RenderResult>;

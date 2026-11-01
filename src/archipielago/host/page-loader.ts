@@ -1,9 +1,9 @@
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 import { getArchipielagoPaths } from '../core/paths.js';
-import type { ServerEntry } from '../core/server-entry.js';
+import type { PagePropsMap, ServerEntry } from '../core/server-entry.js';
 
-export type { ServerEntry };
+export type { PagePropsMap, ServerEntry };
 
 /**
  * Enough of a Vite dev server to load the SSR module and transform CSS.
@@ -48,21 +48,26 @@ export function getViteDevServer(): ServerEntryLoader | undefined {
  * through Vitest's transformer. Production imports the built bundle. The
  * specifier is built at runtime so `nest build` does not compile the TSX.
  *
+ * @template {PagePropsMap} TPages - Host page props map.
  * @param {{ vite?: ServerEntryLoader; vitest: boolean }} env - Which runtime is active. `vite` wins over `vitest`.
- * @param {(specifier: string) => Promise<ServerEntry>} [load] - Importer. Tests pass a stub. The default is a dynamic import.
- * @returns {Promise<ServerEntry>} The module that renders a page to HTML.
+ * @param {(specifier: string) => Promise<ServerEntry<TPages>>} [load] - Importer. Tests pass a stub. The default is a dynamic import.
+ * @returns {Promise<ServerEntry<TPages>>} The module that renders a page to HTML.
  */
-export async function loadServerEntry(
+export async function loadServerEntry<
+  TPages extends PagePropsMap = PagePropsMap,
+>(
   env: { vite?: ServerEntryLoader; vitest: boolean },
-  load: (specifier: string) => Promise<ServerEntry> = (specifier) =>
+  load: (specifier: string) => Promise<ServerEntry<TPages>> = (specifier) =>
     import(specifier),
-): Promise<ServerEntry> {
+): Promise<ServerEntry<TPages>> {
   const paths = getArchipielagoPaths();
 
   // Dev SSR goes through Vite. A static import would make tsc emit the TSX.
   if (env.vite) {
     // Vite types the module as a record. The entry's render export is the contract.
-    return env.vite.ssrLoadModule(paths.entryServerDev) as Promise<ServerEntry>;
+    return env.vite.ssrLoadModule(paths.entryServerDev) as Promise<
+      ServerEntry<TPages>
+    >;
   }
 
   // Runtime string so TypeScript does not follow the import into the views.

@@ -1,13 +1,10 @@
-import { getArchipielagoPaths } from '../../core/paths.js';
-
 /**
  * Optional design-system stylesheets a page can opt into (not the shell).
  *
- * Each name is a Vite client build input under product `ui/styles/`. Pages list
- * the sheets they need in {@link pageStylesheetsByPage}; `createPageAssets`
- * emits head `<link>` tags for those sheets only.
+ * Hosts register sheets via {@link setPageStylesheetRegistry}. Pages pass the
+ * sheet ids they need into `createPageAssets`; that helper emits head `<link>`
+ * tags for those sheets only.
  */
-export type PageStylesheetName = 'forms';
 
 /**
  * Source path and Vite-dev URL for one opt-in page stylesheet.
@@ -20,46 +17,50 @@ export interface PageStylesheetRegistration {
 }
 
 /**
- * Returns the registry of opt-in page stylesheets from active path config.
- *
- * Grow this when adding another sibling sheet (e.g. tables). Do not put
- * shell or island module CSS here.
- *
- * @returns {Record<PageStylesheetName, PageStylesheetRegistration>} Registry.
+ * Registered stylesheet id (host-defined; e.g. `forms`).
  */
-export function pageStylesheetRegistry(): Record<
-  PageStylesheetName,
-  PageStylesheetRegistration
-> {
-  const paths = getArchipielagoPaths();
-  return {
-    forms: {
-      source: paths.formsStylesheetSource,
-      devUrl: paths.formsStylesheetDev,
-    },
-  };
+export type PageStylesheetName = string;
+
+let pageStylesheetRegistryState: Record<string, PageStylesheetRegistration> =
+  {};
+
+/**
+ * Replaces the opt-in page stylesheet registry; pass `{}` or omit to clear.
+ *
+ * Call from host bootstrap after path roots are known. Engines read this map
+ * when building asset tags; they do not own product sheet names.
+ *
+ * @param {Record<string, PageStylesheetRegistration>} registry - Sheet id → paths.
+ * @returns {void}
+ */
+export function setPageStylesheetRegistry(
+  registry: Record<string, PageStylesheetRegistration>,
+): void {
+  pageStylesheetRegistryState = { ...registry };
 }
 
 /**
- * Stylesheets each named page opts into.
+ * Returns the active opt-in page stylesheet registry.
  *
- * Empty means shell (+ island CSS) only. Login/register opt into `forms`.
- * Keys stay aligned with `WebPageName` as pages are added.
+ * @returns {Readonly<Record<string, PageStylesheetRegistration>>} Registry.
  */
-export const pageStylesheetsByPage = {
-  home: [] as const satisfies readonly PageStylesheetName[],
-  login: ['forms'] as const satisfies readonly PageStylesheetName[],
-  register: ['forms'] as const satisfies readonly PageStylesheetName[],
-} as const;
+export function pageStylesheetRegistry(): Readonly<
+  Record<string, PageStylesheetRegistration>
+> {
+  return pageStylesheetRegistryState;
+}
 
 /**
  * Reports whether a name is a registered page stylesheet.
  *
  * @param {string} name - Candidate stylesheet id.
- * @returns {boolean} True when the name is a {@link PageStylesheetName}.
+ * @returns {boolean} True when the name is registered.
  */
 export function isPageStylesheetName(name: string): name is PageStylesheetName {
-  return Object.prototype.hasOwnProperty.call(pageStylesheetRegistry(), name);
+  return Object.prototype.hasOwnProperty.call(
+    pageStylesheetRegistryState,
+    name,
+  );
 }
 
 /**
@@ -67,9 +68,14 @@ export function isPageStylesheetName(name: string): name is PageStylesheetName {
  *
  * @param {PageStylesheetName} name - Registered stylesheet id.
  * @returns {PageStylesheetRegistration} Source path and dev URL.
+ * @throws {Error} When the name is not registered.
  */
 export function pageStylesheetRegistration(
   name: PageStylesheetName,
 ): PageStylesheetRegistration {
-  return pageStylesheetRegistry()[name];
+  const registration = pageStylesheetRegistryState[name];
+  if (registration === undefined) {
+    throw new Error(`Unknown page stylesheet "${name}"`);
+  }
+  return registration;
 }

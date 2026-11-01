@@ -10,6 +10,7 @@ import {
   loadShellCssText,
   shellStyleTags,
 } from './page-assets.js';
+import { setPageStylesheetRegistry } from './page-stylesheets.js';
 
 describe('extractCssFromViteModule', () => {
   it('parses a Vite CSS-module __vite__css string', () => {
@@ -202,6 +203,13 @@ describe('createPageAssets island CSS', () => {
   });
 
   it('links the forms sibling when the page opts in', async () => {
+    setPageStylesheetRegistry({
+      forms: {
+        source: 'src/web/ui/styles/forms.scss',
+        devUrl: '/src/web/ui/styles/forms.scss',
+      },
+    });
+
     const dir = join(process.cwd(), 'dist/client/assets');
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, 'shell-forms-opt.css'), '.ok{}');
@@ -225,5 +233,6 @@ describe('createPageAssets island CSS', () => {
 
     expect(assets.tags.inlineStyles).toEqual([{ id: 'shell', css: '.ok{}' }]);
     expect(assets.tags.stylesheets).toEqual(['/assets/forms-opt.css']);
+    setPageStylesheetRegistry({});
   });
 });

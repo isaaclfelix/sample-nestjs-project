@@ -21,6 +21,7 @@ import {
   type ClientManifest,
 } from './asset-tags.js';
 import { createPageAssets } from './page-assets.js';
+import { setPageStylesheetRegistry } from './page-stylesheets.js';
 
 const manifest: ClientManifest = {
   'src/web/ui/runtime/island/hydrate-entry.tsx': {
@@ -44,8 +45,18 @@ const manifest: ClientManifest = {
 };
 
 describe('asset tags', () => {
+  beforeEach(() => {
+    setPageStylesheetRegistry({
+      forms: {
+        source: 'src/web/ui/styles/forms.scss',
+        devUrl: '/src/web/ui/styles/forms.scss',
+      },
+    });
+  });
+
   afterEach(() => {
     setClientManifestReader(undefined);
+    setPageStylesheetRegistry({});
   });
 
   it('uses shell-only development tags when the page has no islands', async () => {

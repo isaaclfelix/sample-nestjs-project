@@ -39,12 +39,10 @@ function isShellCssAsset(asset: ShellCssAsset): boolean {
 
   const originals = asset.originalFileNames ?? [];
 
+  // Match by conventional basename so hosts are not tied to `src/web/…`.
   return originals.some(
     (name) =>
-      name.includes('src/web/ui/styles/shell.scss') ||
-      name.includes('src/web/ui/styles.css') ||
-      name.includes('src/web/ui/styles/shell.scss') ||
-      name.includes('src/web/styles.css'),
+      /(^|\/)shell\.scss$/.test(name) || /(^|\/)styles\.css$/.test(name),
   );
 }
 

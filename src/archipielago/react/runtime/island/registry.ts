@@ -14,35 +14,63 @@ export type { IslandName };
 export { isIslandName };
 
 /**
- * Vite glob of product island TSX under `web/ui/islands/` (lazy; never eager).
+ * Vite glob map injected by the host (lazy island TSX modules).
  *
- * Negative patterns drop Storybook and colocated specs. Loaders then keep only
- * `<name>/<name>.tsx` keys that appear in the injected islands manifest.
+ * Hosts call {@link setIslandModules} with `import.meta.glob(...)` from a
+ * Vite-owned file so the relative glob stays under the product `ui/islands/`
+ * tree. Archipielago does not hardcode host folder prefixes.
  */
-const islandModules = import.meta.glob([
-  '../../../../web/ui/islands/*/*.tsx',
-  '!**/*.stories.tsx',
-  '!**/*.spec.tsx',
-]) as Record<string, () => Promise<IslandModule>>;
+let islandModules: Record<string, () => Promise<IslandModule>> | undefined;
 
 let islandLoadersCache:
   Partial<Record<IslandName, () => Promise<IslandModule>>> | undefined;
 
 /**
+ * Supplies the Vite glob map used to build lazy island loaders.
+ *
+ * Clears the loader cache so the next {@link getIslandLoaders} rebuilds.
+ *
+ * @param {Record<string, () => Promise<IslandModule>>} modules - Glob result.
+ * @returns {void}
+ */
+export function setIslandModules(
+  modules: Record<string, () => Promise<IslandModule>>,
+): void {
+  islandModules = modules;
+  islandLoadersCache = undefined;
+}
+
+/**
+ * Clears the injected glob and loader cache (tests).
+ *
+ * @returns {void}
+ */
+export function resetIslandModules(): void {
+  islandModules = undefined;
+  islandLoadersCache = undefined;
+}
+
+/**
  * Returns lazy island loaders keyed by injected registration names.
  *
- * Builds once after {@link registerIslands} / app bootstrap. Safe to call from
- * hydrate after the app hydrate entry has registered the manifest (ESM import
- * hoisting must not build loaders at module evaluate time).
+ * Builds once after {@link registerIslands} / app bootstrap and
+ * {@link setIslandModules}. Safe to call from hydrate after the app hydrate
+ * entry has registered the manifest and modules.
  *
  * @returns {Partial<Record<IslandName, () => Promise<IslandModule>>>} Loaders.
- * @throws {Error} When no islands have been registered yet.
+ * @throws {Error} When islands or modules have not been registered yet.
  */
 export function getIslandLoaders(): Partial<
   Record<IslandName, () => Promise<IslandModule>>
 > {
   if (islandLoadersCache !== undefined) {
     return islandLoadersCache;
+  }
+
+  if (islandModules === undefined) {
+    throw new Error(
+      'Island loaders require setIslandModules() (app island glob) before use',
+    );
   }
 
   const islands = getIslands();

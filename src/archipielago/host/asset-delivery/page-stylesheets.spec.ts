@@ -1,10 +1,19 @@
 import {
   isPageStylesheetName,
   pageStylesheetRegistration,
-  pageStylesheetsByPage,
+  setPageStylesheetRegistry,
 } from './page-stylesheets.js';
 
 describe('page stylesheets', () => {
+  beforeEach(() => {
+    setPageStylesheetRegistry({
+      forms: {
+        source: 'src/web/ui/styles/forms.scss',
+        devUrl: '/src/web/ui/styles/forms.scss',
+      },
+    });
+  });
+
   it('recognizes registered stylesheet names', () => {
     expect(isPageStylesheetName('forms')).toBe(true);
     expect(isPageStylesheetName('shell')).toBe(false);
@@ -18,9 +27,9 @@ describe('page stylesheets', () => {
     });
   });
 
-  it('opts login and register into forms and leaves home empty', () => {
-    expect(pageStylesheetsByPage.home).toEqual([]);
-    expect(pageStylesheetsByPage.login).toEqual(['forms']);
-    expect(pageStylesheetsByPage.register).toEqual(['forms']);
+  it('throws for an unregistered stylesheet name', () => {
+    expect(() => pageStylesheetRegistration('missing')).toThrow(
+      /Unknown page stylesheet "missing"/,
+    );
   });
 });

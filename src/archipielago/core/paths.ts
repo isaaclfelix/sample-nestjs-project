@@ -36,10 +36,6 @@ export interface ArchipielagoPaths {
   clientManifestRel: string;
   /** Repo-relative generated islands map. */
   islandsGeneratedRel: string;
-  /** Manifest / Vite input for the forms sibling sheet. */
-  formsStylesheetSource: string;
-  /** Vite-dev URL for the forms sibling sheet. */
-  formsStylesheetDev: string;
 }
 
 /**
@@ -58,8 +54,6 @@ export const defaultArchipielagoPaths: ArchipielagoPaths = {
   clientOutDirRel: 'dist/client',
   clientManifestRel: 'dist/client/.vite/manifest.json',
   islandsGeneratedRel: 'src/web/protocol/islands.generated.ts',
-  formsStylesheetSource: 'src/web/ui/styles/forms.scss',
-  formsStylesheetDev: '/src/web/ui/styles/forms.scss',
 };
 
 let archipielagoPaths: ArchipielagoPaths = { ...defaultArchipielagoPaths };
