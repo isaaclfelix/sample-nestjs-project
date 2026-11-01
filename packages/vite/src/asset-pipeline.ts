@@ -24,9 +24,14 @@ export interface DevAssetPipeline {
  * Registers the server via {@link setViteDevServer} so page loaders and island
  * CSS transforms share one process-global handle (Phase 1 tradeoff).
  *
+ * Discovers `vite.config.ts` from `process.cwd()` (no explicit `configFile`).
+ * Nest sample scripts keep cwd at `examples/nestjs`; a second host must start
+ * from its package root or pass a config path in a later ADR.
+ *
  * @returns {Promise<DevAssetPipeline>} Vite server, middleware, and client out dir.
  */
 export async function createDevAssetPipeline(): Promise<DevAssetPipeline> {
+  // Resolve Vite config from the host package cwd (Nest example root today).
   const vite = await createServer({
     server: { middlewareMode: true },
     appType: 'custom',
