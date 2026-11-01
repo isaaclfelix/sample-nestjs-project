@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createElement } from 'react';
 import { CSRF_META_NAME } from '@api/auth/session.constants';
@@ -62,6 +62,39 @@ describe('MobileNavigation', () => {
     await user.click(toggle);
     await waitFor(() => {
       expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    });
+  });
+
+  it('clears the closing class when the drawer exit animation ends', async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      createElement(MobileNavigation, { isAuthenticated: false }),
+    );
+
+    const toggle = screen.getByRole('button', { expanded: false });
+    await user.click(toggle);
+    await waitFor(() => {
+      expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    });
+    await user.click(toggle);
+    await waitFor(() => {
+      expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    // Fragment children: toggle button, backdrop, drawer (backdrop listens too).
+    const backdrop = container.children[1];
+    expect(backdrop).toBeInstanceOf(HTMLElement);
+
+    // Bubbled child animationend must not clear closing (target !== currentTarget).
+    const child = document.createElement('span');
+    backdrop.appendChild(child);
+    await act(async () => {
+      child.dispatchEvent(new Event('animationend', { bubbles: true }));
+    });
+
+    // Own animationend finishes the close cycle.
+    await act(async () => {
+      backdrop.dispatchEvent(new Event('animationend', { bubbles: true }));
     });
   });
 });

@@ -68,4 +68,17 @@ describe('island registry', () => {
     // Restore fixture loaders so later specs in this file keep working.
     installFixtureIslands();
   });
+
+  it('returns the cached loader map on a second call', () => {
+    const first = getIslandLoaders();
+    const second = getIslandLoaders();
+    expect(second).toBe(first);
+  });
+
+  it('requires registerIslands before building loaders', () => {
+    registerIslands(undefined);
+    resetIslandLoadersCache();
+    expect(() => getIslandLoaders()).toThrow(/registerIslands/);
+    installFixtureIslands();
+  });
 });
