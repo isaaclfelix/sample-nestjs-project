@@ -26,7 +26,7 @@ export async function hydrateIslands(
       const name = node.dataset.island ?? '';
 
       if (!isIslandName(name)) {
-        throw new Error(`Unknown island: ${name}`);
+        throw new Error(`Unknown island: ${String(name)}`);
       }
 
       const load = islandLoaders[name];

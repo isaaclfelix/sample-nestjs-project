@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { loadClientManifest } from '../archipielago/host/asset-delivery/asset-tags.js';
-import { createPageAssets } from '../archipielago/host/asset-delivery/page-assets.js';
+import { loadClientManifest } from '@archipielago/vite/asset-delivery/asset-tags.js';
+import { createPageAssets } from '@archipielago/vite/asset-delivery/page-assets.js';
 import {
   getViteDevServer,
   loadServerEntry,
-} from '../archipielago/host/page-loader.js';
+} from '@archipielago/vite/page-loader.js';
 import { pageStylesheetsByPage } from './page-stylesheets.js';
 import type {
   SsrPagePropsMap,

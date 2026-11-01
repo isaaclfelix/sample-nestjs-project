@@ -1,0 +1,30 @@
+{
+  "name": "@archipielago/react",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "src"
+  ],
+  "exports": {
+    "./runtime/island/hydrate": "./src/runtime/island/hydrate.tsx",
+    "./runtime/island/island": "./src/runtime/island/island.tsx",
+    "./runtime/island/island-glob-key": "./src/runtime/island/island-glob-key.ts",
+    "./runtime/island/island-loaders": "./src/runtime/island/island-loaders.ts",
+    "./runtime/island/island-module": "./src/runtime/island/island-module.ts",
+    "./runtime/island/island-props": "./src/runtime/island/island-props.ts",
+    "./runtime/island/registry": "./src/runtime/island/registry.ts",
+    "./runtime/ssr/render-document": "./src/runtime/ssr/render-document.tsx",
+    "./*": {
+      "types": "./src/*",
+      "import": "./src/*"
+    }
+  },
+  "dependencies": {
+    "@archipielago/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}

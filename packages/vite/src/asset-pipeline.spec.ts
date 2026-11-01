@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getArchipielagoPaths } from '../core/paths.js';
+import { getArchipielagoPaths } from '@archipielago/core/paths.js';
 import { getViteDevServer, setViteDevServer } from './page-loader.js';
 
 vi.mock('vite', () => ({

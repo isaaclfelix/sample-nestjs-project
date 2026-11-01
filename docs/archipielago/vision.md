@@ -78,7 +78,7 @@ Long term it holds:
 3. **Shared tooling** — pnpm workspace, Vite, oxlint, and related gates the Godfather era taught us to keep coherent across packages.
 4. **Public site** — documentation and marketing that **runs on Archipielago** (dogfooding). NestJS may host that site; that choice is independent of the Godfather metaphor and can be justified in its own note later. The site presents in-repo docs; the **repository remains the documentation source of truth** ([mission.md](./mission.md)).
 
-Phase 1 isolated engines under `src/archipielago/` with the Nest product under `src/web/` ([ADR-0029](../adr/0029-archipielago-in-repo-isolation.md)). Workspace packages come next (see [roadmap.md](./roadmap.md)).
+Phase 1 isolated engines under `src/archipielago/` with the Nest product under `src/web/` ([ADR-0029](../adr/0029-archipielago-in-repo-isolation.md)). Phase 2 has extracted the core, React, and Vite engines into workspace packages; relocating the Nest consumer and adding its adapter package remain (see [roadmap.md](./roadmap.md)).
 
 ## Non-goals
 

@@ -13,7 +13,7 @@
  *
  * @see docs/adr/0030-archipielago-host-config.md
  */
-import type { ArchipielagoUserConfig } from './src/archipielago/core/config.js';
+import type { ArchipielagoUserConfig } from '@archipielago/core/config.js';
 
 const config: ArchipielagoUserConfig = {
   islands: {

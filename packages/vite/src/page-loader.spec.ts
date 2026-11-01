@@ -1,4 +1,4 @@
-import { setArchipielagoPaths } from '../core/paths.js';
+import { setArchipielagoPaths } from '@archipielago/core/paths.js';
 import {
   getViteDevServer,
   loadServerEntry,

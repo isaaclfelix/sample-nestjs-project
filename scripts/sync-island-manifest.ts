@@ -16,8 +16,8 @@ import { fileURLToPath } from 'node:url';
 import {
   getIslandsRegistration,
   loadAndApplyArchipielagoConfig,
-} from '../src/archipielago/core/config.js';
-import { getArchipielagoPaths } from '../src/archipielago/core/paths.js';
+} from '@archipielago/core/config.js';
+import { getArchipielagoPaths } from '@archipielago/core/paths.js';
 
 /** One discovered product island under `ui/islands/`. */
 export interface IslandManifestEntry {

@@ -6,7 +6,7 @@ import { setupOpenApi } from './api/openapi.setup.js';
 import {
   clientAssetsRoot,
   createDevAssetPipeline,
-} from './archipielago/host/asset-pipeline.js';
+} from '@archipielago/vite/asset-pipeline.js';
 import { registerAppIslands } from './web/register-app-islands.js';
 
 /**

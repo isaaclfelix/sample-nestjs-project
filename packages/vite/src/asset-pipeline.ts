@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { createServer, type ViteDevServer } from 'vite';
-import { getArchipielagoPaths } from '../core/paths.js';
+import { getArchipielagoPaths } from '@archipielago/core/paths.js';
 import { setViteDevServer } from './page-loader.js';
 
 /**

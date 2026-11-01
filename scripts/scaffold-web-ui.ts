@@ -21,8 +21,8 @@ import {
   getIslandsRegistration,
   loadAndApplyArchipielagoConfig,
   manualIslandManifestWarning,
-} from '../src/archipielago/core/config.js';
-import { getArchipielagoPaths } from '../src/archipielago/core/paths.js';
+} from '@archipielago/core/config.js';
+import { getArchipielagoPaths } from '@archipielago/core/paths.js';
 import { syncIslandManifest } from './sync-island-manifest.js';
 
 /** CLI / interactive answers before validation. */

@@ -8,6 +8,15 @@ importers:
 
   .:
     dependencies:
+      '@archipielago/core':
+        specifier: workspace:*
+        version: link:packages/core
+      '@archipielago/react':
+        specifier: workspace:*
+        version: link:packages/react
+      '@archipielago/vite':
+        specifier: workspace:*
+        version: link:packages/vite
       '@hookform/resolvers':
         specifier: ^6.0.1
         version: 6.0.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@7.91.0(@types/react@19.3.0)(react@19.3.1))(valibot@1.4.2(typescript@6.0.3))(zod@4.6.7)
@@ -189,6 +198,29 @@ importers:
       vitest:
         specifier: ^4.1.2
         version: 4.1.12(@types/node@24.19.2)(@vitest/browser-playwright@4.1.12)(@vitest/coverage-v8@4.1.12)(happy-dom@21.0.4)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.106.1)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1))
+
+  packages/core: {}
+
+  packages/react:
+    dependencies:
+      '@archipielago/core':
+        specifier: workspace:*
+        version: link:../core
+      react:
+        specifier: ^19.0.0
+        version: 19.3.1
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.3.1(react@19.3.1)
+
+  packages/vite:
+    dependencies:
+      '@archipielago/core':
+        specifier: workspace:*
+        version: link:../core
+      vite:
+        specifier: ^8.0.0
+        version: 8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.106.1)(sass@1.106.1)(tsx@4.23.15)(yaml@2.9.1)
 
 packages:
 

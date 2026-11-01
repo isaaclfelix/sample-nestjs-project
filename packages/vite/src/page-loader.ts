@@ -1,7 +1,10 @@
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
-import { getArchipielagoPaths } from '../core/paths.js';
-import type { PagePropsMap, ServerEntry } from '../core/server-entry.js';
+import { getArchipielagoPaths } from '@archipielago/core/paths.js';
+import type {
+  PagePropsMap,
+  ServerEntry,
+} from '@archipielago/core/server-entry.js';
 
 export type { PagePropsMap, ServerEntry };
 

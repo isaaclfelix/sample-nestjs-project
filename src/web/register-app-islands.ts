@@ -1,4 +1,4 @@
-import { registerIslands } from '../archipielago/core/islands.js';
+import { registerIslands } from '@archipielago/core/islands.js';
 import { registerAppPageStylesheets } from './page-stylesheets.js';
 import { islands } from './protocol/islands.generated.js';
 

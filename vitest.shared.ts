@@ -22,7 +22,6 @@ export function sharedVitestViteConfig(): UserConfig {
         '@ui': resolve(repoRoot, 'src/web/ui'),
         '@protocol': resolve(repoRoot, 'src/web/protocol'),
         '@api': resolve(repoRoot, 'src/api'),
-        '@archipielago': resolve(repoRoot, 'src/archipielago'),
       },
     },
   };

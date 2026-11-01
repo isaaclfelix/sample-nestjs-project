@@ -4,9 +4,9 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sortMediaQueries from 'postcss-sort-media-queries';
 import { defineConfig } from 'vite';
-import { shellCssBudgetPlugin } from './src/archipielago/vite/vite-shell-css-budget.js';
-import { stripIslandCssFromModulePreload } from './src/archipielago/vite/vite-strip-island-css-preload.js';
-import { suppressIslandCssClientInject } from './src/archipielago/vite/vite-suppress-island-css-inject.js';
+import { shellCssBudgetPlugin } from '@archipielago/vite/plugins/vite-shell-css-budget.js';
+import { stripIslandCssFromModulePreload } from '@archipielago/vite/plugins/vite-strip-island-css-preload.js';
+import { suppressIslandCssClientInject } from '@archipielago/vite/plugins/vite-suppress-island-css-inject.js';
 
 const repoRoot = dirname(fileURLToPath(import.meta.url));
 
@@ -21,7 +21,7 @@ const repoRoot = dirname(fileURLToPath(import.meta.url));
  * CSS: Sass → PostCSS (media-query sort + doiuse warn) → Lightning CSS minify
  * at Baseline Widely Available. The shell sheet is its own client input.
  *
- * Path aliases (@ui / @protocol / @api / @archipielago) match tsconfig.web.json.
+ * Path aliases (@ui / @protocol / @api) match tsconfig.web.json.
  */
 export default defineConfig(({ isSsrBuild }) => ({
   plugins: [
@@ -38,7 +38,6 @@ export default defineConfig(({ isSsrBuild }) => ({
       '@ui': resolve(repoRoot, 'src/web/ui'),
       '@protocol': resolve(repoRoot, 'src/web/protocol'),
       '@api': resolve(repoRoot, 'src/api'),
-      '@archipielago': resolve(repoRoot, 'src/archipielago'),
     },
   },
   build: {

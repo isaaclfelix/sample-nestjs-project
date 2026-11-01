@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { islands as appIslands } from '../../web/protocol/islands.generated.js';
+import { islands as appIslands } from '../../../src/web/protocol/islands.generated.js';
 import {
   getIslands,
   islandCssModulePath,

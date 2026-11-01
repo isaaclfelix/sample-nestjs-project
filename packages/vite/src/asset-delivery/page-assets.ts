@@ -5,10 +5,10 @@ import {
   islandCssModuleUrl,
   islandManifestSourceKey,
   type IslandName,
-} from '../../core/islands.js';
-import { getArchipielagoPaths } from '../../core/paths.js';
-import type { PageAssets } from '../../core/page-assets.js';
-import { shellCssBudgetBytes } from '../../core/shell-css-budget.js';
+} from '@archipielago/core/islands.js';
+import { getArchipielagoPaths } from '@archipielago/core/paths.js';
+import type { PageAssets } from '@archipielago/core/page-assets.js';
+import { shellCssBudgetBytes } from '@archipielago/core/shell-css-budget.js';
 import {
   assetTagsFromManifest,
   developmentAssetTags,

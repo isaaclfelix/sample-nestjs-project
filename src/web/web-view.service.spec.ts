@@ -1,17 +1,17 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { setClientManifestReader } from '../archipielago/host/asset-delivery/asset-tags.js';
+import { setClientManifestReader } from '@archipielago/vite/asset-delivery/asset-tags.js';
 import {
   loadServerEntry,
   setViteDevServer,
   type ServerEntry,
-} from '../archipielago/host/page-loader.js';
+} from '@archipielago/vite/page-loader.js';
 import { WebViewService } from './web-view.service.js';
 
-vi.mock('../archipielago/host/page-loader.js', async () => {
+vi.mock('@archipielago/vite/page-loader.js', async () => {
   const actual = await vi.importActual<
-    typeof import('../archipielago/host/page-loader.js')
-  >('../archipielago/host/page-loader.js');
+    typeof import('@archipielago/vite/page-loader.js')
+  >('@archipielago/vite/page-loader.js');
 
   return {
     ...actual,

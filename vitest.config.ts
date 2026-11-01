@@ -12,17 +12,19 @@ export default defineConfig({
       // App source including product React views; Nest wiring stays excluded.
       include: [
         'src/**/*.ts',
+        'packages/**/*.ts',
         'src/web/ui/pages/**/*.tsx',
         'src/web/ui/islands/**/*.tsx',
         'src/web/ui/server-components/**/*.tsx',
         'src/web/ui/shared-components/**/*.tsx',
+        'packages/react/**/*.tsx',
       ],
       exclude: [
         'src/main.ts',
         // Vite build-time plugins; not Nest runtime.
-        'src/archipielago/vite/vite-shell-css-budget.ts',
-        'src/archipielago/vite/vite-strip-island-css-preload.ts',
-        'src/archipielago/vite/vite-suppress-island-css-inject.ts',
+        'packages/vite/src/plugins/vite-shell-css-budget.ts',
+        'packages/vite/src/plugins/vite-strip-island-css-preload.ts',
+        'packages/vite/src/plugins/vite-suppress-island-css-inject.ts',
         'src/**/*.module.ts',
         'src/**/*.spec.ts',
         // Storybook workshop files; not unit-tested runtime.
@@ -31,9 +33,9 @@ export default defineConfig({
         // Runtime/document plumbing; covered indirectly by SSR and browser e2e.
         'src/web/ui/server-components/document/document.tsx',
         'src/web/ui/runtime/ssr/entry-server.tsx',
-        'src/archipielago/react/runtime/island/hydrate.tsx',
+        'packages/react/src/runtime/island/hydrate.tsx',
         'src/web/ui/runtime/island/hydrate-entry.tsx',
-        'src/archipielago/react/runtime/island/island.tsx',
+        'packages/react/src/runtime/island/island.tsx',
         'src/web/register-app-islands.ts',
         // One-line window.location.assign wrapper; exercised via browser e2e.
         'src/web/ui/api-fetch/assign-location.ts',
@@ -59,7 +61,11 @@ export default defineConfig({
           globals: true,
           root: './',
           setupFiles: ['./test/vitest-register-islands.ts'],
-          include: ['**/*.spec.ts'],
+          include: [
+            'src/**/*.spec.ts',
+            'packages/**/*.spec.ts',
+            'scripts/**/*.spec.ts',
+          ],
           exclude: [
             '**/node_modules/**',
             '**/dist/**',

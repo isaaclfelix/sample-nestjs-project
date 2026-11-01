@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import * as islandsProtocol from '../../core/islands.js';
+import * as islandsProtocol from '@archipielago/core/islands.js';
 import type { ClientManifest } from './asset-tags.js';
 import {
   createPageAssets,

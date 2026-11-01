@@ -1,7 +1,7 @@
 import {
   setPageStylesheetRegistry,
   type PageStylesheetName,
-} from '../archipielago/host/asset-delivery/page-stylesheets.js';
+} from '@archipielago/vite/asset-delivery/page-stylesheets.js';
 import type { WebPageName } from './protocol/page-props/page-props.js';
 
 /**

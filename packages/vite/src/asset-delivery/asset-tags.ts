@@ -1,11 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { getArchipielagoPaths } from '../../core/paths.js';
+import { getArchipielagoPaths } from '@archipielago/core/paths.js';
 import {
   emptyAssetTags,
   type AssetTags,
   type InlineStyleTag,
-} from '../../core/page-assets.js';
+} from '@archipielago/core/page-assets.js';
 import {
   pageStylesheetRegistration,
   type PageStylesheetName,

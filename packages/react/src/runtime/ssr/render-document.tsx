@@ -1,8 +1,8 @@
 import type { ComponentType, ReactElement, ReactNode } from 'react';
 import { renderToString } from 'react-dom/server';
-import type { IslandName } from '../../../core/islands';
-import type { PageAssets } from '../../../core/page-assets';
-import type { RenderResult } from '../../../core/render-result';
+import type { IslandName } from '@archipielago/core/islands';
+import type { PageAssets } from '@archipielago/core/page-assets';
+import type { RenderResult } from '@archipielago/core/render-result';
 import { IslandCssContext, IslandNamesContext } from '../island/island';
 
 /**
