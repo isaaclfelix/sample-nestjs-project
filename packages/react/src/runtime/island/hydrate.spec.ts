@@ -1,16 +1,58 @@
-import { act, createElement } from 'react';
+import { act, createElement, useState, type ReactElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import userEvent from '@testing-library/user-event';
+import { registerIslands } from '@archipielago/core/islands';
 import { hydrateIslands } from './hydrate';
 import { Island } from './island';
-import MobileNavigation from '@ui/islands/mobile-navigation';
+import {
+  resetIslandLoadersCache,
+  resetIslandModules,
+  setIslandModules,
+} from './registry';
+
+/**
+ * In-package toggle stub so hydrate tests do not import Nest product islands.
+ *
+ * @returns {ReactElement} Button whose aria-expanded flips on click.
+ */
+function ToggleStub(): ReactElement {
+  const [open, setOpen] = useState(false);
+  return createElement(
+    'button',
+    {
+      type: 'button',
+      'aria-expanded': open ? 'true' : 'false',
+      onClick: () => {
+        setOpen(true);
+      },
+    },
+    'Toggle',
+  );
+}
 
 describe('hydrate islands', () => {
-  it('opens the mobile navigation drawer when the toggle is clicked', async () => {
+  beforeEach(() => {
+    // Register a fixture island; do not depend on the Nest example manifest.
+    registerIslands({ 'toggle-stub': { hasCssModule: false } });
+    setIslandModules({
+      '../../islands/toggle-stub/toggle-stub.tsx': async () => ({
+        default: ToggleStub,
+      }),
+    });
+    resetIslandLoadersCache();
+  });
+
+  afterEach(() => {
+    registerIslands(undefined);
+    resetIslandModules();
+    document.body.innerHTML = '';
+  });
+
+  it('opens the stub drawer when the toggle is clicked', async () => {
     document.body.innerHTML = renderToString(
       createElement(Island, {
-        name: 'mobile-navigation',
-        component: MobileNavigation,
+        name: 'toggle-stub',
+        component: ToggleStub,
         props: {},
       }),
     );

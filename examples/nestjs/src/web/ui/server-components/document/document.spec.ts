@@ -1,6 +1,6 @@
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
-import type { AssetTags } from '@archipielago/vite/asset-delivery/asset-tags.js';
+import type { AssetTags } from '@archipielago/core/page-assets.js';
 import { Document } from './document';
 
 describe('Document shell delivery', () => {

@@ -1,48 +1,71 @@
-import { getIslands, isIslandName } from '@archipielago/core/islands';
+import { registerIslands } from '@archipielago/core/islands';
 import {
   getIslandLoaders,
+  isIslandName,
   resetIslandLoadersCache,
   resetIslandModules,
   setIslandModules,
 } from './registry';
 import type { IslandModule } from './island-module';
 
+/**
+ * Installs a two-island fixture and matching conventional glob loaders.
+ *
+ * @returns {void}
+ */
+function installFixtureIslands(): void {
+  registerIslands({
+    'login-form': { hasCssModule: false },
+    'toggle-stub': { hasCssModule: false },
+  });
+  setIslandModules({
+    '../../islands/login-form/login-form.tsx':
+      async (): Promise<IslandModule> => ({
+        default: () => null,
+      }),
+    '../../islands/toggle-stub/toggle-stub.tsx':
+      async (): Promise<IslandModule> => ({
+        default: () => null,
+      }),
+  });
+  resetIslandLoadersCache();
+}
+
 describe('island registry', () => {
+  beforeEach(() => {
+    installFixtureIslands();
+  });
+
+  afterEach(() => {
+    registerIslands(undefined);
+    resetIslandModules();
+  });
+
   it('recognizes injected island names only', () => {
-    for (const name of Object.keys(getIslands())) {
-      expect(isIslandName(name)).toBe(true);
-    }
+    expect(isIslandName('login-form')).toBe(true);
+    expect(isIslandName('toggle-stub')).toBe(true);
     expect(isIslandName('chart')).toBe(false);
     expect(isIslandName('toString')).toBe(false);
   });
 
   it('keeps loaders in sync with the injected islands manifest', () => {
-    expect(Object.keys(getIslandLoaders()).sort()).toEqual(
-      Object.keys(getIslands()).sort(),
-    );
+    expect(Object.keys(getIslandLoaders()).sort()).toEqual([
+      'login-form',
+      'toggle-stub',
+    ]);
   });
 
   it('exposes a lazy loader function per registered island', () => {
-    // Do not invoke loaders here — that boots product island modules (e2e / TD-033).
+    // Do not invoke loaders here — that would boot real modules (e2e / TD-033).
     const loaders = getIslandLoaders();
-    for (const name of Object.keys(getIslands())) {
-      expect(loaders[name]).toBeTypeOf('function');
-    }
+    expect(loaders['login-form']).toBeTypeOf('function');
+    expect(loaders['toggle-stub']).toBeTypeOf('function');
   });
 
   it('requires setIslandModules before building loaders', () => {
-    const previous = getIslandLoaders();
     resetIslandModules();
     expect(() => getIslandLoaders()).toThrow(/setIslandModules/);
-    // Restore the Vitest setup glob so later specs keep working.
-    setIslandModules(
-      Object.fromEntries(
-        Object.keys(previous).map((name) => [
-          `../../islands/${name}/${name}.tsx`,
-          async (): Promise<IslandModule> => ({ default: () => null }),
-        ]),
-      ),
-    );
-    resetIslandLoadersCache();
+    // Restore fixture loaders so later specs in this file keep working.
+    installFixtureIslands();
   });
 });
