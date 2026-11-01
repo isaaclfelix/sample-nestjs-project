@@ -12,7 +12,7 @@ Keep short **line comments** above non-obvious steps in application code (servic
 
 ## 2. JSDoc on every function
 
-Every function and method in application source (`src/**`, not `it()` / `describe()` in tests) **must** have a JSDoc block. When creating or updating code, add JSDoc if it is missing and keep it accurate if the signature or behavior changed.
+Every function and method in application source (`packages/**`, `examples/**/src/**`, not `it()` / `describe()` in tests) **must** have a JSDoc block. When creating or updating code, add JSDoc if it is missing and keep it accurate if the signature or behavior changed.
 
 Required shape:
 
@@ -57,11 +57,11 @@ After adding or updating code, **run the project checks and fix failures** befor
 
 Commands (from the repo root, via `pnpm`):
 
-| Check        | Script        | What it does                                                   |
-| ------------ | ------------- | -------------------------------------------------------------- |
-| Lint + types | `pnpm lint`   | `oxlint --type-aware --deny-warnings src/ test/`               |
-| Compile      | `pnpm build`  | Nest/`tsc` emit; catches type errors oxlint might miss         |
-| Format       | `pnpm format` | Prettier write on `src/**/*.{ts,tsx}` and `test/**/*.{ts,tsx}` |
+| Check        | Script        | What it does                                                              |
+| ------------ | ------------- | ------------------------------------------------------------------------- |
+| Lint + types | `pnpm lint`   | `oxlint --type-aware --deny-warnings packages/ examples/`                 |
+| Compile      | `pnpm build`  | Package builds + Nest example emit; catches type errors oxlint might miss |
+| Format       | `pnpm format` | Prettier write on `packages/**` and `examples/**`                         |
 
 - Always run **`pnpm lint`** after substantive edits. It must exit 0 with **no warnings**.
 - Run **`pnpm build`** when signatures, modules, or `tsconfig` are involved.
@@ -92,23 +92,23 @@ Follow these conventions when adding or refactoring application code so reviews 
 - Prefer **`import type`** for type-only imports (`CreateUserRecord`, DTO shapes, interfaces used only as types). Keep value imports for runtime symbols (`USER_REPOSITORY`, classes, functions).
 - Do **not** put free helper functions in the same module as a Nest/service/repository **class**. Extract helpers to sibling modules (for example `prisma-unique-conflict.ts` next to `prisma-user.repository.ts`).
 - Feature **`*.mapper.ts`** owns all mappings for that feature (persistence → domain and domain → API DTO). Do not add a parallel persistence-only mapper unless a later decision says otherwise.
-- CLI scripts and seeds that need app crypto **import** shared modules (for example `src/api/common/password.ts`); do not duplicate hashing or verification.
+- CLI scripts and seeds that need app crypto **import** shared modules (for example `examples/nestjs/src/api/common/password.ts`); do not duplicate hashing or verification.
 - Nest wrappers around vendor clients use **composition** (own a `client` / dependency field), not `extends`, unless there is a documented exception. `PrismaService` owns `PrismaClient`.
 - **One interface/type per file is not required.** Port-related types may live next to the port that uses them (for example `CreateUserRecord` beside `UserRepository`).
-- **Relative import extensions** follow the zone ([ADR-0024](docs/adr/0024-dual-import-resolution.md)): Nest-emitted code (`src/api/`, `src/archipielago/core/`, `src/archipielago/host/`, `src/web/protocol/`, Nest web root) keeps **`.js`** emit specifiers; Vite `src/web/ui/**` and `src/archipielago/react/**` use **extensionless** relatives, except `src/archipielago/vite/**` (Vite Node config graph → `.js`). Do not “normalize” product UI imports to Nest style or strip `.js` from `api/`.
-- **UI path aliases** ([ADR-0027](docs/adr/0027-ui-path-aliases.md)): from a product component folder, imports that leave that folder use `@ui/*`, `@protocol/*`, `@archipielago/*`, or `@api/*` (not `../` climbs). Same-folder stays `./`. Nest emit trees do not use these aliases.
+- **Relative import extensions** follow the zone ([ADR-0024](docs/adr/0024-dual-import-resolution.md)): Nest-emitted code (`examples/nestjs/src/api/`, `examples/nestjs/src/web/protocol/`, Nest web root) and Node packages (`packages/core/`, `packages/vite/`, `packages/nestjs/`) keep **`.js`** emit specifiers; Vite `examples/nestjs/src/web/ui/**` and `packages/react/**` use **extensionless** relatives. Do not “normalize” product UI imports to Nest style or strip `.js` from Node graphs. Import engines via `@archipielago/{core,react,vite,nestjs}` package exports ([ADR-0032](docs/adr/0032-archipielago-pnpm-monorepo.md)).
+- **UI path aliases** ([ADR-0027](docs/adr/0027-ui-path-aliases.md)): from a product component folder, imports that leave that folder use `@ui/*`, `@protocol/*`, or `@api/*` (not `../` climbs). Prefer `@archipielago/*` **package** imports for engines. Same-folder stays `./`. Nest emit trees do not use UI aliases.
 
 ## 8. Web UI (SSR pages and islands)
 
-When adding or changing browser-facing pages under `src/web/`:
+When adding or changing browser-facing pages under `examples/nestjs/src/web/`:
 
-- Follow [docs/how-to-web-ui.md](docs/how-to-web-ui.md) for the SSR vs island vs CSS-module decision tree and anti-patterns.
-- Prefer `pnpm scaffold:web-ui` or the `create-web-ui` agent skill over hand-wiring registry, loaders, and entry-server maps. Layout: Nest `host/`, Vite `ui/`, wire `protocol/` ([ADR-0023](docs/adr/0023-web-host-ui-protocol.md)).
+- Follow [docs/how-to-web-ui.md](docs/how-to-web-ui.md) for the SSR vs island vs CSS-module decision tree and anti-patterns. Host-agnostic install/wiring: [docs/archipielago/guide/](docs/archipielago/guide/concepts.md).
+- Prefer `pnpm scaffold:web-ui` or the `create-web-ui` agent skill over hand-wiring registry, loaders, and entry-server maps. Layout: Nest thin `web.*` + `@archipielago/nestjs`, Vite `ui/`, wire `protocol/` ([ADR-0023](docs/adr/0023-web-host-ui-protocol.md), [ADR-0032](docs/adr/0032-archipielago-pnpm-monorepo.md)).
 - Product UI uses **one folder per component** with a kebab implementation file and thin `index.ts` re-export ([ADR-0025](docs/adr/0025-per-component-folders.md)); no fat barrels or component-as-only-`index.tsx`. Island registry imports the concrete `.tsx` path helpers share with the manifest key.
 - Colocate `*.stories.tsx` for the Storybook workshop (`pnpm storybook`); Vitest remains QA ([ADR-0026](docs/adr/0026-storybook-ui-workshop.md)). Do not treat Storybook as Chromatic/visual-regression unless a later decision says so.
-- Page SSR embed props go under `src/web/protocol/page-props/*-page.ssr-props.ts` (`*PageSsrProps`) — never beside `ui/pages/` (see how-to SSR page props quirk).
-- Shell CSS lives in `src/web/ui/styles/shell.scss`; island styles use colocated `*.module.scss` and are inlined as sibling `<style>` tags at SSR — do not invent a parallel delivery path.
-- Icons: handpick Bootstrap Icons SVGs into `src/web/ui/shared-components/icon/` and render `<Icon name="…" />` from server-components or islands — do not ship the icon webfont or paste one-off SVGs (see [docs/how-to-web-ui.md](docs/how-to-web-ui.md#icons)).
+- Page SSR embed props go under `examples/nestjs/src/web/protocol/page-props/*-page.ssr-props.ts` (`*PageSsrProps`) — never beside `ui/pages/` (see how-to SSR page props quirk).
+- Shell CSS lives in `examples/nestjs/src/web/ui/styles/shell.scss`; island styles use colocated `*.module.scss` and are inlined as sibling `<style>` tags at SSR — do not invent a parallel delivery path.
+- Icons: handpick Bootstrap Icons SVGs into `examples/nestjs/src/web/ui/shared-components/icon/` and render `<Icon name="…" />` from server-components or islands — do not ship the icon webfont or paste one-off SVGs (see [docs/how-to-web-ui.md](docs/how-to-web-ui.md#icons)).
 
 ## 9. Unit tests stay unit tests
 
@@ -141,3 +141,16 @@ For PR **create/update**, follow [`.agents/skills/create-pr/SKILL.md`](.agents/s
 Do **not** work around this by asking the user to run `gh`, typing into their terminal via Computer Use, or re-running `gh auth login` unless `gh auth status` fails **outside** the sandbox (`required_permissions: ["all"]`). Keep using the normal `gh` workflow in [`.agents/skills/create-pr/SKILL.md`](.agents/skills/create-pr/SKILL.md).
 
 **Playwright / Chromium OS deps:** `pnpm exec playwright install --with-deps chromium` may need `sudo` on Linux/WSL. Agent Shell cannot enter a sudo password. If install fails with missing libraries (e.g. `libnspr4.so`), **ask the user** to run that command in their IDE terminal. Test scripts unset `PLAYWRIGHT_BROWSERS_PATH` so runs use Playwright’s durable default cache instead of Cursor’s per-session `/tmp/cursor-sandbox-cache/...` path — do not re-download Chromium into that sandbox cache after an IDE restart when the user already installed browsers. Do not document or rely on unpacking `.deb`s into `/tmp` + `LD_LIBRARY_PATH` as the supported path — see [docs/testing-and-coverage.md](docs/testing-and-coverage.md#playwright-browsers-local-and-agents).
+
+## 11. Skip `node_modules` when searching the monorepo
+
+The pnpm workspace multiplies dependency trees under the repo root and packages. Unscoped walks of the tree are a common cause of agent tasks hanging on “taking longer than expected.” Treat excluding dependency and build output as mandatory hygiene for every search or file walk.
+
+- **Prefer scoped roots** over the whole repo: `packages/`, `examples/`, `docs/`, `.agents/`, `.github/`. Avoid `find .`, recursive Glob from `.`, or Grep without a path when a narrower directory will do.
+- **Exclude install and emit trees** whenever a command can descend into them: `node_modules`, `.pnpm-store`, `dist`, `coverage`, `.vite`, Storybook/static build dirs. Do not open or parse files inside those trees unless the task is explicitly about a dependency.
+- **Shell examples** (pick the tool you are already using):
+  - `rg` / Grep: rely on `.gitignore` (default) or add `--glob '!**/node_modules/**' --glob '!**/dist/**'`.
+  - `find`: prune before descend, e.g. `find packages examples -name node_modules -prune -o -name '*.ts' -print`.
+  - `du` / tree listings: never summarize the repo without `--exclude=node_modules` (or equivalent).
+- **Project scripts** (`pnpm lint`, `pnpm test`, package builds) already target workspace packages; prefer them over ad-hoc recursion from the repo root.
+- If a search is slow or the UI reports a long-running status, stop and re-run with a tighter path and explicit `node_modules` exclusions rather than waiting on a full-tree scan.

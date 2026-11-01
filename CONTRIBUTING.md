@@ -73,7 +73,7 @@ After cloning, run **`pnpm install`** so the `prepare` script installs Husky hoo
 
 ## Formatting and lint
 
-Code style is **[Prettier](https://prettier.io/)** (see [`.prettierrc`](./.prettierrc)). Indent, charset, and line endings are also declared in [`.editorconfig`](./.editorconfig) for editors that do not run Prettier. Lint is **[oxlint](https://oxc.rs/docs/guide/usage/linter)** with the **correctness** category as errors and `--type-aware --deny-warnings` (warnings fail the check). Relative import extensions are dual-style: Nest-emitted code keeps `.js` emit specifiers; Vite `src/web/ui/**` is extensionless ([ADR-0024](./docs/adr/0024-dual-import-resolution.md)). See [AGENTS.md](./AGENTS.md) for agent rules.
+Code style is **[Prettier](https://prettier.io/)** (see [`.prettierrc`](./.prettierrc)). Indent, charset, and line endings are also declared in [`.editorconfig`](./.editorconfig) for editors that do not run Prettier. Lint is **[oxlint](https://oxc.rs/docs/guide/usage/linter)** with the **correctness** category as errors and `--type-aware --deny-warnings` (warnings fail the check). Relative import extensions are dual-style: Nest-emitted code keeps `.js` emit specifiers; Vite `examples/nestjs/src/web/ui/**` is extensionless ([ADR-0024](./docs/adr/0024-dual-import-resolution.md)). See [AGENTS.md](./AGENTS.md) for agent rules.
 
 ### Editor setup (Cursor / VS Code)
 
@@ -89,10 +89,10 @@ Workspace settings enable format-on-save with Prettier and oxlint in the editor 
 
 ### Scripts
 
-- `pnpm format` — format TypeScript under `src/` and `test/`, plus root/docs `*.json` / `*.md`.
+- `pnpm format` — format TypeScript under `examples/**` and `packages/**`, plus root/docs `*.json` / `*.md`.
 - `pnpm format:check` — verify formatting without writing.
-- `pnpm lint` — run oxlint (must pass with no warnings). Type-aware, but **not** a full TypeScript emit — also run `pnpm build`.
-- `pnpm build` — Nest/`tsc` compile (authoritative typecheck).
+- `pnpm lint` — run oxlint on `packages/` and `examples/` (must pass with no warnings). Type-aware, but **not** a full TypeScript emit — also run `pnpm build`.
+- `pnpm build` — build `@archipielago/{core,vite,nestjs}`, then the Nest example (authoritative typecheck).
 
 ### Pre-commit hook (lint-staged)
 
@@ -102,16 +102,16 @@ A **Husky** `pre-commit` hook runs **[lint-staged](https://github.com/lint-stage
 
 ## Local database helpers
 
-Local Postgres for `pnpm start:dev` uses Docker Compose and **GNU Make** (see root `Makefile`). Automated e2e uses Testcontainers instead.
+Local Postgres for `pnpm start:dev` uses Docker Compose and **GNU Make** in the Nest example ([`examples/nestjs/Makefile`](./examples/nestjs/Makefile)). Automated e2e uses Testcontainers instead. From the repo root:
 
-| Command                  | Role                              |
-| ------------------------ | --------------------------------- |
-| `make db-up`             | Start Postgres                    |
-| `make db-migrate-deploy` | Apply committed Prisma migrations |
-| `make db-seed`           | Optional demo user                |
-| `make db-down`           | Stop Compose (keeps the volume)   |
+| Command                                     | Role                              |
+| ------------------------------------------- | --------------------------------- |
+| `make -C examples/nestjs db-up`             | Start Postgres                    |
+| `make -C examples/nestjs db-migrate-deploy` | Apply committed Prisma migrations |
+| `make -C examples/nestjs db-seed`           | Optional demo user                |
+| `make -C examples/nestjs db-down`           | Stop Compose (keeps the volume)   |
 
-Set `DATABASE_URL` from [`.env.example`](./.env.example). Details: [docs/architecture.md](./docs/architecture.md).
+Set `DATABASE_URL` from [`examples/nestjs/.env.example`](./examples/nestjs/.env.example). Details: [docs/architecture.md](./docs/architecture.md).
 
 ## Testing, coverage, and CI
 

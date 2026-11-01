@@ -15,17 +15,17 @@ flowchart TD
   api --> pipe[StandardSchemaValidationPipe]
   pipe --> svc[Service]
   svc --> json[JSON or plain text]
-  web --> view[WebViewService]
+  web --> view[ArchipielagoViewService]
   view --> ssr[React renderToString]
   ssr --> html[HTML document]
 ```
 
-| Surface     | Owner           | Examples                                                        | Response                                               |
-| ----------- | --------------- | --------------------------------------------------------------- | ------------------------------------------------------ |
-| JSON API    | `src/api`       | `GET /api`, `POST /api/user`, `GET /api/docs`                   | JSON, or the hello string                              |
-| HTML pages  | `src/web`       | `GET /`                                                         | `text/html`                                            |
-| Dev assets  | Vite middleware | `/@vite/client`, `/src/web/ui/runtime/island/hydrate-entry.tsx` | Modules, only when `NODE_ENV` is not `production`      |
-| Prod assets | `dist/client`   | `/assets/...`                                                   | Built client files, `index: false` so `/` stays a page |
+| Surface     | Owner                     | Examples                                                        | Response                                               |
+| ----------- | ------------------------- | --------------------------------------------------------------- | ------------------------------------------------------ |
+| JSON API    | `examples/nestjs/src/api` | `GET /api`, `POST /api/user`, `GET /api/docs`                   | JSON, or the hello string                              |
+| HTML pages  | `examples/nestjs/src/web` | `GET /`                                                         | `text/html`                                            |
+| Dev assets  | Vite middleware           | `/@vite/client`, `/src/web/ui/runtime/island/hydrate-entry.tsx` | Modules, only when `NODE_ENV` is not `production`      |
+| Prod assets | `dist/client`             | `/assets/...`                                                   | Built client files, `index: false` so `/` stays a page |
 
 `GET /user` and `GET /docs` are not aliases. They 404. Swagger UI is `/api/docs`. The raw spec is `/api/docs-json`.
 
@@ -38,43 +38,34 @@ Page controllers must not claim `/api`, `/assets`, `/src`, or `/@vite`. Those pr
 Folder names do not create URL prefixes. `RouterModule` does ([ADR-0003](./adr/0003-router-module-prefixes.md)).
 
 ```text
-src/
-  main.ts                 bootstrap
-  app.module.ts           wires API, web, and the /api prefix
-  logger.middleware.ts
-  api/                    JSON feature code
-    api.module.ts
-    app.controller.ts     GET /api
-    openapi.setup.ts
-    common/               password hashing, Zod to OpenAPI
-    user/                 users (controller, service, repository port/adapter)
-  persistence/            PrismaModule / PrismaService / PrismaPg helper
-  generated/prisma/       Prisma Client output (`prisma generate`; gitignored)
-  archipielago/           In-repo islands engines ([ADR-0029](./adr/0029-archipielago-in-repo-isolation.md))
-    core/                 RenderResult, PageAssets, paths, config, island helpers
-    host/                 page-loader, asset-delivery, asset-pipeline
-    react/runtime/        island marker/hydrate + renderDocument SSR engine
-    vite/                 Vite plugins (shell budget, island CSS)
-  web/                    Nest product host + product UI ([ADR-0029](./adr/0029-archipielago-in-repo-isolation.md))
-    web.module.ts         Nest module (controller + view service)
-    web.controller.ts     page routes
-    web-view.service.ts
-    protocol/page-props/  App-owned SSR page props map
-    protocol/islands.generated.ts  Islands table (sample: gitignored + `pnpm islands:sync`; see ADR-0030)
-    ui/                   Product Vite/React UI
-      pages/              Per-page folders (<name>-page/) + thin index.ts
-      islands/            Per-island folders (+ optional *.module.scss) + thin index.ts
-      server-components/  Per-component folders (incl. document/) + thin index.ts
-      shared-components/  Per-component folders (e.g. icon/) + thin index.ts
-      runtime/ssr/        Thin entry-server (page map + Document → engine)
-      api-fetch/          browser CSRF + fetch defaults
-      hooks/              island React hooks
-      styles/             shell.scss + forms.scss + _*.scss partials
+packages/
+  core/                   RenderResult, PageAssets, paths, config, island helpers
+  react/                  island marker/hydrate + renderDocument SSR engine
+  vite/                   page loader, asset delivery, pipeline, and Vite plugins
+  nestjs/                 injectable renderer, dynamic module, asset mount helper
+examples/nestjs/
+  src/
+    main.ts               bootstrap
+    app.module.ts         wires API, web, and the /api prefix
+    api/                  JSON feature code
+    persistence/          PrismaModule / PrismaService / PrismaPg helper
+    generated/prisma/     Prisma Client output (`prisma generate`; gitignored)
+    web/                  Nest controller and product-owned page policy
+      protocol/           App-owned SSR props and island manifest
+      ui/                 Product Vite/React UI
+  prisma/                 schema, migrations, and seed
+  test/                   HTTP and browser e2e support
 ```
 
-`tsconfig.build.json` excludes `src/web/ui/**` and `src/archipielago/react/**`, so `nest build` never emits the React app. `tsconfig.web.json` typechecks product UI + `archipielago/react` + protocol. Repo-root `tsconfig.json` excludes those Vite trees. `pnpm build` still runs `tsc -p tsconfig.web.json --noEmit`. Vite emits the bundles that actually run. See [ADR-0017](./adr/0017-dual-typescript-build.md) and [ADR-0029](./adr/0029-archipielago-in-repo-isolation.md).
+The root package owns orchestration and shared tooling. `pnpm build` compiles
+core, Vite, and Nest adapters before filtering into the Nest example. Inside
+the example, `tsconfig.build.json` excludes `src/web/ui/**`, while
+`tsconfig.web.json` typechecks product UI, `packages/react`, and protocol.
+Vite emits the browser and SSR bundles that actually run. See
+[ADR-0017](./adr/0017-dual-typescript-build.md) and
+[ADR-0032](./adr/0032-archipielago-pnpm-monorepo.md).
 
-**Import specifiers:** Nest-emitted graphs (`src/api/`, Nest web root, `archipielago/core|host`, `web/protocol`) use relative **`.js`** emit names under `"type": "module"` + `nodenext`. Vite-owned `src/web/ui/**` and `src/archipielago/react/**` use **extensionless** relatives (`bundler` resolution), except `archipielago/vite/**` (Node config graph → `.js`). Leaving a product component folder uses zone aliases `@ui` / `@protocol` / `@archipielago` / `@api` ([ADR-0027](./adr/0027-ui-path-aliases.md)). See [ADR-0024](./adr/0024-dual-import-resolution.md). Product UI components use **one folder per component** with a thin `index.ts` barrel; island hydrate loaders import the concrete implementation file ([ADR-0025](./adr/0025-per-component-folders.md)). Colocated Storybook stories (`pnpm storybook`) are a local workshop, not QA ([ADR-0026](./adr/0026-storybook-ui-workshop.md)).
+**Import specifiers:** Nest-emitted graphs (`examples/nestjs/src/api/`, Nest web root, `web/protocol`) and Node packages (`packages/core`, `packages/vite`, `packages/nestjs`) use **`.js`** emit names under `"type": "module"` + `nodenext`. Vite-owned `examples/nestjs/src/web/ui/**` and `packages/react/**` use **extensionless** relatives (`bundler` resolution). Consumers import engines through real `@archipielago/core`, `@archipielago/react`, `@archipielago/vite`, and `@archipielago/nestjs` package exports; product aliases remain `@ui` / `@protocol` / `@api` ([ADR-0027](./adr/0027-ui-path-aliases.md)). See [ADR-0024](./adr/0024-dual-import-resolution.md). Product UI components use **one folder per component** with a thin `index.ts` barrel; island hydrate loaders import the concrete implementation file ([ADR-0025](./adr/0025-per-component-folders.md)). Colocated Storybook stories (`pnpm storybook`) are a local workshop, not QA ([ADR-0026](./adr/0026-storybook-ui-workshop.md)).
 
 Prefer `.tsx` where the file is mostly a React tree (pages, islands, document, hydrate entry). Prefer plain `.ts` for Nest controllers, services, protocol props, registries, and tests. Specs stay `.ts` and use `createElement` when they need elements; a test may pass an explicit type argument (for example `Island<{ start: number }>`) so `component` and `props` still typecheck.
 
@@ -244,15 +235,15 @@ Long-term extraction of this islands stack into the **Archipielago** package (vi
 
 ### Roles
 
-| Piece                             | Responsibility                                                 |
-| --------------------------------- | -------------------------------------------------------------- |
-| `WebController`                   | Chooses the page name and builds JSON props. Sets `text/html`. |
-| `WebViewService`                  | Loads the server entry; returns `RenderResult.html`.           |
-| `ui/runtime/ssr/entry-server`     | App page map + Document; calls Archipielago `renderDocument`.  |
-| `archipielago/.../renderDocument` | Two-pass SSR engine; Nest-free `RenderResult`.                 |
-| Page component                    | Server-only body. May place islands in the tree.               |
-| `Island`                          | Server-renders the component and writes the hydration marker.  |
-| `archipielago/.../hydrate.tsx`    | Browser entry. Hydrates markers and nothing else.              |
+| Piece                                              | Responsibility                                                         |
+| -------------------------------------------------- | ---------------------------------------------------------------------- |
+| `WebController`                                    | Chooses the page name and builds JSON props. Sets `text/html`.         |
+| `ArchipielagoViewService` (`@archipielago/nestjs`) | Loads the server entry; returns `RenderResult.html` for Nest.          |
+| `ui/runtime/ssr/entry-server`                      | App page map + Document; calls `@archipielago/react` `renderDocument`. |
+| `@archipielago/react` `renderDocument`             | Two-pass SSR engine; Nest-free `RenderResult`.                         |
+| Page component                                     | Server-only body. May place islands in the tree.                       |
+| `Island`                                           | Server-renders the component and writes the hydration marker.          |
+| `@archipielago/react` `hydrateIslands`             | Browser entry. Hydrates markers and nothing else.                      |
 
 SSR embed props live in `protocol/page-props/*-page.ssr-props.ts` (`*PageSsrProps`). The controller imports those types, not the component ([ADR-0029](./adr/0029-archipielago-in-repo-isolation.md); SSR props quirk from ADR-0023).
 
@@ -271,7 +262,7 @@ Rendering is two passes of `renderToString` ([ADR-0011](./adr/0011-two-pass-rend
 ```mermaid
 sequenceDiagram
   participant W as WebController
-  participant V as WebViewService
+  participant V as ArchipielagoViewService
   participant E as entry-server
   participant B as Browser
   W->>V: render("home", props)
@@ -321,7 +312,13 @@ Vite emits a separate chunk per dynamic `import()`. `assetTagsFromManifest` emit
 
 The registry's `isIslandName` check uses `hasOwnProperty` against the generated protocol table. An unknown name throws before hydration.
 
-Product islands live under `ui/islands/`; marker, loaders registry, props codec, and hydrate live under `src/archipielago/react/runtime/island/` ([ADR-0018](./adr/0018-island-runtime-folder.md); [TD-019](./known-tech-debt.md) closed). Nest product stays at `src/web/`; engines under `src/archipielago/` ([ADR-0029](./adr/0029-archipielago-in-repo-isolation.md); earlier folder ADRs 0018/0020/0023 retain history).
+Product islands live under `examples/nestjs/src/web/ui/islands/`; marker,
+loaders registry, props codec, and hydrate live under
+`packages/react/src/runtime/island/` ([ADR-0018](./adr/0018-island-runtime-folder.md);
+[TD-019](./known-tech-debt.md) closed). The Nest consumer is a workspace package
+under `examples/nestjs`; its controller uses `@archipielago/nestjs`, while page
+names and stylesheet policy remain example-owned
+([ADR-0032](./adr/0032-archipielago-pnpm-monorepo.md)).
 
 ### Styles
 
@@ -337,7 +334,7 @@ CSS ships in **three lanes**:
 
 **Shell** (`src/web/ui/styles/shell.scss`): handpicked Bootstrap Option B — config (including the utilities Sass map), `root`, `reboot`, `type`, `images`, `containers`, and `grid`, plus handpicked `_buttons.scss`. No Bootstrap forms in the shell. Own Vite client input. Compilation: Sass → PostCSS (media-query sort + doiuse warn) → Lightning CSS minify at **Baseline Widely Available**. Build **reports** raw + gzip vs `SHELL_CSS_BUDGET_BYTES` (default 50 KiB). **Production** inlines the shell as `<style data-css="shell">` when **raw** size ≤ that budget; otherwise keeps a `<link>`. **Development** always `<link href="/src/web/ui/styles/shell.scss">` plus `/@vite/client` for HMR. Fixture tests cover both shell modes.
 
-**Forms sibling:** [`src/web/ui/styles/forms.scss`](../src/web/ui/styles/forms.scss) (Vite input `forms`). Pages list `'forms'` in [`pageStylesheetsByPage`](../src/archipielago/host/asset-delivery/page-stylesheets.ts). Selective Bootstrap partials: `forms/labels`, `forms/form-control`, `forms/form-text`, `forms/validation`. Measured size ~11 KiB raw / ~2 KiB gzip. Revisit triggers: [TD-021](./known-tech-debt.md).
+**Forms sibling:** [`examples/nestjs/src/web/ui/styles/forms.scss`](../examples/nestjs/src/web/ui/styles/forms.scss) (Vite input `forms`). Pages list `'forms'` in the example-owned [`pageStylesheetsByPage`](../examples/nestjs/src/web/page-stylesheets.ts), which `WebModule` passes to the Nest adapter. Selective Bootstrap partials: `forms/labels`, `forms/form-control`, `forms/form-text`, `forms/validation`. Measured size ~11 KiB raw / ~2 KiB gzip. Revisit triggers: [TD-021](./known-tech-debt.md).
 
 **Island CSS:** Import `*.module.scss` beside the component; use `styles/_tokens.scss` for Sass API only. Do not re-import shell or Bootstrap CSS-emitting partials ([TD-016](./known-tech-debt.md)). After SSR pass 1, `createPageAssets` loads CSS text; `Island` emits a sibling `<style data-css-island="{name}">` above the marker. Hydrate loads JS only (mapDeps CSS filtered in prod; `updateStyle` rewritten in dev).
 
@@ -348,7 +345,7 @@ CSS ships in **three lanes**:
 <div data-island="mobile-navigation" data-props="…">…</div>
 ```
 
-**Icons:** Handpicked Bootstrap Icons SVGs in [`src/web/ui/shared-components/icon/`](../src/web/ui/shared-components/icon/) ([ADR-0016](./adr/0016-handpicked-bootstrap-icons.md)). Authoring: [how-to-web-ui.md](./how-to-web-ui.md#icons).
+**Icons:** Handpicked Bootstrap Icons SVGs in [`examples/nestjs/src/web/ui/shared-components/icon/`](../examples/nestjs/src/web/ui/shared-components/icon/) ([ADR-0016](./adr/0016-handpicked-bootstrap-icons.md)). Authoring: [how-to-web-ui.md](./how-to-web-ui.md#icons).
 
 Hydrating every island as soon as the entry loads (including below the fold) is still [TD-010](./known-tech-debt.md) for **JS**; CSS for used islands is already in the HTML.
 

@@ -18,9 +18,9 @@
   "overrides": [
     {
       "files": [
-        ".storybook/**/*.{ts,tsx}",
-        "src/web/ui/**/*.{ts,tsx}",
-        "src/archipielago/react/**/*.{ts,tsx}"
+        "examples/nestjs/.storybook/**/*.{ts,tsx}",
+        "examples/nestjs/src/web/ui/**/*.{ts,tsx}",
+        "packages/react/**/*.{ts,tsx}"
       ],
       "rules": {
         "import/extensions": [
@@ -38,7 +38,7 @@
       }
     },
     {
-      "files": ["src/archipielago/vite/**/*.{ts,tsx}"],
+      "files": ["packages/vite/**/*.{ts,tsx}"],
       "rules": {
         "import/extensions": [
           "error",
@@ -55,9 +55,9 @@
     "node": true
   },
   "ignorePatterns": [
-    "dist/**",
-    "coverage/**",
-    "node_modules/**",
-    "src/generated/**"
+    "**/dist/**",
+    "**/coverage/**",
+    "**/node_modules/**",
+    "examples/nestjs/src/generated/**"
   ]
 }

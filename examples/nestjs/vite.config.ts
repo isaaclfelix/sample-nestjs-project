@@ -1,0 +1,84 @@
+import react from '@vitejs/plugin-react';
+import doiuse from 'doiuse';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import sortMediaQueries from 'postcss-sort-media-queries';
+import { defineConfig } from 'vite';
+import { shellCssBudgetPlugin } from '@archipielago/vite/plugins/vite-shell-css-budget.js';
+import { stripIslandCssFromModulePreload } from '@archipielago/vite/plugins/vite-strip-island-css-preload.js';
+import { suppressIslandCssClientInject } from '@archipielago/vite/plugins/vite-suppress-island-css-inject.js';
+
+const repoRoot = dirname(fileURLToPath(import.meta.url));
+
+/**
+ * Client and server builds for the React page layer.
+ *
+ * `vite build` emits the browser hydrate entry and its lazy island chunks.
+ * `vite build --ssr` emits the Node render bundle. `nest build` still owns
+ * the API. Island chunks stay dynamic imports so a page does not download
+ * components it did not render.
+ *
+ * CSS: Sass → PostCSS (media-query sort + doiuse warn) → Lightning CSS minify
+ * at Baseline Widely Available. The shell sheet is its own client input.
+ *
+ * Path aliases (@ui / @protocol / @api) match tsconfig.web.json.
+ */
+export default defineConfig(({ isSsrBuild }) => ({
+  plugins: [
+    react(),
+    // Dev: island CSS stays on SSR sibling <style>; do not also inject head tags.
+    suppressIslandCssClientInject(),
+    ...(isSsrBuild
+      ? []
+      : [shellCssBudgetPlugin(), stripIslandCssFromModulePreload()]),
+  ],
+  resolve: {
+    // Prefer explicit aliases; tsconfigPaths alone may miss tsconfig.web.json.
+    alias: {
+      '@ui': resolve(repoRoot, 'src/web/ui'),
+      '@protocol': resolve(repoRoot, 'src/web/protocol'),
+      '@api': resolve(repoRoot, 'src/api'),
+    },
+  },
+  build: {
+    // Lean modern evergreen targets; older browsers are TD-013 / TD-015.
+    target: 'baseline-widely-available',
+    cssMinify: 'lightningcss',
+    ...(isSsrBuild
+      ? {
+          outDir: 'dist/web-server',
+          emptyOutDir: false,
+          ssr: true,
+          rollupOptions: {
+            input: 'src/web/ui/runtime/ssr/entry-server.tsx',
+          },
+        }
+      : {
+          outDir: 'dist/client',
+          emptyOutDir: false,
+          manifest: true,
+          rollupOptions: {
+            input: {
+              hydrate: 'src/web/ui/runtime/island/hydrate-entry.tsx',
+              shell: 'src/web/ui/styles/shell.scss',
+              // Opt-in sibling; only pages that declare it get a head link.
+              forms: 'src/web/ui/styles/forms.scss',
+            },
+          },
+        }),
+  },
+  css: {
+    postcss: {
+      plugins: [
+        sortMediaQueries({ sort: 'mobile-first' }),
+        doiuse({
+          browsers: ['baseline widely available'],
+          onFeatureUsage(usageInfo: { message: string }): void {
+            // Warn-only: never fail the build for caniuse findings.
+            console.warn(`[doiuse] ${usageInfo.message}`);
+          },
+        }),
+      ],
+    },
+  },
+}));

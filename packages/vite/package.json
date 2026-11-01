@@ -1,0 +1,28 @@
+{
+  "name": "@archipielago/vite",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./*.js": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@archipielago/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "vite": "^8.0.0"
+  }
+}

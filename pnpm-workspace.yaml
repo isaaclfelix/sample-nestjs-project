@@ -1,3 +1,7 @@
+packages:
+  - 'packages/*'
+  - 'examples/*'
+
 # pnpm 12+ requires an explicit allow/deny for dependency lifecycle scripts
 # (strictDepBuilds). @scarf/scarf is transitive telemetry from OpenAPI tooling;
 # deny it so installs succeed without running its postinstall.

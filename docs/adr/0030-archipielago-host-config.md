@@ -23,10 +23,12 @@ a Phase 3 problem ([docs/archipielago/roadmap.md](../archipielago/roadmap.md)).
 
 ## Decision
 
-- **Host config file:** repo-root `archipielago.config.ts` exports
-  `ArchipielagoUserConfig` with **`islands.registration` only**. Sync and
-  scaffold load it via `loadAndApplyArchipielagoConfig`. In-process tests may
-  call `applyArchipielagoUserConfig` / `resetArchipielagoConfig`.
+- **Host config file:** the Nest example’s
+  [`examples/nestjs/archipielago.config.ts`](../../examples/nestjs/archipielago.config.ts)
+  (host package root) exports `ArchipielagoUserConfig` with
+  **`islands.registration` only**. Sync and scaffold load it via
+  `loadAndApplyArchipielagoConfig` with that package as `rootDir`. In-process
+  tests may call `applyArchipielagoUserConfig` / `resetArchipielagoConfig`.
 - **Registration modes** control how the host **maintains** the islands
   manifest that `registerIslands` injects. Engines always consume that
   manifest; they do not branch on this setting:
@@ -62,6 +64,11 @@ loaders from 0028 remain. Supersedes the earlier draft of this ADR that exposed
 - Follow-up (out of scope): host-facing path overrides for non-`src/web` mounts
   (Phase 3), optional `manual`↔folder `--check`, inject-import codegen,
   alternate island layouts.
+- Phase 2 ([ADR-0032](./0032-archipielago-pnpm-monorepo.md)) moves this host
+  config with the Nest example under `examples/nestjs` and injects path roots
+  into `@archipielago/*` package APIs. Host-facing `paths` on
+  `ArchipielagoUserConfig` remains deferred until second-host friction unless
+  injection alone is insufficient for the Nest example move.
 
 ## Alternatives considered
 

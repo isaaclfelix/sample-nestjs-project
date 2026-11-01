@@ -4,28 +4,28 @@ Canonical decision tree for HTML UI in this Nest + islands app. Follow it when s
 
 ## Where things live
 
-| Path                                                  | Put here                                                                                                                                                                               |
-| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Nest root (`web.module.ts`, controller, view service) | Nest wiring only under `src/web/`                                                                                                                                                      |
-| `src/archipielago/host/`                              | Nest-executed SSR host (`page-loader`, `asset-delivery`, `asset-pipeline`)                                                                                                             |
-| `src/archipielago/core/`                              | `RenderResult`, `PageAssets`, paths, island helpers                                                                                                                                    |
-| `src/archipielago/react/runtime/`                     | Island marker/hydrate + `renderDocument`                                                                                                                                               |
-| `src/archipielago/vite/`                              | Vite build plugins                                                                                                                                                                     |
-| `src/web/protocol/page-props/`                        | `*-page.ssr-props.ts` + `SsrPagePropsMap` (not next to UI pages)                                                                                                                       |
-| `ui/pages/<name>-page/`                               | One folder per page: kebab `.tsx`, thin `index.ts`, optional spec / `*.stories.tsx` ([ADR-0025](./adr/0025-per-component-folders.md), [ADR-0026](./adr/0026-storybook-ui-workshop.md)) |
-| `ui/server-components/<name>/`                        | One folder per server component (incl. `document/`) + thin `index.ts` (stories except `document/`)                                                                                     |
-| `ui/shared-components/<name>/`                        | One folder per shared component (e.g. `icon/`) + thin `index.ts` + stories                                                                                                             |
-| `ui/islands/<name>/`                                  | One folder per island: `.tsx`, optional `.module.scss` / spec / `*.stories.tsx`, thin `index.ts`                                                                                       |
-| `ui/runtime/ssr/`                                     | Thin `entry-server` (page map + Document → Archipielago)                                                                                                                               |
-| `ui/styles/`                                          | `shell.scss`, opt-in siblings (`forms.scss`), `_*.scss` partials                                                                                                                       |
-| `ui/api-fetch/`                                       | Browser CSRF + `fetch` defaults for `/api`                                                                                                                                             |
-| `ui/hooks/`                                           | Island React hooks (e.g. `use-api-mutation`)                                                                                                                                           |
+| Path                                           | Put here                                                                                                                                                                               |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `examples/nestjs/src/web/`                     | Example-owned controller, module, page props, stylesheet policy, and product UI                                                                                                        |
+| `packages/nestjs/src/`                         | Reusable Nest renderer, dynamic module, and asset mount helper                                                                                                                         |
+| `packages/vite/src/`                           | Nest-executed SSR host (`page-loader`, `asset-delivery`, `asset-pipeline`) and Vite build plugins                                                                                      |
+| `packages/core/src/`                           | `RenderResult`, `PageAssets`, paths, island helpers                                                                                                                                    |
+| `packages/react/src/runtime/`                  | Island marker/hydrate + `renderDocument`                                                                                                                                               |
+| `examples/nestjs/src/web/protocol/page-props/` | `*-page.ssr-props.ts` + `SsrPagePropsMap` (not next to UI pages)                                                                                                                       |
+| `ui/pages/<name>-page/`                        | One folder per page: kebab `.tsx`, thin `index.ts`, optional spec / `*.stories.tsx` ([ADR-0025](./adr/0025-per-component-folders.md), [ADR-0026](./adr/0026-storybook-ui-workshop.md)) |
+| `ui/server-components/<name>/`                 | One folder per server component (incl. `document/`) + thin `index.ts` (stories except `document/`)                                                                                     |
+| `ui/shared-components/<name>/`                 | One folder per shared component (e.g. `icon/`) + thin `index.ts` + stories                                                                                                             |
+| `ui/islands/<name>/`                           | One folder per island: `.tsx`, optional `.module.scss` / spec / `*.stories.tsx`, thin `index.ts`                                                                                       |
+| `ui/runtime/ssr/`                              | Thin `entry-server` (page map + Document → Archipielago)                                                                                                                               |
+| `ui/styles/`                                   | `shell.scss`, opt-in siblings (`forms.scss`), `_*.scss` partials                                                                                                                       |
+| `ui/api-fetch/`                                | Browser CSRF + `fetch` defaults for `/api`                                                                                                                                             |
+| `ui/hooks/`                                    | Island React hooks (e.g. `use-api-mutation`)                                                                                                                                           |
 
-Do **not** put product UI under `archipielago/`; do **not** put Nest-executed engines under `ui/` except the thin entry-server.
+Do **not** put product UI under `packages/`; do **not** put Nest-executed engines under `ui/` except the thin entry-server.
 
-**Relative imports in `ui/` and `archipielago/react/` are extensionless** (no `.js` suffix), except `archipielago/vite/**` which use `.js` because they load in Vite’s Node config graph. Nest zones (`api/`, `archipielago/core|host`, `web/protocol`, Nest web root) keep `.js` emit specifiers. See [ADR-0024](./adr/0024-dual-import-resolution.md).
+**Relative imports in `ui/` and `packages/react/` are extensionless** (no `.js` suffix). Nest zones (`api/`, `web/protocol`, Nest web root) and Node packages (`packages/core/`, `packages/vite/`) keep `.js` emit specifiers. See [ADR-0024](./adr/0024-dual-import-resolution.md).
 
-**Path aliases when leaving a component folder** ([ADR-0027](./adr/0027-ui-path-aliases.md)): use `@ui/…`, `@protocol/…`, `@archipielago/…`, or `@api/…` instead of climbing with `../`. Keep `./` for same-folder siblings / thin barrels. Example: `import LoginForm from '@ui/islands/login-form'` and `import { Island } from '@archipielago/react/runtime/island/island'`.
+**Path aliases when leaving a component folder** ([ADR-0027](./adr/0027-ui-path-aliases.md)): use `@ui/…`, `@protocol/…`, or `@api/…` instead of climbing with `../`. Keep `./` for same-folder siblings / thin barrels. Engines use **package** imports (`@archipielago/…`), not a UI path alias. Example: `import LoginForm from '@ui/islands/login-form'` and `import { Island } from '@archipielago/react/runtime/island/island'`.
 
 ## SSR page props quirk
 
@@ -107,7 +107,7 @@ Scaffold: `pnpm scaffold:web-ui --name my-widget --mode island --with-styles` (o
 
 Icons are **handpicked Bootstrap Icons** SVGs, same download-only-what-you-need rule as the shell Sass stack. There is no `bootstrap-icons` font/CSS package and no icon CDN.
 
-Canonical helper: [`src/web/ui/shared-components/icon/`](../src/web/ui/shared-components/icon/).
+Canonical helper: [`examples/nestjs/src/web/ui/shared-components/icon/`](../examples/nestjs/src/web/ui/shared-components/icon/).
 
 1. Find the icon on [Bootstrap Icons](https://icons.getbootstrap.com/).
 2. Copy its inline SVG into a small function in `icon.tsx` and register it on the `icons` map (use the Bootstrap name, e.g. `list`, `x-lg`).

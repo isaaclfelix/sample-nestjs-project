@@ -1,6 +1,8 @@
 # ADR-0029: In-repo Archipielago isolation (folder boundary, no packages yet)
 
-- **Status:** Accepted
+- **Status:** Superseded in part by [ADR-0032](./0032-archipielago-pnpm-monorepo.md)
+  (workspace packages + Nest example relocation). Render-contract and Nest-thin
+  surface decisions below remain in force until a later ADR amends them.
 - **Date:** 2026-10-30
 
 ## Context
