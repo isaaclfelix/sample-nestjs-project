@@ -12,7 +12,7 @@ Keep short **line comments** above non-obvious steps in application code (servic
 
 ## 2. JSDoc on every function
 
-Every function and method in application source (`src/**`, not `it()` / `describe()` in tests) **must** have a JSDoc block. When creating or updating code, add JSDoc if it is missing and keep it accurate if the signature or behavior changed.
+Every function and method in application source (`packages/**`, `examples/**/src/**`, not `it()` / `describe()` in tests) **must** have a JSDoc block. When creating or updating code, add JSDoc if it is missing and keep it accurate if the signature or behavior changed.
 
 Required shape:
 
@@ -57,11 +57,11 @@ After adding or updating code, **run the project checks and fix failures** befor
 
 Commands (from the repo root, via `pnpm`):
 
-| Check        | Script        | What it does                                                   |
-| ------------ | ------------- | -------------------------------------------------------------- |
-| Lint + types | `pnpm lint`   | `oxlint --type-aware --deny-warnings src/ test/`               |
-| Compile      | `pnpm build`  | Nest/`tsc` emit; catches type errors oxlint might miss         |
-| Format       | `pnpm format` | Prettier write on `src/**/*.{ts,tsx}` and `test/**/*.{ts,tsx}` |
+| Check        | Script        | What it does                                                              |
+| ------------ | ------------- | ------------------------------------------------------------------------- |
+| Lint + types | `pnpm lint`   | `oxlint --type-aware --deny-warnings packages/ examples/`                 |
+| Compile      | `pnpm build`  | Package builds + Nest example emit; catches type errors oxlint might miss |
+| Format       | `pnpm format` | Prettier write on `packages/**` and `examples/**`                         |
 
 - Always run **`pnpm lint`** after substantive edits. It must exit 0 with **no warnings**.
 - Run **`pnpm build`** when signatures, modules, or `tsconfig` are involved.
