@@ -92,23 +92,23 @@ Follow these conventions when adding or refactoring application code so reviews 
 - Prefer **`import type`** for type-only imports (`CreateUserRecord`, DTO shapes, interfaces used only as types). Keep value imports for runtime symbols (`USER_REPOSITORY`, classes, functions).
 - Do **not** put free helper functions in the same module as a Nest/service/repository **class**. Extract helpers to sibling modules (for example `prisma-unique-conflict.ts` next to `prisma-user.repository.ts`).
 - Feature **`*.mapper.ts`** owns all mappings for that feature (persistence → domain and domain → API DTO). Do not add a parallel persistence-only mapper unless a later decision says otherwise.
-- CLI scripts and seeds that need app crypto **import** shared modules (for example `src/api/common/password.ts`); do not duplicate hashing or verification.
+- CLI scripts and seeds that need app crypto **import** shared modules (for example `examples/nestjs/src/api/common/password.ts`); do not duplicate hashing or verification.
 - Nest wrappers around vendor clients use **composition** (own a `client` / dependency field), not `extends`, unless there is a documented exception. `PrismaService` owns `PrismaClient`.
 - **One interface/type per file is not required.** Port-related types may live next to the port that uses them (for example `CreateUserRecord` beside `UserRepository`).
-- **Relative import extensions** follow the zone ([ADR-0024](docs/adr/0024-dual-import-resolution.md)): Nest-emitted code (`src/api/`, `src/web/protocol/`, Nest web root) and Node packages (`packages/core/`, `packages/vite/`) keep **`.js`** emit specifiers; Vite `src/web/ui/**` and `packages/react/**` use **extensionless** relatives. Do not “normalize” product UI imports to Nest style or strip `.js` from Node graphs.
-- **UI path aliases** ([ADR-0027](docs/adr/0027-ui-path-aliases.md)): from a product component folder, imports that leave that folder use `@ui/*`, `@protocol/*`, `@archipielago/*`, or `@api/*` (not `../` climbs). Same-folder stays `./`. Nest emit trees do not use these aliases.
+- **Relative import extensions** follow the zone ([ADR-0024](docs/adr/0024-dual-import-resolution.md)): Nest-emitted code (`examples/nestjs/src/api/`, `examples/nestjs/src/web/protocol/`, Nest web root) and Node packages (`packages/core/`, `packages/vite/`, `packages/nestjs/`) keep **`.js`** emit specifiers; Vite `examples/nestjs/src/web/ui/**` and `packages/react/**` use **extensionless** relatives. Do not “normalize” product UI imports to Nest style or strip `.js` from Node graphs. Import engines via `@archipielago/{core,react,vite,nestjs}` package exports ([ADR-0032](docs/adr/0032-archipielago-pnpm-monorepo.md)).
+- **UI path aliases** ([ADR-0027](docs/adr/0027-ui-path-aliases.md)): from a product component folder, imports that leave that folder use `@ui/*`, `@protocol/*`, or `@api/*` (not `../` climbs). Prefer `@archipielago/*` **package** imports for engines. Same-folder stays `./`. Nest emit trees do not use UI aliases.
 
 ## 8. Web UI (SSR pages and islands)
 
-When adding or changing browser-facing pages under `src/web/`:
+When adding or changing browser-facing pages under `examples/nestjs/src/web/`:
 
-- Follow [docs/how-to-web-ui.md](docs/how-to-web-ui.md) for the SSR vs island vs CSS-module decision tree and anti-patterns.
-- Prefer `pnpm scaffold:web-ui` or the `create-web-ui` agent skill over hand-wiring registry, loaders, and entry-server maps. Layout: Nest `host/`, Vite `ui/`, wire `protocol/` ([ADR-0023](docs/adr/0023-web-host-ui-protocol.md)).
+- Follow [docs/how-to-web-ui.md](docs/how-to-web-ui.md) for the SSR vs island vs CSS-module decision tree and anti-patterns. Host-agnostic install/wiring: [docs/archipielago/guide/](docs/archipielago/guide/concepts.md).
+- Prefer `pnpm scaffold:web-ui` or the `create-web-ui` agent skill over hand-wiring registry, loaders, and entry-server maps. Layout: Nest thin `web.*` + `@archipielago/nestjs`, Vite `ui/`, wire `protocol/` ([ADR-0023](docs/adr/0023-web-host-ui-protocol.md), [ADR-0032](docs/adr/0032-archipielago-pnpm-monorepo.md)).
 - Product UI uses **one folder per component** with a kebab implementation file and thin `index.ts` re-export ([ADR-0025](docs/adr/0025-per-component-folders.md)); no fat barrels or component-as-only-`index.tsx`. Island registry imports the concrete `.tsx` path helpers share with the manifest key.
 - Colocate `*.stories.tsx` for the Storybook workshop (`pnpm storybook`); Vitest remains QA ([ADR-0026](docs/adr/0026-storybook-ui-workshop.md)). Do not treat Storybook as Chromatic/visual-regression unless a later decision says so.
-- Page SSR embed props go under `src/web/protocol/page-props/*-page.ssr-props.ts` (`*PageSsrProps`) — never beside `ui/pages/` (see how-to SSR page props quirk).
-- Shell CSS lives in `src/web/ui/styles/shell.scss`; island styles use colocated `*.module.scss` and are inlined as sibling `<style>` tags at SSR — do not invent a parallel delivery path.
-- Icons: handpick Bootstrap Icons SVGs into `src/web/ui/shared-components/icon/` and render `<Icon name="…" />` from server-components or islands — do not ship the icon webfont or paste one-off SVGs (see [docs/how-to-web-ui.md](docs/how-to-web-ui.md#icons)).
+- Page SSR embed props go under `examples/nestjs/src/web/protocol/page-props/*-page.ssr-props.ts` (`*PageSsrProps`) — never beside `ui/pages/` (see how-to SSR page props quirk).
+- Shell CSS lives in `examples/nestjs/src/web/ui/styles/shell.scss`; island styles use colocated `*.module.scss` and are inlined as sibling `<style>` tags at SSR — do not invent a parallel delivery path.
+- Icons: handpick Bootstrap Icons SVGs into `examples/nestjs/src/web/ui/shared-components/icon/` and render `<Icon name="…" />` from server-components or islands — do not ship the icon webfont or paste one-off SVGs (see [docs/how-to-web-ui.md](docs/how-to-web-ui.md#icons)).
 
 ## 9. Unit tests stay unit tests
 
